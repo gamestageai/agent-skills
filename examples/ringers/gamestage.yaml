@@ -1,0 +1,71 @@
+manifest:
+  schema_version: '1.0'
+  revision: 0
+  conformance: L0
+app:
+  # Change this. `gamestage create` generates an id, and ids are not
+  # workspace-scoped yet, so deploying this one verbatim collides.
+  id: ringers-example
+  title: Ringers
+  owners: {}
+  status: confirmed
+  provenance:
+    - kind: human_decision
+      owner: creator
+      date: '2026-08-16'
+      note: Created with gamestage create
+experience:
+  surfaces:
+    - web-embed
+  container_label: Round
+  status: proposed
+  provenance: []
+studio_app:
+  status: missing
+  provenance: []
+studio_surface:
+  status: missing
+  provenance: []
+backend:
+  route: managed_runtime
+  archetype: hunt
+  configuration: {}
+interaction_cloud:
+  events: []
+  elements: []
+  status: missing
+  provenance: []
+identity:
+  provider: identify
+  require_authenticated_writes: true
+  age_gate:
+    required: false
+    method: self_declared
+  consent:
+    analytics_requires_consent: true
+  status: proposed
+  provenance: []
+measurement:
+  destinations:
+    - type: monterosa
+      enabled: true
+      config: {}
+  trusted_events: []
+  signal:
+    enabled: false
+    monterosa:
+      enabled: false
+  status: missing
+  provenance: []
+deployment:
+  environments:
+    - local
+  status: missing
+  provenance: []
+operations:
+  promotion:
+    offers_prize: false
+    skill_based: false
+    jurisdictions: []
+  status: missing
+  provenance: []

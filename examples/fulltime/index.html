@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Full Time Bingo</title>
+<style>
+  /**
+   * The site's palette, so a creator's first game looks like the product they
+   * just chose. Same values as the other three scaffolds; see hunt.html for
+   * why they are hex rather than the site's oklch.
+   */
+  :root {
+    --bg: #FCFBFB; --surface: #F4F2F2; --line: #D3CFCE;
+    --text: #232020; --muted: #6B6462; --red: #E2483A; --green: #2E7D51;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 17px/1.5 ui-sans-serif, system-ui, sans-serif;
+    display: grid; place-items: start center; padding: 40px 20px 80px;
+  }
+  main { width: min(100%, 560px); display: flex; flex-direction: column; gap: 26px; }
+  h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; }
+  .prompt { margin: 0; color: var(--muted); }
+  .strapline { margin: 6px 0 0; color: var(--muted); }
+  .strapline[hidden] { display: none; }
+  .board {
+    display: grid; gap: 8px;
+  }
+  .cell {
+    aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 6px; border-radius: 10px;
+    border: 1.5px solid var(--line); background: var(--surface);
+    font-size: 13px; font-weight: 600; text-transform: capitalize;
+    overflow: hidden;
+  }
+  .cell.centre { border-style: dashed; color: var(--muted); }
+  .cell.centre.chosen { border-style: solid; color: var(--text); }
+  .centre-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+  /* Only a card a producer has explained is tappable, so the cursor appears
+     exactly where a tap does something. */
+  .cell[role="button"] { cursor: pointer; }
+  .cell[role="button"]:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+  /* The back of a card: a sentence rather than a label, so it is lighter,
+     smaller and left-aligned, and it scrolls rather than bursting the grid. */
+  /* A card that came in. Red is "a tally running now", which is what this is. */
+  .cell[data-mark="correct"] {
+    background: var(--red); border-color: var(--red); color: #fff; font-weight: 700;
+  }
+  /* One that did not. Faded rather than struck through: it is still a card on
+     their board and it still says what it says, it just cannot help now. */
+  .cell[data-mark="incorrect"] { opacity: .4; }
+  /* A free centre is not a card that came in and must not look like one: it
+     was red before kick-off and nothing in the match earned it. Tint and
+     outline rather than fill, so it reads as "yours already" and stops
+     competing with the cards a fan is watching. Tom, 2026-08-28. */
+  .cell.centre[data-mark="correct"] {
+    background: color-mix(in srgb, var(--red) 12%, var(--surface));
+    border-color: var(--red); color: var(--red);
+  }
+  /* The card a fan is waiting on. A steady outline rather than a pulse: a
+     nine-cell grid with something throbbing in it is a page a fan closes. */
+  .cell[data-awaited] {
+    border-color: var(--red); border-width: 2.5px;
+  }
+  /* A line that has landed, lifted clear of the cards that merely came in. */
+  .cell[data-in-line] { box-shadow: inset 0 0 0 2px #fff; }
+  /* A card turning over. GS-419. A half turn each way: to edge-on, where the
+     words are swapped, and back. `TURN_MS` below is this duration and the
+     swap happens at its midpoint, so the two have to stay in step.
+     `perspective` is on the transform rather than the parent, because a
+     perspective on the grid would give nine cells one vanishing point and the
+     corner cards would look bent. */
+  @keyframes turn {
+    0% { transform: perspective(600px) rotateY(0deg); }
+    50% { transform: perspective(600px) rotateY(90deg); }
+    100% { transform: perspective(600px) rotateY(0deg); }
+  }
+  .cell[data-turning] { animation: turn 320ms ease-in-out; z-index: 1; }
+  /* The line above a board a fan is watching. GS-419. Quiet by default: a fan
+     spends most of a match with nothing on their board, and a status line
+     that shouted for ninety minutes would stop being read. It earns colour
+     only at the two moments that deserve it. */
+  .watch {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    margin: 0 0 12px; padding: 10px 14px;
+    border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface);
+    font-size: 14px; color: var(--muted);
+  }
+  .watch[hidden] { display: none; }
+  .watch strong { font-size: 15px; color: var(--text); }
+  .watch[data-close], .watch[data-landed] { border-color: #d81f2a; }
+  .watch[data-close] strong, .watch[data-landed] strong { color: #d81f2a; }
+  /* A round past its own lock, said before a fan presses anything. GS-461. */
+  .locked {
+    margin: 0 0 12px; padding: 10px 14px;
+    border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface);
+    font-size: 14px; color: var(--text);
+  }
+  .locked[hidden] { display: none; }
+  /* The confetti a landed line earns. GS-419. Tom named the condition
+     himself: when you get one right. On the line rather than the card,
+     because a card comes in four or five times a match and a line is the
+     moment the game pays out. */
+  .confetti { position: fixed; inset: 0; z-index: 60; overflow: hidden; pointer-events: none; }
+  .confetti span {
+    position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px;
+    background: #d81f2a; animation: fall 1.6s cubic-bezier(.3,.7,.6,1) forwards;
+  }
+  .confetti span:nth-child(3n) { background: var(--text); }
+  @keyframes fall {
+    0% { opacity: 1; translate: 0 0; rotate: 0deg; }
+    100% { opacity: 0; translate: 0 100vh; rotate: 540deg; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cell[data-turning] { animation: none; }
+  }
+  .cell[data-flipped] {
+    align-items: flex-start; justify-content: flex-start; text-align: left;
+    font-size: 11px; font-weight: 400; line-height: 1.3;
+    color: var(--muted); overflow-y: auto;
+  }
+  /* Which board of how many, and a step either way. A sentence rather than a
+     row of dots: a fan cannot count dots at a glance and a screen reader
+     reads them as nothing. */
+  .carousel { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .carousel[hidden] { display: none; }
+  button.step {
+    width: 40px; height: 40px; flex: none;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--surface); color: var(--text);
+    font: 400 22px/1 inherit; padding-bottom: 3px; cursor: pointer;
+  }
+  button.step:disabled { opacity: .35; cursor: not-allowed; }
+  .which {
+    min-width: 8ch; text-align: center; color: var(--muted);
+    font-size: 14px; font-variant-numeric: tabular-nums;
+  }
+  button.option {
+    padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--surface); color: var(--text); font: inherit; font-size: 14px;
+    cursor: pointer; text-transform: capitalize;
+  }
+  button.option[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: #fff; }
+  .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  button.primary, button.secondary {
+    padding: 14px 22px; border-radius: 999px; font: inherit; font-weight: 650; cursor: pointer;
+  }
+  button.primary { border: 0; background: var(--gamestage-primary, var(--red)); color: #fff; }
+  button.secondary { border: 1.5px solid var(--line); background: var(--surface); color: var(--text); }
+  button.primary:disabled, button.secondary:disabled { opacity: .4; cursor: not-allowed; }
+  .state { display: flex; gap: 22px; color: var(--muted); font-size: 15px; }
+  .state b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .verdict { margin: 0; min-height: 1.5em; }
+  .notice {
+    margin: 0; padding: 12px 14px; border: 1.5px solid var(--red);
+    border-radius: 12px; color: var(--text); background: var(--surface);
+  }
+  .notice[hidden] { display: none; }
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1 id="game-name">Bingo</h1>
+    <p class="strapline" id="strapline" hidden></p>
+    <p class="strapline" id="edition-name" hidden></p>
+    <p class="strapline" id="edition-strapline" hidden></p>
+    <p class="strapline" id="how-to-play" hidden></p>
+    <p class="prompt" id="prompt">Loading the round…</p>
+  </div>
+
+  <!--
+    What the fan is told when the game is not connected: offline, reconnecting,
+    or deployed and reaching nothing. Empty and hidden until there is something
+    to say, so a working game never shows it.
+  -->
+  <p class="notice" id="connection" role="status" aria-live="polite" hidden></p>
+
+  <!-- What is happening while a fan waits. GS-419. The waiting state is the
+       game: a fan locks a board and then watches it for ninety minutes, and
+       until this line existed the only thing that ever happened was a cell
+       quietly changing colour. Three facts, all off the Engine's own marks
+       and lines, so nothing here can say something the scoring does not.
+       `role="status"` so a fan not looking at the screen is told. -->
+  <p class="watch" id="watch" role="status" hidden></p>
+  <div class="board" id="board"></div>
+
+  <!-- Shown only while the centre is a choice and none has been made yet. -->
+  <div class="centre-picker" id="centre-picker" hidden></div>
+
+  <!-- Which board of how many, and a step either way. A row of dots was the
+       alternative and a fan cannot count dots at a glance, nor can a screen
+       reader read them. "Board 2 of 4" works in both directions. -->
+  <div class="carousel" id="carousel" hidden>
+    <button class="step" id="previous-board" aria-label="The board before this one">&lsaquo;</button>
+    <span class="which" id="which-board"></span>
+    <button class="step" id="next-board" aria-label="The next board">&rsaquo;</button>
+  </div>
+
+  <!-- The round's own lock has passed. Shown before a fan presses anything,
+       beside the control it disables, and it is also what a refused deal
+       says. A default rather than a producer's field: no App Spec setting
+       carries this sentence yet, so `applyPresentation` leaves it alone. -->
+  <p class="locked" id="locked" role="status" hidden>This round has locked.</p>
+
+  <div class="actions">
+    <button class="secondary" id="shuffle" hidden>Deal my boards</button>
+    <button class="primary" id="lock" disabled hidden>Back this board</button>
+    <span class="state">
+      <span>Score <b id="score">0</b></span>
+    </span>
+  </div>
+
+  <p class="verdict" id="verdict"></p>
+
+  <footer>
+    Nothing to mark off: cards tick themselves as they come in. Your board is
+    locked once you back it, and it keeps filling until full time.
+  </footer>
+</main>
+
+<script>
+// A module that fails to load fails silently: the page sits on "Loading the
+// round…" for ever and a creator who has not run `gamestage client` sees a hang
+// with nothing in the interface to explain it. Capture phase, because a
+// resource error does not bubble.
+window.addEventListener(
+  "error",
+  (event) => {
+    if (!(event.target instanceof HTMLScriptElement)) return;
+    const prompt = document.getElementById("prompt");
+    if (prompt) {
+      prompt.textContent =
+        "This game could not load its Gamestage client. Run `gamestage client` next to it.";
+    }
+  },
+  true,
+);
+</script>
+<script type="module">
+import { applyPresentation, start } from "https://gamestage.ai/client/0.48.0/gamestage.js";
+
+const el = (id) => document.getElementById(id);
+let chosenCentre;
+let finished = false;
+/**
+ * The Engine's verdict, or `pending` while the world is still deciding.
+ *
+ * Held because the watch line belongs to the pending state and to no other:
+ * once the outcome settles the verdict says what happened, and a line above
+ * the board still reading "Your board is live" would be the page
+ * contradicting itself at the moment a fan reads it most carefully.
+ */
+let outcome;
+/** How long a card takes to turn over. Matches the `turn` keyframes above. */
+const TURN_MS = 320;
+/** How long the confetti stays up, and how many pieces fall. */
+const CELEBRATION_MS = 1600;
+const CONFETTI_PIECES = 24;
+/** How often a locked board asks whether the match has decided anything. */
+const PENDING_POLL_MS = 5000;
+/**
+ * How many lines had landed last time the board was drawn. GS-419.
+ *
+ * **A transition, never a state.** The page re-reads state while the outcome
+ * is pending, so celebrating "a line is complete" would celebrate on every
+ * read, and a fan reloading a finished board would arrive into confetti for
+ * something that happened an hour ago. `undefined` means nothing has been
+ * seen yet, so the first read only records.
+ */
+let seenLines;
+let game;
+let currentState;
+/**
+ * Which board of the carousel is on screen.
+ *
+ * Local, because swiping is looking rather than playing: it costs nothing and
+ * asks the Engine nothing. Only the lock names a board, and it names this one.
+ */
+let at = 0;
+
+/**
+ * The one thing this page says about the connection. See hunt.html: same
+ * reasoning, same shape, repeated per scaffold rather than shared, since a
+ * creator restyling one must not have to find the other three.
+ */
+function connectionNotice(text) {
+  const notice = el("connection");
+  notice.textContent = text ?? "";
+  notice.hidden = !text;
+}
+
+const developing =
+  location.protocol === "file:" ||
+  ["localhost", "127.0.0.1", "[::1]", "::1", ""].includes(location.hostname);
+
+const presentationTargets = {
+  displayName: el("game-name"),
+  strapline: el("strapline"),
+  howToPlay: el("how-to-play"),
+  playButtonLabel: el("lock"),
+  editionName: el("edition-name"),
+  editionStrapline: el("edition-strapline"),
+  root: document.documentElement,
+};
+
+/**
+ * The grid position of every cell, outer and centre alike.
+ *
+ * Mirrors `linesFor`'s own `at(row, column)` in `rules-bingo.ts` exactly: the
+ * centre sits at `floor(rows/2), floor(columns/2)` when the round has one,
+ * and the outer cells are row-major with that position skipped. A page that
+ * laid cards out differently from the Engine would show a fan a board that
+ * is not the one their line is actually being scored against.
+ */
+function layout(challenge, board) {
+  const { rows, columns, centre_mode } = challenge;
+  const hasCentre = centre_mode !== "none";
+  const centreRow = hasCentre ? Math.floor(rows / 2) : -1;
+  const centreColumn = hasCentre ? Math.floor(columns / 2) : -1;
+
+  const cells = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < columns; c++) {
+      if (hasCentre && r === centreRow && c === centreColumn) {
+        cells.push({ centre: true, key: board?.centre });
+        continue;
+      }
+      const flat = r * columns + c;
+      const shift = hasCentre && flat > centreRow * columns + centreColumn ? 1 : 0;
+      /**
+       * `board.board`, not `board.cells`.
+       *
+       * The Engine keeps a dealt hand in `progress.board`, and this read
+       * `progress.cells`, which is nothing. So a dealt board drew nine empty
+       * squares: the deal succeeded, the lock appeared, and the cards were
+       * invisible. Found on the deployed game rather than by a test, because
+       * every unit case here asserts on the state the Engine returns and no
+       * case had yet read this page's own grid.
+       */
+      cells.push({ centre: false, key: board?.board?.[flat - shift] });
+    }
+  }
+  return cells;
+}
+
+function renderState(state) {
+  if (!state) return;
+  /**
+   * No attempts counter, because a carousel has nothing to count. GS-311.
+   *
+   * It said "Reshuffles 0" and then, once the carousel spent the allowance in
+   * one deal, "Reshuffles 3" on a board a fan had only just been given: a
+   * true number telling them they were out of goes before they had taken
+   * one. The count a fan needs here is which board of how many, and the
+   * carousel says that in words under the grid.
+   *
+   * Removed from the markup too, so this is not a write to a missing element.
+   */
+  el("score").textContent = state.score;
+  finished = Boolean(state.finished);
+  outcome = state.outcome;
+
+  if (finished) {
+    el("shuffle").hidden = true;
+    el("lock").hidden = true;
+    el("centre-picker").hidden = true;
+    // The carousel too, and it was missed: a locked board that can still be
+    // swiped tells a fan the choice is open when it is not. Found by playing
+    // the game rather than by a test, because both halves looked right on
+    // their own and only the order of two calls put them together wrongly.
+    el("carousel").hidden = true;
+    /**
+     * The pending case moved to the watch line above the board. GS-419.
+     *
+     * "Locked in. Waiting for the pool's own result." was true and it was the
+     * whole of the ninety minutes a fan spends here: one sentence that never
+     * changed while their board filled up behind it. The watch line says how
+     * many of their cards have been called and whether they are one away,
+     * which is the same moment described by something that moves.
+     */
+    el("verdict").textContent =
+      state.outcome === "pending" ? "" :
+      state.outcome === "won" ? "A line came in. That is the server's word for it, not this page's." :
+      "No line came in. The Engine decided that, not the browser.";
+  }
+}
+
+function renderBoard() {
+  const challenge = game.round.challenge;
+  /**
+   * The producer's line, or a default that says what to do. GS-311.
+   *
+   * "Fill a line before the pool decides" was the old one and Tom was right
+   * that it makes no sense: a fan fills nothing, the match does, and "the
+   * pool" is our word for a thing they never see. What a fan actually does
+   * here is choose between boards.
+   */
+  el("prompt").textContent =
+    challenge.prompt ||
+    "Pick the board you fancy. It marks itself as things happen in the match.";
+
+  const progress = currentState?.progress ?? {};
+  /** The words for this fan's own dealt cards, keyed by card id. */
+  const words = progress.cards ?? {};
+  /**
+   * What each card means, where a producer has explained it. GS-311.
+   *
+   * Tapping a card turns it over to show this. A card nobody has explained
+   * does not turn over, rather than flipping to an empty back and teaching a
+   * fan the gesture is broken.
+   */
+  const notes = progress.notes ?? {};
+  /**
+   * Which of this fan's own cards have come in, and how their lines stand.
+   *
+   * **The half that makes a board worth watching**, and this page did not
+   * draw it until 2026-08-27: the Engine had computed marks and lines since
+   * the day before, and the React taster rendered them, so a fan on the
+   * playground watched nine identical cells and a score that changed for
+   * reasons they could not see. Two readers of one shape, and only one of
+   * them had been taught the new half.
+   *
+   * The Engine's word on both. A page working out its own lines would put
+   * the scoring rule in two places, and the one that scores is the Engine's.
+   */
+  const marks = progress.marks ?? {};
+  const lines = Array.isArray(progress.lines) ? progress.lines : [];
+  /** Cards in a line that has come in, so the whole line can light up. */
+  const inLine = new Set(lines.filter((l) => l.complete).flatMap((l) => l.cards));
+  /** And the one card a fan is waiting on, which is the feeling this game sells. */
+  const awaited = new Set(
+    lines.filter((l) => l.oneAway).flatMap((l) => l.cards.filter((k) => marks[k] === undefined)),
+  );
+  /**
+   * Every board this fan was offered. The Engine deals them all at once and a
+   * fan swipes between them, rather than rerolling one hand at a time: an
+   * earlier board used to be gone the moment you looked past it.
+   */
+  const boards = Array.isArray(progress.boards) ? progress.boards : [];
+  const dealt = boards.length > 0;
+  // Once locked, what is on show is what they committed to, whatever they had
+  // swiped to before pressing it.
+  const showing = finished && typeof progress.chosen === "number"
+    ? progress.chosen
+    : Math.min(at, Math.max(0, boards.length - 1));
+  const board = { board: boards[showing], centre: progress.centre };
+
+  /**
+   * The watch line, and the confetti a landed line earns. GS-419.
+   *
+   * Three states of one sentence and the strongest true one wins: a line has
+   * landed, they are one card away, or the match is simply still going. All
+   * three off the Engine's own marks and lines.
+   *
+   * "Called" rather than "decided", because it is the word a bingo player
+   * already has for a card the caller has read out.
+   */
+  const own = boards[showing] ?? [];
+  const called = own.filter((key) => marks[key] !== undefined).length;
+  const completeLines = lines.filter((l) => l.complete).length;
+  const oneAway = lines.some((l) => l.oneAway);
+  const watch = el("watch");
+  const watching = finished && outcome === "pending";
+  watch.hidden = !watching;
+  if (watching) {
+    watch.toggleAttribute("data-landed", completeLines > 0);
+    watch.toggleAttribute("data-close", completeLines === 0 && oneAway);
+    watch.replaceChildren();
+    const said = document.createElement("strong");
+    said.textContent =
+      completeLines > 0 ? "You have a line" : oneAway ? "One to go" : "Your board is live";
+    const count = document.createElement("span");
+    count.textContent = `${called} of ${own.length} called`;
+    watch.append(said, count);
+  }
+
+  // A line landing is worth confetti, and nothing else is: see `seenLines`.
+  const before = seenLines;
+  seenLines = completeLines;
+  if (
+    before !== undefined &&
+    completeLines > before &&
+    !matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    const shower = document.createElement("div");
+    shower.className = "confetti";
+    // Hidden from a screen reader: the line above already said what happened
+    // and the pieces have nothing to add to it.
+    shower.setAttribute("aria-hidden", "true");
+    for (let piece = 0; piece < CONFETTI_PIECES; piece++) {
+      const bit = document.createElement("span");
+      bit.style.left = `${(piece * 100) / CONFETTI_PIECES}%`;
+      bit.style.animationDelay = `${(piece % 6) * 60}ms`;
+      shower.append(bit);
+    }
+    document.body.append(shower);
+    setTimeout(() => shower.remove(), CELEBRATION_MS);
+  }
+
+  el("board").style.gridTemplateColumns = `repeat(${challenge.columns}, 1fr)`;
+  el("board").replaceChildren(
+    ...layout(challenge, dealt ? board : undefined).map(({ centre, key }) => {
+      const cell = document.createElement("div");
+      cell.className = centre ? "cell centre" : "cell";
+      if (centre && key) cell.classList.add("chosen");
+      /**
+       * A card's words, not its key.
+       *
+       * Since the rework a card's key is its Studio element's id, which is
+       * the right identity for scoring and meaningless on a cell: without
+       * this a fan reads a uuid. The Engine deals the words for the hand it
+       * dealt, in `progress.cards`, and only that hand, so nothing about the
+       * rest of the pool is here to leak. Falling back to the key keeps a
+       * board dealt by an older Engine legible rather than blank.
+       */
+      const word = key === undefined ? undefined : (words[key] ?? key);
+      const face = centre
+        ? (word ?? (challenge.centre_mode === "free" ? "FREE" : "?"))
+        : (word ?? "");
+      cell.textContent = face;
+
+      /**
+       * How this card turned out, and whether it is the one being waited on.
+       *
+       * A free centre counts as in from the moment it is dealt: it is marked
+       * for everybody, and a board showing eight cards come in around a blank
+       * middle would read as broken.
+       */
+      const mark =
+        // Only once there is a board: an undealt grid is the round's shape
+        // with nothing in it, and a centre already wearing the brand colour
+        // there says a square is a fan's before they have one.
+        dealt && centre && key === undefined && challenge.centre_mode === "free"
+          ? "correct"
+          : key !== undefined
+            ? marks[key]
+            : undefined;
+      if (mark) cell.dataset.mark = mark;
+      if (key !== undefined && inLine.has(key)) cell.dataset.inLine = "true";
+      if (key !== undefined && awaited.has(key)) cell.dataset.awaited = "true";
+
+      // Only a card with something to say becomes a button. A control that
+      // does nothing teaches a fan the gesture is broken.
+      const note = key === undefined ? undefined : notes[key];
+      if (note) {
+        cell.setAttribute("role", "button");
+        cell.tabIndex = 0;
+        cell.setAttribute("aria-pressed", "false");
+        /**
+         * Turn the card over, and let the rotation carry the change. GS-419.
+         *
+         * The words change at the halfway point, where the card is edge-on
+         * and nobody can read either face. Swapping at either end is what
+         * this did before, and it read as a cell that had reloaded rather
+         * than a card that had turned.
+         *
+         * A half turn each way rather than a full 180: a full one needs two
+         * faces stacked with `backface-visibility`, which means moving the
+         * card's background, border and every mark colour off the cell and
+         * onto a face. A fan sees the same rotation either way.
+         */
+        const swap = () => {
+          const showing = cell.dataset.flipped === "true";
+          if (showing) cell.removeAttribute("data-flipped");
+          else cell.dataset.flipped = "true";
+          cell.textContent = showing ? face : note;
+          cell.setAttribute("aria-pressed", String(!showing));
+        };
+        const turn = () => {
+          // Reduced motion gets the swap and no rotation, rather than no flip
+          // at all: the fan still asked what the card means.
+          if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            swap();
+            return;
+          }
+          cell.dataset.turning = "true";
+          setTimeout(swap, TURN_MS / 2);
+          setTimeout(() => cell.removeAttribute("data-turning"), TURN_MS);
+        };
+        cell.onclick = turn;
+        cell.onkeydown = (event) => {
+          // Enter and Space, because a button answers to both.
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          turn();
+        };
+      }
+      return cell;
+    }),
+  );
+
+  /**
+   * The round's own lock has passed. GS-461.
+   *
+   * Read off `can.accepting_plays`, which the Engine derives from the round's
+   * `locks_at` at read time, rather than off the date: the Engine decides and
+   * this page draws. Said above the controls and the controls disabled, so a
+   * fan is told before pressing rather than after a refusal. This page used
+   * to print `Refused: lock_deadline_passed` to a fan who had pressed a live
+   * button, on a round that had been locked for a week.
+   */
+  const locked = roundLocked();
+  el("locked").hidden = !locked;
+
+  // Dealing is the one act before the carousel exists; after that the only
+  // controls are the swipe and the lock.
+  el("shuffle").hidden = finished || dealt;
+  el("shuffle").disabled = locked;
+
+  el("carousel").hidden = finished || !dealt;
+  if (dealt && !finished) {
+    el("which-board").textContent = `Board ${showing + 1} of ${boards.length}`;
+    el("previous-board").disabled = showing === 0;
+    el("next-board").disabled = showing >= boards.length - 1;
+  }
+
+  const needsCentre = challenge.centre_mode === "choice";
+  el("lock").hidden = finished || !dealt;
+  el("centre-picker").hidden = finished || !dealt || !needsCentre;
+
+  if (dealt && needsCentre) {
+    el("centre-picker").replaceChildren(
+      ...(challenge.centre_options ?? []).map((key) => {
+        const button = document.createElement("button");
+        button.className = "option";
+        // The card's words, for the same reason the cells use them.
+        button.textContent = words[key] ?? key;
+        button.setAttribute("aria-pressed", String(key === chosenCentre));
+        button.onclick = () => {
+          chosenCentre = key;
+          renderBoard();
+        };
+        return button;
+      }),
+    );
+    el("lock").disabled = chosenCentre === undefined || locked;
+  } else {
+    el("lock").disabled = !dealt || locked;
+  }
+}
+
+/**
+ * Whether the Engine has shut the round to this fan before they press. GS-461.
+ *
+ * `can.accepting_plays` is false past the round's own `locks_at` and while
+ * the fuse holds it. A fan who has already locked their board is finished
+ * rather than locked out, and `renderState` owns that.
+ */
+function roundLocked() {
+  return Boolean(game?.round) && !game.round.can.accepting_plays && !finished;
+}
+
+/**
+ * Sends a play. A lock names the board on show; the Engine refuses one that
+ * does not rather than assuming the first, so a page that lost track of which
+ * board a fan was looking at is a refusal rather than a wrong commitment.
+ */
+async function operate(op, board) {
+  el("shuffle").disabled = true;
+  el("lock").disabled = true;
+
+  try {
+    const result = await game.play({
+      op,
+      ...(op === "lock" ? { centre: chosenCentre, board } : {}),
+    });
+
+    if (result.outcome === "stale") {
+      el("verdict").textContent = "The round moved on. Try again.";
+      return;
+    }
+    if (result.outcome === "rejected") {
+      // The round's own lock is the one refusal a fan can meet without
+      // having done anything wrong, so it gets the sentence the board
+      // already shows rather than the Engine's enum. GS-461.
+      el("verdict").textContent =
+        result.reason === "lock_deadline_passed"
+          ? el("locked").textContent
+          : `Refused: ${result.reason}`;
+      return;
+    }
+
+    currentState = result.round_state;
+    renderState(currentState);
+    renderBoard();
+    if (op === "lock") game.track("bingo_locked", { round: game.round.number ?? null });
+  } catch (error) {
+    el("verdict").textContent = error.message;
+  } finally {
+    el("shuffle").disabled = roundLocked();
+    el("lock").disabled =
+      roundLocked() ||
+      (chosenCentre === undefined && game.round.challenge.centre_mode === "choice");
+  }
+}
+
+async function main() {
+  game = await start({
+    identity: () => window.GAMESTAGE_TOKEN,
+  });
+
+  applyPresentation(game.presentation, presentationTargets, {
+    displayName: game.deployedName,
+  });
+  game.onPresentationChanged((presentation) => {
+    applyPresentation(presentation, presentationTargets, {
+      displayName: game.deployedName,
+    });
+  });
+
+  if (game.platform === "local" && !developing) {
+    connectionNotice(
+      "Playing a stored copy of this round. Live updates are not reaching this page, so anything changed recently will not show. Reload to try again.",
+    );
+  }
+
+  game.onRoundChanged(async () => {
+    chosenCentre = undefined;
+    finished = false;
+    currentState = await game.client.getRoundState(game.round.id);
+    // State first, because `renderBoard` reads `finished` and this is the one
+    // path that resets it: rendering the board first drew a locked round's
+    // controls as though the choice were still open.
+    renderState(currentState);
+    renderBoard();
+  });
+
+  currentState = await game.client.getRoundState(game.round.id);
+  // State before board, the same order `onRoundChanged` uses and for the same
+  // reason: `renderBoard` reads `finished`, so a returning fan whose board is
+  // already locked had its controls drawn as though the choice were open.
+  renderState(currentState);
+  renderBoard();
+
+  game.track("round_opened", { round: game.round.number ?? null });
+
+  /**
+   * While the world is still deciding, keep asking. GS-419.
+   *
+   * **This page read state once and never again, so a live board could not be
+   * watched here at all.** The React taster has polled since GS-311 and this
+   * one did not, which is the fourth time this scaffold has lagged the board
+   * beside it: it lagged on `progress.boards`, on the flip, and on marks, and
+   * each time the two halves looked right on their own.
+   *
+   * Bingo is the only format that needs it. Every other one settles on the
+   * play that finishes it, so its outcome is never `pending` and this loop
+   * never starts. It stops the moment the outcome settles, so a fan who
+   * watches to full time leaves no timer running behind them.
+   */
+  setInterval(async () => {
+    if (!finished || outcome !== "pending") return;
+    try {
+      currentState = await game.client.getRoundState(game.round.id);
+      renderState(currentState);
+      renderBoard();
+    } catch (error) {
+      // A read that fails leaves the last known state on screen and tries
+      // again on the next tick. A board that blanked because one request
+      // missed would be worse than a board a few seconds stale.
+    }
+  }, PENDING_POLL_MS);
+}
+
+el("shuffle").onclick = () => operate("deal");
+
+/**
+ * Swiping is local. It moves what is on screen and tells the Engine nothing,
+ * because looking through an offer is not playing: only the lock commits.
+ */
+el("previous-board").onclick = () => {
+  at = Math.max(0, at - 1);
+  renderBoard();
+};
+el("next-board").onclick = () => {
+  const boards = currentState?.progress?.boards ?? [];
+  at = Math.min(boards.length - 1, at + 1);
+  renderBoard();
+};
+
+el("lock").onclick = () => {
+  const boards = currentState?.progress?.boards ?? [];
+  operate("lock", Math.min(at, Math.max(0, boards.length - 1)));
+};
+
+addEventListener("offline", () => {
+  connectionNotice("You are offline. Your board is safe; this will pick up when the connection is back.");
+});
+
+addEventListener("online", async () => {
+  connectionNotice("Reconnecting…");
+  try {
+    if (game?.round) {
+      currentState = await game.client.getRoundState(game.round.id);
+      // State before board, the same order the other three call sites use and
+      // for the same reason: `renderBoard` reads `finished` and `outcome`, so
+      // rendering it first draws the previous read's answer.
+      renderState(currentState);
+      renderBoard();
+    }
+    connectionNotice(null);
+  } catch (error) {
+    connectionNotice(`Still cannot reach the game: ${error.message}`);
+  }
+});
+
+main().catch((error) => {
+  el("prompt").textContent = `Could not load the round: ${error.message}`;
+});
+</script>
+</body>
+</html>

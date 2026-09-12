@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wage Bill</title>
+<style>
+  :root {
+    /* The site's palette. These four standalone pages are the same scaffold a
+       creator downloads, so they wear the same register as the reference
+       templates and as `Sample Games/thelimit`. See the note in
+       `packages/player-client/reference/hunt.html`. */
+    --bg: #FCFBFB; --surface: #F4F2F2; --line: #D3CFCE;
+    --text: #232020; --muted: #6B6462; --red: #E2483A; --green: #2E7D51;
+    --gold: #A97A12;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 17px/1.5 ui-sans-serif, system-ui, sans-serif;
+    display: grid; place-items: start center; padding: 40px 20px 80px;
+  }
+  main { width: min(100%, 560px); display: flex; flex-direction: column; gap: 26px; }
+  h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; }
+  .prompt { margin: 0; color: var(--muted); }
+  .strapline { margin: 6px 0 0; color: var(--muted); }
+  .strapline[hidden] { display: none; }
+  .scoreline {
+    display: flex; gap: 28px; padding: 18px; border: 1.5px solid var(--line);
+    border-radius: 14px; background: var(--surface);
+  }
+  .scoreline div { display: flex; flex-direction: column; gap: 2px; }
+  .scoreline span { color: var(--muted); font-size: 15px; }
+  .scoreline b { font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  #target { color: var(--gold); }
+  .slate { margin: 0; color: var(--muted); font-size: 15px; }
+  .board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  button.pick {
+    padding: 16px; border: 1.5px solid var(--line); border-radius: 12px;
+    background: var(--surface); color: var(--text); font: inherit;
+    text-align: left; cursor: pointer; transition: border-color .15s;
+  }
+  button.pick[aria-pressed="true"] { border-color: var(--text); }
+  button.pick:disabled { cursor: not-allowed; opacity: .5; }
+  .actions { display: flex; gap: 12px; align-items: center; }
+  button.submit {
+    padding: 14px 22px; border: 0; border-radius: 999px;
+    background: var(--gamestage-primary, var(--red)); color: #fff; font: inherit; font-weight: 650; cursor: pointer;
+  }
+  button.submit:disabled { opacity: .4; cursor: not-allowed; }
+  .verdict { margin: 0; min-height: 1.5em; }
+  .verdict.bust { color: var(--red); font-weight: 650; }
+  .verdict.safe { color: var(--green); }
+  ol.taken { margin: 0; padding-left: 20px; color: var(--muted); font-size: 15px; }
+  ol.taken b { color: var(--text); font-variant-numeric: tabular-nums; }
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<main>
+  <div>
+    <h1 id="game-name">Wage Bill</h1>
+    <p class="strapline" id="strapline" hidden></p>
+    <p class="strapline" id="edition-name" hidden></p>
+    <p class="strapline" id="edition-strapline" hidden></p>
+    <p class="strapline" id="how-to-play" hidden></p>
+    <p class="prompt" id="prompt">Loading the round…</p>
+  </div>
+
+  <div class="scoreline">
+    <div><span id="target-label">Target</span><b id="target">–</b></div>
+    <div><span>Your total</span><b id="total">0</b></div>
+    <div><span>Picks</span><b id="picks">0</b></div>
+  </div>
+
+  <p class="slate" id="slate"></p>
+  <div class="board" id="board"></div>
+
+  <div class="actions">
+    <button class="submit" id="submit" disabled>Take it</button>
+  </div>
+
+  <p class="verdict" id="verdict"></p>
+  <ol class="taken" id="taken"></ol>
+
+  <footer>
+    The total, the bust and the result live on the Gamestage Engine. This page
+    holds none of them, and it does not know what a pick is worth until the
+    server has counted it.
+  </footer>
+</main>
+
+<script>
+// A module that fails to load fails silently: the page sits on "Loading the
+// round…" for ever and a creator who has not run `gamestage client` sees a hang
+// with nothing in the interface to explain it. Capture phase, because a
+// resource error does not bubble.
+window.addEventListener(
+  "error",
+  (event) => {
+    if (!(event.target instanceof HTMLScriptElement)) return;
+    const prompt = document.getElementById("prompt");
+    if (prompt) {
+      prompt.textContent =
+        "This game could not load its Gamestage client. Run `gamestage client` next to it.";
+    }
+  },
+  true,
+);
+</script>
+<script type="module">
+import { applyPresentation, start } from "https://gamestage.ai/client/0.48.0/gamestage.js";
+
+// One import, and the order that matters is already held: identity resolves
+// before anything is stored or counted, consent gates both, and the time this
+// page reads comes from a server rather than from the device. None of that is
+// written here, which is the point of installing one package rather than six
+// kits.
+//
+// The one identity line is below, and it hands over a token rather than obtaining
+// one: Gamestage ships no identity provider at any tier, so a token comes from your
+// own login system and the Engine validates it against the issuer your manifest
+// names. Without one the player is anonymous, and the Engine's signed session is
+// the whole of it, so a game never invents a player id: one a page picks for itself
+// is one anybody can send on someone else's behalf.
+
+const el = (id) => document.getElementById(id);
+const number = (value) => Number(value).toLocaleString("en-US");
+
+/**
+ * A money value with the producer's own symbol in front of it.
+ *
+ * The round carries `challenge.unit`, set in Studio, and this page rendered
+ * every number without it: the cap read "1,000,000" while the prompt beside it
+ * said "£1,000,000", so the same figure appeared twice in one screen with and
+ * without its currency. Tom caught it on a phone.
+ *
+ * The symbol is the producer's rather than ours, so a game counting goals or
+ * points sets no unit and these read exactly as they did before. `unit` is read
+ * off the round at call time rather than captured, because a producer can
+ * change it while somebody is playing.
+ */
+const money = (value) => `${round?.challenge?.unit ?? ""}${number(value)}`;
+
+let game;
+let round;
+let chosen = null;
+let finished = false;
+
+/**
+ * Which slate is next, counted from what the server says has been committed.
+ *
+ * Not from a counter this page keeps. The two would agree until the moment they
+ * did not, and the moment they did not is a player being shown the wrong board.
+ */
+function renderSlate(picksTaken) {
+  const slate = round.challenge.slates[picksTaken];
+  chosen = null;
+  el("submit").disabled = true;
+
+  if (!slate) {
+    el("slate").textContent = "";
+    el("board").replaceChildren();
+    return;
+  }
+
+  el("slate").textContent = `Pick ${picksTaken + 1} of ${round.challenge.picks} · ${slate.label}`;
+  el("board").replaceChildren(
+    ...slate.entries.map((entry) => {
+      const button = document.createElement("button");
+      button.className = "pick";
+      button.textContent = entry.label;
+      button.dataset.pick = entry.key;
+      button.setAttribute("aria-pressed", "false");
+      button.onclick = () => {
+        if (finished) return;
+        for (const other of el("board").children) other.setAttribute("aria-pressed", "false");
+        button.setAttribute("aria-pressed", "true");
+        chosen = entry.key;
+        el("submit").disabled = false;
+      };
+      return button;
+    }),
+  );
+}
+
+/**
+ * Everything on the screen comes out of this, and this comes out of the Engine.
+ *
+ * The prototype this replaces added a stat to a running total in the browser
+ * and worked out the tier itself. Both are here, and neither is computed.
+ */
+function renderState(state) {
+  if (!state) return;
+  const progress = state.progress ?? {};
+  el("total").textContent = money(progress.total ?? 0);
+  el("picks").textContent = `${state.attempts_used}/${state.attempts_allowed ?? "-"}`;
+
+  el("taken").replaceChildren(
+    ...(progress.picks ?? []).map((taken) => {
+      const item = document.createElement("li");
+      item.innerHTML = `${taken.label} <b>+${money(taken.value)}</b>`;
+      return item;
+    }),
+  );
+
+  if (state.finished) {
+    finished = true;
+    el("submit").disabled = true;
+    el("board").replaceChildren();
+    el("slate").textContent = "";
+    const verdict = el("verdict");
+    verdict.className = progress.bust ? "verdict bust" : "verdict safe";
+    verdict.textContent = progress.bust
+      ? `${progress.tier}. Over the target, so the round is done.`
+      : `${progress.tier}. ${money(round.challenge.target - progress.total)} short of the target.`;
+  } else {
+    renderSlate(state.attempts_used);
+  }
+}
+
+/** Draws everything the round decides, from the round the facade last read. */
+function renderRound() {
+  round = game.round;
+  el("prompt").textContent = round.challenge.prompt || "Get as close as you can without going over.";
+  el("target").textContent = money(round.challenge.target);
+  if (round.challenge.target_label) el("target-label").textContent = round.challenge.target_label;
+}
+
+async function main() {
+  game = await start({
+    // Where a player's token comes from, if this game has one. Gamestage ships no
+    // identity provider at any tier: this is whatever your own login system gives
+    // you, and `gamestage dev --as alice` writes one here so a signed-in player can
+    // be developed against with no accounts and no network.
+    identity: () => window.GAMESTAGE_TOKEN,
+  });
+
+  // What a producer set in Studio, applied to the elements this page nominates.
+  // Nothing here decides an outcome: it is the game's name, its wording and the
+  // colour of the button, and a field nobody has filled in leaves the page as it
+  // was built rather than blanking it.
+  applyPresentation(game.presentation, {
+    displayName: el("game-name"),
+    strapline: el("strapline"),
+    howToPlay: el("how-to-play"),
+    playButtonLabel: el("submit"),
+    editionName: el("edition-name"),
+    editionStrapline: el("edition-strapline"),
+    root: document.documentElement,
+  }, {
+    // The name the game was deployed with, behind the producer's own. Without
+    // it a game whose `display_name` nobody has set keeps the heading in this
+    // file, which is a hard-coded name a producer cannot change. GS-325.
+    displayName: game.deployedName,
+  });
+
+
+  // The round moved, so everything it decides is redrawn from the round the
+  // facade re-read from the Engine. Never from the announcement: an element
+  // update says that something changed and never what it changed to, because the
+  // Engine owns the round's truth and Interaction Cloud only carries the news.
+  game.onRoundChanged(async () => {
+    finished = false;
+    renderRound();
+    renderState(await game.client.getRoundState(round.id));
+  });
+
+  renderRound();
+  renderState(await game.client.getRoundState(round.id));
+
+  // Consent gates this, and nothing is recorded until something grants it. A
+  // standalone game has no parent application to ask, so on the free tier the
+  // gate stays closed and these calls cost nothing and record nothing.
+  game.track("round_opened", { round: round.number ?? null, target: round.challenge.target });
+}
+
+el("submit").onclick = async () => {
+  if (!chosen) return;
+  el("submit").disabled = true;
+
+  try {
+    // The facade mints one key per call and hands it back, so a caller retrying a
+    // lost response reuses it rather than spending a pick.
+    const result = await game.play({ picks: [chosen] });
+
+    if (result.outcome === "stale") {
+      el("verdict").textContent = "The round moved on. Try again.";
+      renderRound();
+      renderState(await game.client.getRoundState(round.id));
+      return;
+    }
+
+    if (result.outcome === "rejected") {
+      el("verdict").textContent = `Refused: ${result.reason}`;
+      el("submit").disabled = false;
+      return;
+    }
+
+    if (result.outcome === "busy") {
+      el("verdict").textContent = `Busy right now. Try again in ${result.retry_after_seconds ?? 1}s.`;
+      el("submit").disabled = false;
+      return;
+    }
+
+    renderState(result.round_state);
+    game.track("pick_taken", { total: result.round_state?.progress?.total ?? null });
+  } catch (error) {
+    el("verdict").textContent = error.message;
+    el("submit").disabled = false;
+  }
+};
+
+// `main().catch(...)` rather than a top-level await, deliberately: a module that
+// awaits at the top level blocks every module script after it until it settles, so
+// the handler for its own failure could not live in a later one.
+main().catch((error) => {
+  el("prompt").textContent = `Could not load the round: ${error.message}`;
+});
+</script>
+</body>
+</html>

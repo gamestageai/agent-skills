@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ringers</title>
+<style>
+  :root {
+    /* The site's palette. These four standalone pages are the same scaffold a
+       creator downloads, so they wear the same register as the reference
+       templates and as `Sample Games/thelimit`. See the note in
+       `packages/player-client/reference/hunt.html`. */
+    --bg: #FCFBFB; --surface: #F4F2F2; --line: #D3CFCE;
+    --text: #232020; --muted: #6B6462; --red: #E2483A; --green: #2E7D51;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 17px/1.5 ui-sans-serif, system-ui, sans-serif;
+    display: grid; place-items: start center; padding: 40px 20px 80px;
+  }
+  main { width: min(100%, 560px); display: flex; flex-direction: column; gap: 26px; }
+  h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; }
+  .prompt { margin: 0; color: var(--muted); }
+  .strapline { margin: 6px 0 0; color: var(--muted); }
+  .strapline[hidden] { display: none; }
+  .board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  button.pick {
+    padding: 16px; border: 1.5px solid var(--line); border-radius: 12px;
+    background: var(--surface); color: var(--text); font: inherit;
+    text-transform: capitalize; cursor: pointer; transition: border-color .15s;
+  }
+  button.pick[aria-pressed="true"] { border-color: var(--text); }
+  button.pick.correct { border-color: var(--green); color: var(--green); }
+  button.pick.wrong { border-color: var(--red); color: var(--red); opacity: .6; }
+  button.pick:disabled { cursor: not-allowed; }
+  .actions { display: flex; gap: 12px; align-items: center; }
+  button.submit {
+    padding: 14px 22px; border: 0; border-radius: 999px;
+    background: var(--gamestage-primary, var(--red)); color: #fff; font: inherit; font-weight: 650; cursor: pointer;
+  }
+  button.submit:disabled { opacity: .4; cursor: not-allowed; }
+  .state { display: flex; gap: 22px; color: var(--muted); font-size: 15px; }
+  .state b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .verdict { margin: 0; min-height: 1.5em; }
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<main>
+  <div>
+    <h1 id="game-name">Ringers</h1>
+    <p class="strapline" id="strapline" hidden></p>
+    <p class="strapline" id="edition-name" hidden></p>
+    <p class="strapline" id="edition-strapline" hidden></p>
+    <p class="strapline" id="how-to-play" hidden></p>
+    <p class="prompt" id="prompt">Loading the round…</p>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="actions">
+    <button class="submit" id="submit" disabled>Submit picks</button>
+    <span class="state">
+      <span>Attempts <b id="attempts">0</b></span>
+      <span>Mistakes <b id="mistakes">0</b></span>
+      <span>Score <b id="score">0</b></span>
+    </span>
+  </div>
+
+  <p class="verdict" id="verdict"></p>
+
+  <footer>
+    Scoring, the result and the answers live on the Gamestage Engine. This page
+    holds none of them: it sends picks and renders what the server committed.
+  </footer>
+</main>
+
+<script>
+// A module that fails to load fails silently: the page sits on "Loading the
+// round…" for ever and a creator who has not run `gamestage client` sees a hang
+// with nothing in the interface to explain it. Capture phase, because a
+// resource error does not bubble.
+window.addEventListener(
+  "error",
+  (event) => {
+    if (!(event.target instanceof HTMLScriptElement)) return;
+    const prompt = document.getElementById("prompt");
+    if (prompt) {
+      prompt.textContent =
+        "This game could not load its Gamestage client. Run `gamestage client` next to it.";
+    }
+  },
+  true,
+);
+</script>
+<script type="module">
+import { applyPresentation, start } from "https://gamestage.ai/client/0.48.0/gamestage.js";
+
+// One import, and the order that matters is already held: identity resolves
+// before anything is stored or counted, consent gates both, and the time this
+// page reads comes from a server rather than from the device. None of that is
+// written here, which is the point of installing one package rather than six
+// kits.
+//
+// The one identity line is below, and it hands over a token rather than obtaining
+// one: Gamestage ships no identity provider at any tier, so a token comes from your
+// own login system and the Engine validates it against the issuer your manifest
+// names. Without one the player is anonymous, and the Engine's signed session is
+// the whole of it, so a game never invents a player id: one a page picks for itself
+// is one anybody can send on someone else's behalf.
+
+const el = (id) => document.getElementById(id);
+const selected = new Set();
+let finished = false;
+let game;
+
+// How many the round wants found. `HuntBoard.tsx` calls this `wanted`; here it
+// is `game.round.challenge.pick`, the same field the Engine put on the
+// challenge in `provision.ts`.
+let wanted = 1;
+
+// What the Engine has already confirmed found, kept across plays. Read off
+// `state.progress.solved`, same as `HuntBoard.tsx` reads `state.progress.solved`
+// into its own `solved`, rather than counted here: a fan who reloads still has
+// what they found, because the server is what remembers it.
+let solved = [];
+
+/**
+ * How many more the fan may select this attempt, not how many the round
+ * started with.
+ *
+ * **Ported from `app/taster/boards/HuntBoard.tsx`, 2026-09-07.**
+ * `wanted` alone let a fan overselect on any attempt after the first correct
+ * one: Tom found this live, 2026-08-24, three of four targets found and the
+ * board still let a fourth and fifth fresh tile be selected, which the React
+ * board's own fix (2778200a) never reached this standalone. Capping at what
+ * remains is what stops a fan choosing a guaranteed-wrong combination and
+ * spending a mistake they did not need to.
+ *
+ * Only while the round is still open: once every target is found this would
+ * fall to zero and block every future selection outright, but a fan is meant
+ * to keep tapping a finished round so the Engine can refuse and say why,
+ * rather than the client pre-empting it silently. `wanted` is the ceiling
+ * again once there is nothing left to find.
+ */
+function remaining() {
+  return solved.length >= wanted ? wanted : wanted - solved.length;
+}
+
+function renderState(state) {
+  if (!state) return;
+  if (Array.isArray(state.progress?.solved)) solved = state.progress.solved;
+  el("attempts").textContent = `${state.attempts_used}/${state.attempts_allowed ?? "-"}`;
+  el("mistakes").textContent = `${state.mistakes_used}/${state.mistakes_allowed ?? "-"}`;
+  el("score").textContent = state.score;
+  if (state.finished) {
+    finished = true;
+    el("submit").disabled = true;
+    el("verdict").textContent =
+      state.outcome === "won" ? "Solved. That is the server's word for it, not this page's." :
+      state.outcome === "lost" ? "Out of it. The Engine decided that, not the browser." :
+      "Committed. The result is not in yet.";
+  }
+}
+
+function renderBoard() {
+  el("prompt").textContent = game.round.challenge.prompt ?? "Make your picks.";
+  el("board").replaceChildren(
+    ...game.round.challenge.board.map((name) => {
+      const button = document.createElement("button");
+      button.className = "pick";
+      button.textContent = name;
+      const alreadySolved = solved.includes(name);
+      if (alreadySolved) button.classList.add("correct");
+      button.setAttribute("aria-pressed", "false");
+      button.onclick = () => {
+        if (finished || button.classList.contains("correct")) return;
+        const on = selected.has(name);
+        // A fan may always deselect. Only a new selection is capped, at what
+        // remains to be found this attempt.
+        if (!on && selected.size >= remaining()) return;
+        if (on) selected.delete(name); else selected.add(name);
+        button.setAttribute("aria-pressed", String(!on));
+        el("submit").disabled = selected.size === 0;
+      };
+      return button;
+    }),
+  );
+}
+
+async function main() {
+  game = await start({
+    // Where a player's token comes from, if this game has one. Gamestage ships no
+    // identity provider at any tier: this is whatever your own login system gives
+    // you, and `gamestage dev --as alice` writes one here so a signed-in player can
+    // be developed against with no accounts and no network.
+    identity: () => window.GAMESTAGE_TOKEN,
+  });
+
+  wanted = typeof game.round.challenge.pick === "number" ? game.round.challenge.pick : 1;
+
+  // What a producer set in Studio, applied to the elements this page nominates.
+  // Nothing here decides an outcome: it is the game's name, its wording and the
+  // colour of the button, and a field nobody has filled in leaves the page as it
+  // was built rather than blanking it.
+  applyPresentation(game.presentation, {
+    displayName: el("game-name"),
+    strapline: el("strapline"),
+    howToPlay: el("how-to-play"),
+    playButtonLabel: el("submit"),
+    editionName: el("edition-name"),
+    editionStrapline: el("edition-strapline"),
+    root: document.documentElement,
+  }, {
+    // The name the game was deployed with, behind the producer's own. Without
+    // it a game whose `display_name` nobody has set keeps the heading in this
+    // file, which is a hard-coded name a producer cannot change. GS-325.
+    displayName: game.deployedName,
+  });
+
+
+  // The round moved, so the board is redrawn from the round the facade re-read
+  // from the Engine. Never from the announcement: an element update says that
+  // something changed and never what it changed to, because the Engine owns the
+  // round's truth and Interaction Cloud only carries the news.
+  game.onRoundChanged(() => {
+    selected.clear();
+    finished = false;
+    solved = [];
+    wanted = typeof game.round.challenge.pick === "number" ? game.round.challenge.pick : 1;
+    renderBoard();
+  });
+
+  // State before board, so `solved` is populated before the board marks
+  // already-found tiles and computes what remains.
+  renderState(await game.client.getRoundState(game.round.id));
+  renderBoard();
+
+  // Consent gates this, and nothing is recorded until something grants it. A
+  // standalone game has no parent application to ask, so on the free tier the
+  // gate stays closed and these calls cost nothing and record nothing.
+  game.track("round_opened", { round: game.round.number ?? null });
+}
+
+el("submit").onclick = async () => {
+  el("submit").disabled = true;
+  const picks = [...selected];
+
+  try {
+    // The facade mints one key per call and hands it back, so a caller retrying
+    // a lost response reuses it rather than spending a second attempt.
+    const result = await game.play({ picks });
+
+    if (result.outcome === "stale") {
+      el("verdict").textContent = "The round moved on. Try again.";
+      el("submit").disabled = false;
+      return;
+    }
+
+    if (result.outcome === "rejected") {
+      el("verdict").textContent = `Refused: ${result.reason}`;
+      return;
+    }
+
+    // Feedback comes from the server, per pick. The page does not know which
+    // were right until it is told.
+    if (result.marked) {
+      for (const item of result.feedback) {
+        const button = [...el("board").children].find((b) => b.textContent === item.key);
+        if (button) {
+          button.classList.add(item.verdict === "correct" ? "correct" : "wrong");
+          button.setAttribute("aria-pressed", "false");
+        }
+      }
+      const right = result.feedback.filter((f) => f.verdict === "correct").length;
+      el("verdict").textContent = `${right} of ${picks.length} correct.`;
+      game.track("picks_marked", { correct: right, submitted: picks.length });
+    } else {
+      el("verdict").textContent = "Committed. Marking happens at settlement.";
+    }
+
+    selected.clear();
+    renderState(result.round_state);
+    if (!finished) el("submit").disabled = true;
+  } catch (error) {
+    el("verdict").textContent = error.message;
+    el("submit").disabled = false;
+  }
+};
+
+// The failure a fan meets when the Engine cannot be reached, said in a sentence
+// rather than left as a blank screen and an exception in a console nobody opens.
+//
+// `main().catch(...)` rather than a top-level await, deliberately: a module that
+// awaits at the top level blocks every module script after it until it settles, so
+// the handler for its own failure could not live in a later one.
+main().catch((error) => {
+  el("prompt").textContent = `Could not load the round: ${error.message}`;
+});
+</script>
+</body>
+</html>

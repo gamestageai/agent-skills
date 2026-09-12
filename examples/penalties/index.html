@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f0f0ed" />
+  <title>ELEVEN.</title>
+  <link rel="icon" href="data:," />
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap");
+:root {
+  --paper: #f0f0ed;
+  --ink: #1c1c1c;
+  --muted: #64645f;
+  --line: #d4d4cf;
+  --gamestage-primary: #1c1c1c;
+  font-family: "DM Sans", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  font-synthesis: none;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+button,
+input {
+  font: inherit;
+}
+button,
+summary {
+  cursor: pointer;
+}
+button {
+  color: inherit;
+}
+button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+canvas:focus { outline: none; }
+button:focus-visible,
+summary:focus-visible,
+canvas[data-input="keyboard"]:focus,
+input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+[hidden] {
+  display: none !important;
+}
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+.shell {
+  max-width: 1120px;
+  padding: 0 40px;
+  margin: auto;
+}
+.masthead {
+  min-height: 106px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  gap: 20px;
+}
+h1 {
+  font:
+    800 64px/0.9 "Barlow Condensed",
+    Impact,
+    "Arial Narrow",
+    sans-serif;
+  letter-spacing: -1.5px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+h1 span {
+  font-family: Arial;
+  font-size: 0.7em;
+}
+.header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.icon-button {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  font-size: 24px;
+}
+.icon-button svg {
+  width: 24px;
+  height: 24px;
+}
+.sound-waves {
+  display: none;
+}
+#sound[aria-pressed="true"] .sound-waves {
+  display: block;
+}
+#sound[aria-pressed="true"] .sound-mute {
+  display: none;
+}
+.edition {
+  display: flex;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--muted);
+}
+.edition:has(:not([hidden])) {
+  padding-top: 16px;
+}
+#strapline {
+  font-size: 16px;
+  line-height: 1.5;
+  margin: 16px 0 0;
+  color: var(--muted);
+}
+.scoreboard {
+  min-height: 92px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+.score {
+  font:
+    600 48px/1 "Barlow Condensed",
+    Impact,
+    sans-serif;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.score-divider {
+  font: 300 28px Arial;
+  color: #96968e;
+}
+.score > span:nth-child(3) {
+  color: #797970;
+}
+.score-label {
+  font:
+    400 16px "DM Sans",
+    Arial,
+    sans-serif;
+  margin-left: 2px;
+  color: var(--muted);
+}
+.round-progress {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+#goal-target {
+  font-size: 16px;
+  white-space: nowrap;
+}
+#shot-dots {
+  display: flex;
+  gap: 9px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  flex-wrap: wrap;
+  max-width: 140px;
+}
+.shot-dot {
+  height: 13px;
+  width: 13px;
+  border: 1px solid #93938a;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font: 12px Arial;
+  flex-shrink: 0;
+}
+.shot-dot.goal {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: white;
+}
+.shot-dot.miss {
+  border-color: var(--ink);
+}
+.shot-dot.active {
+  box-shadow:
+    0 0 0 3px var(--paper),
+    0 0 0 4px #a6a69b;
+}
+.arena {
+  height: clamp(380px, 50vh, 570px);
+  position: relative;
+  overflow: hidden;
+  background: #e7e7e2;
+  border-radius: 3px;
+}
+#pitch:focus:not(:focus-visible) { outline: none; }
+#pitch:focus-visible { outline-offset: -4px; }
+#pitch {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+.pitch-bottom {
+  position: absolute;
+  bottom: 12px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  pointer-events: none;
+}
+.pitch-bottom button {
+  pointer-events: auto;
+}
+.text-button {
+  min-height: 44px;
+  background: transparent;
+  border: 0;
+  font-size: 16px;
+  padding: 10px 4px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+#replay:disabled {
+  visibility: hidden;
+}
+.connection {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 30px;
+  background: #f0f0edf5;
+  font-size: 17px;
+  line-height: 1.5;
+  z-index: 5;
+}
+#pitch-status.error {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  clip: auto !important;
+  white-space: normal !important;
+  flex: 1;
+  font-size: 15px;
+  padding: 12px !important;
+  background: var(--paper);
+  border-radius: 4px;
+}
+.controls {
+  max-width: 640px;
+  margin: auto;
+  padding: 22px 0 24px;
+}
+#how-to-play {
+  font-size: 17px;
+  text-align: center;
+  margin: 0 0 16px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+.shoot-button {
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+  background: var(--gamestage-primary);
+  color: #f8f8f4;
+  border: 1px solid var(--gamestage-primary);
+  border-radius: 3px;
+  font-size: 18px;
+  font-weight: 500;
+  transition:
+    background 0.2s,
+    transform 0.15s;
+}
+.shoot-button > span:last-child {
+  font-size: 26px;
+}
+.shoot-button:hover:not(:disabled) {
+  background: #373733;
+}
+.shoot-button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.shot-options {
+  margin-top: 8px;
+}
+.shot-options summary {
+  list-style: none;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  color: var(--muted);
+  padding: 0 2px;
+}
+.shot-options summary::-webkit-details-marker {
+  display: none;
+}
+.shot-options summary > [aria-hidden="true"] {
+  font-size: 22px;
+  transition: transform 0.15s;
+}
+.shot-options[open] summary > [aria-hidden="true"] {
+  transform: rotate(45deg);
+}
+.options-grid {
+  padding: 18px 0 8px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+.control-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+.control-heading output {
+  font-size: 14px;
+  color: var(--muted);
+  text-transform: lowercase;
+}
+.aim-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.aim-buttons button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid #b8b8b0;
+  border-radius: 3px;
+  background: transparent;
+  font-size: 22px;
+}
+.aim-buttons button.selected {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+.range {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 44px;
+  background: transparent;
+  accent-color: var(--ink);
+  margin: 0;
+  display: block;
+  cursor: ew-resize;
+}
+.range::-webkit-slider-runnable-track {
+  height: 3px;
+  background: #b0b0a7;
+  border-radius: 2px;
+}
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin-top: -10.5px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 4px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--ink);
+}
+.range::-moz-range-track {
+  height: 3px;
+  background: #b0b0a7;
+}
+.range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: 3px solid var(--paper);
+}
+.power-track {
+  display: none;
+}
+dialog {
+  border: 0;
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 40px;
+  max-width: 480px;
+  width: calc(100% - 32px);
+  max-height: calc(100svh - 32px);
+  overflow: auto;
+  box-shadow: 0 20px 120px #0003;
+}
+dialog::backdrop {
+  background: #18181880;
+  backdrop-filter: blur(5px);
+}
+dialog h2 {
+  font:
+    700 48px/1 "Barlow Condensed",
+    Impact,
+    sans-serif;
+  letter-spacing: -0.5px;
+  margin: 12px 0 20px;
+}
+dialog p {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.close-dialog:not(.dialog-primary) {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  font-size: 28px;
+}
+.help-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 16px;
+  line-height: 1.5;
+  padding: 16px 0;
+  border-top: 1px solid var(--line);
+}
+.help-row span {
+  color: var(--muted);
+}
+.dialog-primary {
+  background: var(--ink);
+  color: var(--paper);
+  border: 0;
+  border-radius: 3px;
+  width: 100%;
+  min-height: 56px;
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 17px;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.end-score {
+  font:
+    700 110px/1 "Barlow Condensed",
+    Impact,
+    sans-serif;
+}
+.end-score small {
+  font-size: 54px;
+  color: #797970;
+}
+#end-shots {
+  display: flex;
+  gap: 12px;
+  margin: 18px 0;
+}
+#end-shots .shot-dot {
+  width: 22px;
+  height: 22px;
+}
+#watch-last {
+  display: block;
+  margin: 14px auto 0;
+}
+@media (max-width: 600px) {
+  .shell {
+    padding: 0 20px;
+  }
+  .masthead {
+    min-height: 74px;
+  }
+  h1 {
+    font-size: 48px;
+  }
+  .header-actions {
+    gap: 2px;
+  }
+  .scoreboard {
+    min-height: 78px;
+  }
+  .score {
+    font-size: 40px;
+    gap: 8px;
+  }
+  .score-label {
+    font-size: 14px;
+  }
+  .round-progress {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  #goal-target {
+    font-size: 14px;
+  }
+  .arena {
+    height: clamp(260px, calc(100svh - 340px), 560px);
+    margin: 0 -20px;
+    border-radius: 0;
+  }
+  .controls {
+    padding: 18px 0 max(12px, env(safe-area-inset-bottom));
+  }
+  #how-to-play {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+  .options-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 20px;
+  }
+  .control-block:first-child {
+    grid-column: 1/-1;
+  }
+  .aim-buttons {
+    grid-template-columns: repeat(6, 1fr);
+  }
+  .control-heading {
+    font-size: 16px;
+  }
+  .control-heading output {
+    font-size: 14px;
+  }
+  .pitch-bottom {
+    left: 16px;
+    right: 16px;
+    bottom: 8px;
+  }
+  dialog {
+    padding: 30px 24px;
+  }
+  dialog h2 {
+    font-size: 42px;
+  }
+}
+@media (max-width: 359px) {
+  .shell {
+    padding: 0 16px;
+  }
+  .arena {
+    margin: 0 -16px;
+  }
+  .aim-buttons {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .score-label {
+    margin: 0;
+  }
+  .score {
+    gap: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
+
+#prompt, .points { text-align: center; font-size: 14px; color: var(--muted); }
+
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <h1 id="game-name" data-copy="title">ELEVEN.</h1>
+      <div class="header-actions">
+        <button id="sound" class="icon-button" data-label="soundOn" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M11 4 5 9H2v6h3l6 5V4Z"/><path class="sound-waves" d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/><path class="sound-mute" d="m16 9 6 6m0-6-6 6"/></svg>
+        </button>
+        <button id="help" class="icon-button" data-label="help">?</button>
+      </div>
+    </header>
+    <div class="edition"><span id="edition-name" hidden></span><span id="edition-line" hidden></span></div>
+    <p id="strapline" hidden></p>
+    <section class="scoreboard" data-label="scoreLabel">
+      <div class="score"><span id="goals">0</span><span class="score-divider">/</span><span id="total-shots"></span><span class="score-label" data-copy="goals"></span></div>
+      <div class="round-progress"><span id="goal-target"></span><ol id="shot-dots" data-label="results"></ol></div>
+    </section>
+    <section class="arena" data-label="pitchLabel">
+      <span id="shot-label" class="sr-only"></span>
+      <canvas id="pitch" tabindex="0" data-label="pitchHelp" aria-disabled="true"></canvas>
+      <div id="verdict" class="sr-only" aria-live="polite"><strong id="result-title"></strong></div>
+      <div class="pitch-bottom"><span id="pitch-status" class="sr-only" role="status"></span><button id="replay" class="text-button" disabled data-copy="replay"></button></div>
+      <div id="connection" class="connection" role="status" data-copy="loading">Opening the pitch…</div>
+    </section>
+    <section class="controls" data-label="controls">
+      <p id="how-to-play" data-copy="instruction"></p>
+      <button id="shoot" class="shoot-button" data-gamestage-shoot disabled><span id="shoot-label" data-copy="shoot"></span><span aria-hidden="true">↗</span></button>
+      <details id="shot-options" class="shot-options">
+        <summary><span data-copy="options"></span><span aria-hidden="true">+</span></summary>
+        <div class="options-grid">
+          <div class="control-block"><div class="control-heading"><span data-copy="aim"></span></div>
+            <div class="aim-buttons" role="group" data-label="quickAim">
+              <button class="aim" data-aim="-760,700" data-label="topLeft">↖</button><button class="aim" data-aim="0,700" data-label="topCentre">↑</button><button class="aim" data-aim="760,700" data-label="topRight">↗</button>
+              <button class="aim" data-aim="-760,180" data-label="lowLeft">↙</button><button class="aim" data-aim="0,180" data-label="lowCentre">↓</button><button class="aim" data-aim="760,180" data-label="lowRight">↘</button>
+            </div>
+          </div>
+          <div class="control-block">
+            <label class="control-heading" for="power"><span data-copy="power"></span><output id="power-value">65%</output></label>
+            <input id="power" class="range" type="range" min="0" max="1000" value="650" step="10" data-label="power" />
+          </div>
+        </div>
+      </details>
+      <p id="prompt"></p>
+      <p class="points"><span data-copy="score"></span> <b id="score">0</b></p>
+    </section>
+  </main>
+  <dialog id="help-dialog" aria-labelledby="help-title">
+    <button class="close-dialog icon-button" data-label="close">×</button>
+    <h2 id="help-title" data-copy="helpTitle"></h2><p id="help-target"></p>
+    <div class="help-row"><b data-copy="pointerTitle"></b><span data-copy="pointerHelp"></span></div>
+    <div class="help-row"><b data-copy="keyboardTitle"></b><span data-copy="keyboardHelp"></span></div>
+    <div class="help-row"><b data-copy="finesseTitle"></b><span data-copy="finesseHelp"></span></div>
+    <button class="dialog-primary close-dialog" data-copy="play"></button>
+  </dialog>
+  <dialog id="end-dialog" aria-labelledby="end-title">
+    <h2 id="end-title"></h2><div class="end-score"><span id="end-goals"></span><small id="end-total"></small></div>
+    <p id="end-copy"></p><div id="end-shots"></div>
+    <button id="watch-last" class="text-button" data-copy="watchLast"></button>
+  </dialog>
+  <!-- The scene reads committed replay geometry; input controls send intention only. -->
+  <script type="module">import "./game.js";</script>
+</body>
+</html>

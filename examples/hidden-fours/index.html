@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hidden Fours</title>
+<style>
+  :root {
+    /* The site's palette. These four standalone pages are the same scaffold a
+       creator downloads, so they wear the same register as the reference
+       templates and as `Sample Games/thelimit`. See the note in
+       `packages/player-client/reference/hunt.html`. */
+    --bg: #FCFBFB; --surface: #F4F2F2; --line: #D3CFCE;
+    --text: #232020; --muted: #6B6462; --red: #E2483A; --green: #2E7D51;
+    --amber: #A2651C;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 17px/1.5 ui-sans-serif, system-ui, sans-serif;
+    display: grid; place-items: start center; padding: 40px 20px 80px;
+  }
+  main { width: min(100%, 560px); display: flex; flex-direction: column; gap: 26px; }
+  h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; }
+  .prompt { margin: 0; color: var(--muted); }
+  .strapline { margin: 6px 0 0; color: var(--muted); }
+  .strapline[hidden] { display: none; }
+  .solved { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .solved:empty { display: none; }
+  .solved li {
+    padding: 12px 16px; border: 1.5px solid var(--green); border-radius: 12px;
+    background: var(--surface); display: flex; flex-direction: column; gap: 2px;
+  }
+  .solved b { color: var(--green); }
+  .solved span { color: var(--muted); font-size: 15px; text-transform: capitalize; }
+  .board { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  button.pick {
+    padding: 16px; border: 1.5px solid var(--line); border-radius: 12px;
+    background: var(--surface); color: var(--text); font: inherit;
+    text-transform: capitalize; cursor: pointer; transition: border-color .15s;
+  }
+  button.pick[aria-pressed="true"] { border-color: var(--text); }
+  button.pick.correct { border-color: var(--green); color: var(--green); }
+  button.pick.close { border-color: var(--amber); color: var(--amber); }
+  button.pick.wrong { border-color: var(--red); color: var(--red); }
+  button.pick:disabled { cursor: not-allowed; opacity: .6; }
+  .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  button.submit {
+    padding: 14px 22px; border: 0; border-radius: 999px;
+    background: var(--gamestage-primary, var(--red)); color: #fff; font: inherit; font-weight: 650; cursor: pointer;
+  }
+  button.submit:disabled { opacity: .4; cursor: not-allowed; }
+  .state { display: flex; gap: 22px; color: var(--muted); font-size: 15px; }
+  .state b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .verdict { margin: 0; min-height: 1.5em; }
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<main>
+  <div>
+    <h1 id="game-name">Hidden Fours</h1>
+    <p class="strapline" id="strapline" hidden></p>
+    <p class="strapline" id="edition-name" hidden></p>
+    <p class="strapline" id="edition-strapline" hidden></p>
+    <p class="strapline" id="how-to-play" hidden></p>
+    <p class="prompt" id="prompt">Loading the round…</p>
+  </div>
+
+  <ul class="solved" id="solved"></ul>
+
+  <div class="board" id="board"></div>
+
+  <div class="actions">
+    <button class="submit" id="submit" disabled>Submit group</button>
+    <span class="state">
+      <span>Attempts <b id="attempts">0</b></span>
+      <span>Misses <b id="mistakes">0</b></span>
+      <span>Score <b id="score">0</b></span>
+    </span>
+  </div>
+
+  <p class="verdict" id="verdict"></p>
+
+  <footer>
+    The groups, their names and the scoring live on the Gamestage Engine. This
+    page holds none of them: it sends a guess and renders what the server
+    committed. A group's name arrives only once you have found it.
+  </footer>
+</main>
+
+<script>
+// A module that fails to load fails silently: the page sits on "Loading the
+// round…" for ever and a creator who has not run `gamestage client` sees a hang
+// with nothing in the interface to explain it. Capture phase, because a
+// resource error does not bubble.
+window.addEventListener(
+  "error",
+  (event) => {
+    if (!(event.target instanceof HTMLScriptElement)) return;
+    const prompt = document.getElementById("prompt");
+    if (prompt) {
+      prompt.textContent =
+        "This game could not load its Gamestage client. Run `gamestage client` next to it.";
+    }
+  },
+  true,
+);
+</script>
+<script type="module">
+import { applyPresentation, start } from "https://gamestage.ai/client/0.48.0/gamestage.js";
+
+// One import, and the order that matters is already held: identity resolves
+// before anything is stored or counted, consent gates both, and the time this
+// page reads comes from a server rather than from the device.
+//
+// What this page is never told is the interesting part. The round carries the
+// board, a count of groups and how many items are in one. It does not carry
+// which items belong together, and it does not carry what any group is called.
+// Both arrive from the Engine only once this player has found that group, which
+// is why a puzzle cannot be solved by reading the page.
+
+const el = (id) => document.getElementById(id);
+const selected = new Set();
+let groupSize = 0;
+let finished = false;
+let game;
+
+/**
+ * How many items make a guess.
+ *
+ * `group_size` is public and gives nothing away: knowing a group holds four
+ * items is not knowing which four. It comes from the round rather than from a
+ * constant here so a creator who edits their groups does not also have to edit
+ * this page.
+ *
+ * Any group size plays and verifies, and it is worth knowing that this was not
+ * always true. `gamestage verify` used to drive the page by clicking the first
+ * two picks and submitting, so a round whose groups held anything but two items
+ * left Submit disabled at that moment and the check reported that it could not
+ * play the game, against a game that was working. It now selects until this page
+ * enables Submit, which makes the line below the only thing that decides how many
+ * items a guess takes.
+ */
+function renderBoard() {
+  const challenge = game.round.challenge;
+  groupSize = challenge.group_size || 2;
+  el("prompt").textContent =
+    challenge.prompt ?? `Find the groups. ${groupSize} at a time.`;
+  el("board").replaceChildren(
+    ...challenge.board.map((name) => {
+      const button = document.createElement("button");
+      button.className = "pick";
+      // Keyed as well as labelled, so feedback is matched by the key the server
+      // sent rather than by the text this page happens to be rendering.
+      button.dataset.pick = name;
+      button.textContent = name;
+      button.setAttribute("aria-pressed", "false");
+      button.onclick = () => {
+        if (finished || button.disabled) return;
+        // Last guess's marking clears when this one starts, rather than the
+        // instant it was rendered. A near miss a player never saw is a near
+        // miss the Engine spent a mistake on for nothing.
+        clearFeedback();
+        const on = selected.has(name);
+        if (on) selected.delete(name);
+        else if (selected.size < groupSize) selected.add(name);
+        else return;
+        button.setAttribute("aria-pressed", String(!on));
+        el("submit").disabled = selected.size !== groupSize;
+      };
+      return button;
+    }),
+  );
+}
+
+/** Wipe the marking on the last guess, leaving solved groups alone. */
+function clearFeedback() {
+  for (const button of [...el("board").children]) {
+    if (!button.disabled) button.classList.remove("close", "wrong");
+  }
+}
+
+/**
+ * Clear a guess, leaving anything already solved alone.
+ *
+ * Deliberately not clearing the marking. This runs the moment a play comes
+ * back, so removing the verdict here would take "one away" off the screen in
+ * the same frame it arrived.
+ */
+function clearSelection() {
+  selected.clear();
+  for (const button of [...el("board").children]) {
+    if (!button.disabled) button.setAttribute("aria-pressed", "false");
+  }
+  el("submit").disabled = true;
+}
+
+/**
+ * The groups this player has found, from the server's account of them.
+ *
+ * `progress.revealed` holds a label and members for each group already solved,
+ * and nothing at all for the ones that are not. So this renders the answers a
+ * player has earned without the page ever having held the ones they have not.
+ */
+function renderSolved(state) {
+  const revealed = Array.isArray(state?.progress?.revealed) ? state.progress.revealed : [];
+  el("solved").replaceChildren(
+    ...revealed.map((group) => {
+      const row = document.createElement("li");
+      const label = document.createElement("b");
+      label.textContent = group.label;
+      const members = document.createElement("span");
+      members.textContent = group.members.join(", ");
+      row.append(label, members);
+      return row;
+    }),
+  );
+
+  const done = new Set(revealed.flatMap((group) => group.members));
+  for (const button of [...el("board").children]) {
+    if (done.has(button.dataset.pick)) {
+      button.classList.add("correct");
+      button.classList.remove("close", "wrong");
+      button.setAttribute("aria-pressed", "false");
+      button.disabled = true;
+      selected.delete(button.dataset.pick);
+    }
+  }
+}
+
+function renderState(state) {
+  if (!state) return;
+  el("attempts").textContent = `${state.attempts_used}/${state.attempts_allowed ?? "-"}`;
+  el("mistakes").textContent = `${state.mistakes_used}/${state.mistakes_allowed ?? "-"}`;
+  el("score").textContent = state.score;
+  renderSolved(state);
+  if (state.finished) {
+    finished = true;
+    el("submit").disabled = true;
+    for (const button of [...el("board").children]) button.disabled = true;
+    el("verdict").textContent =
+      state.outcome === "won" ? "Every group found. That is the server's word for it, not this page's." :
+      state.outcome === "lost" ? "Out of it. The Engine decided that, not the browser." :
+      "Committed. The result is not in yet.";
+  }
+}
+
+async function main() {
+  game = await start({
+    // Where a player's token comes from, if this game has one. Gamestage ships no
+    // identity provider at any tier: this is whatever your own login system gives
+    // you, and `gamestage dev --as alice` writes one here so a signed-in player can
+    // be developed against with no accounts and no network.
+    identity: () => window.GAMESTAGE_TOKEN,
+  });
+
+  // What a producer set in Studio, applied to the elements this page nominates.
+  // Nothing here decides an outcome: it is the game's name, its wording and the
+  // colour of the button, and a field nobody has filled in leaves the page as it
+  // was built rather than blanking it.
+  applyPresentation(game.presentation, {
+    displayName: el("game-name"),
+    strapline: el("strapline"),
+    howToPlay: el("how-to-play"),
+    playButtonLabel: el("submit"),
+    editionName: el("edition-name"),
+    editionStrapline: el("edition-strapline"),
+    root: document.documentElement,
+  }, {
+    // The name the game was deployed with, behind the producer's own. Without
+    // it a game whose `display_name` nobody has set keeps the heading in this
+    // file, which is a hard-coded name a producer cannot change. GS-325.
+    displayName: game.deployedName,
+  });
+
+
+  // The round moved, so the board is redrawn from the round the facade re-read
+  // from the Engine. Never from the announcement: an element update says that
+  // something changed and never what it changed to.
+  game.onRoundChanged(() => {
+    finished = false;
+    renderBoard();
+    clearSelection();
+  });
+
+  renderBoard();
+  renderState(await game.client.getRoundState(game.round.id));
+
+  // Consent gates this, and nothing is recorded until something grants it. A
+  // standalone game has no parent application to ask, so on the free tier the
+  // gate stays closed and these calls cost nothing and record nothing.
+  game.track("round_opened", { round: game.round.number ?? null });
+}
+
+el("submit").onclick = async () => {
+  el("submit").disabled = true;
+  const picks = [...selected];
+
+  try {
+    // The facade mints one key per call and hands it back, so a caller retrying
+    // a lost response reuses it rather than spending an attempt.
+    const result = await game.play({ picks });
+
+    if (result.outcome === "stale") {
+      el("verdict").textContent = "The round moved on. Try again.";
+      el("submit").disabled = selected.size !== groupSize;
+      return;
+    }
+
+    if (result.outcome === "rejected") {
+      el("verdict").textContent = `Refused: ${result.reason}`;
+      el("submit").disabled = selected.size !== groupSize;
+      return;
+    }
+
+    if (result.outcome === "busy") {
+      el("verdict").textContent = `Busy right now. Try again in ${result.retry_after_seconds ?? 1}s.`;
+      el("submit").disabled = selected.size !== groupSize;
+      return;
+    }
+
+    // One verdict for the whole guess, because a group is right or it is not.
+    // `close` is the near miss, and it is the clearest thing in this product
+    // that a page cannot work out for itself: it means one of these belongs
+    // somewhere else, and the page is not told which.
+    if (result.marked) {
+      const verdict = result.feedback[0]?.verdict ?? "wrong";
+      for (const item of result.feedback) {
+        const button = [...el("board").children].find((b) => b.dataset.pick === item.key);
+        if (button) button.classList.add(verdict);
+      }
+      el("verdict").textContent =
+        verdict === "correct" ? `${result.feedback[0]?.label ?? "Group"} found.` :
+        verdict === "close" ? "Close. One is in the wrong set." :
+        "Not a group.";
+      game.track("guess_marked", { verdict, submitted: picks.length });
+    } else {
+      el("verdict").textContent = "Committed. Marking happens at settlement.";
+    }
+
+    renderState(result.round_state);
+    if (!finished) clearSelection();
+  } catch (error) {
+    el("verdict").textContent = error.message;
+    el("submit").disabled = selected.size !== groupSize;
+  }
+};
+
+// The failure a fan meets when the Engine cannot be reached, said in a sentence
+// rather than left as a blank screen and an exception in a console nobody opens.
+//
+// `main().catch(...)` rather than a top-level await, deliberately: a module that
+// awaits at the top level blocks every module script after it until it settles, so
+// the handler for its own failure could not live in a later one.
+main().catch((error) => {
+  el("prompt").textContent = `Could not load the round: ${error.message}`;
+});
+</script>
+</body>
+</html>

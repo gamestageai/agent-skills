@@ -1,0 +1,129 @@
+manifest:
+  schema_version: '1.0'
+  revision: 0
+  conformance: L0
+app:
+  # Change this. `gamestage create` generates an id, and ids are not
+  # workspace-scoped yet, so deploying this one verbatim collides.
+  id: fulltime-example
+  title: Full Time Bingo
+  owners: {}
+  status: confirmed
+  provenance:
+    - kind: human_decision
+      owner: creator
+      date: '2026-08-25'
+      note: Created with gamestage create
+experience:
+  surfaces:
+    - web-embed
+  container_label: Round
+  status: proposed
+  provenance: []
+studio_app:
+  status: missing
+  provenance: []
+studio_surface:
+  status: missing
+  provenance: []
+backend:
+  route: managed_runtime
+  archetype: bingo
+  round:
+    archetype: bingo
+    number: 1
+    prompt: Nine things that might happen. Shuffle until you like your board, then lock it in.
+    rows: 3
+    columns: 3
+    centreMode: free
+    lineTypes:
+      - row
+      - column
+      - diagonal
+      - full_board
+    pointsPerLine: 25
+    pointsForFullBoard: 100
+    shuffleAllowance: 3
+    cardPool:
+      - key: "Goal in the first 10"
+        label: "Goal in the first 10"
+      - key: "Penalty awarded"
+        label: "Penalty awarded"
+      - key: "Own goal"
+        label: "Own goal"
+      - key: "Red card"
+        label: "Red card"
+      - key: "Booked for dissent"
+        label: "Booked for dissent"
+      - key: "Header from a corner"
+        label: "Header from a corner"
+      - key: "Free kick on target"
+        label: "Free kick on target"
+      - key: "Off the woodwork"
+        label: "Off the woodwork"
+      - key: "Substitute scores"
+        label: "Substitute scores"
+      - key: "Goal from outside the box"
+        label: "Goal from outside the box"
+      - key: "VAR check"
+        label: "VAR check"
+      - key: "Offside flag in the first half"
+        label: "Offside flag in the first half"
+      - key: "Manager booked"
+        label: "Manager booked"
+      - key: "Goal in injury time"
+        label: "Goal in injury time"
+      - key: "Both teams score"
+        label: "Both teams score"
+      - key: "Corner in the first five"
+        label: "Corner in the first five"
+      - key: "Goalless at half time"
+        label: "Goalless at half time"
+      - key: "Three goals or more"
+        label: "Three goals or more"
+  configuration: {}
+  status: confirmed
+  provenance:
+    - kind: human_decision
+      owner: creator
+      date: '2026-08-25'
+      note: 'Archetype chosen at create time: bingo'
+interaction_cloud:
+  events: []
+  elements: []
+  status: missing
+  provenance: []
+identity:
+  provider: identify
+  require_authenticated_writes: true
+  age_gate:
+    required: false
+    method: self_declared
+  consent:
+    analytics_requires_consent: true
+  status: proposed
+  provenance: []
+measurement:
+  destinations:
+    - type: monterosa
+      enabled: true
+      config: {}
+  trusted_events: []
+  signal:
+    enabled: false
+    monterosa:
+      enabled: false
+  status: missing
+  provenance: []
+deployment:
+  environments:
+    - local
+  status: missing
+  provenance: []
+operations:
+  promotion:
+    offers_prize: false
+    skill_based: false
+    jurisdictions: []
+  status: missing
+  provenance: []

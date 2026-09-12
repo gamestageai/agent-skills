@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Call It</title>
+<style>
+  :root {
+    /* The site's palette. These four standalone pages are the same scaffold a
+       creator downloads, so they wear the same register as the reference
+       templates and as `Sample Games/thelimit`. See the note in
+       `packages/player-client/reference/hunt.html`. */
+    --bg: #FCFBFB; --surface: #F4F2F2; --line: #D3CFCE;
+    --text: #232020; --muted: #6B6462; --red: #E2483A; --green: #2E7D51;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+    font: 17px/1.5 ui-sans-serif, system-ui, sans-serif;
+    display: grid; place-items: start center; padding: 40px 20px 80px;
+  }
+  main { width: min(100%, 560px); display: flex; flex-direction: column; gap: 26px; }
+  h1 { margin: 0; font-size: 34px; letter-spacing: -0.03em; }
+  .prompt { margin: 0; color: var(--muted); }
+  .strapline { margin: 6px 0 0; color: var(--muted); }
+  .strapline[hidden] { display: none; }
+  /* One column, because these are alternatives rather than a board: a grid of
+     equal tiles reads as "pick several" and this format takes exactly one. */
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  button.pick {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    padding: 16px; border: 1.5px solid var(--line); border-radius: 12px;
+    background: var(--surface); color: var(--text); font: inherit;
+    cursor: pointer; transition: border-color .15s;
+  }
+  button.pick::before {
+    content: ""; width: 18px; height: 18px; flex: none;
+    border: 1.5px solid var(--line); border-radius: 999px;
+  }
+  button.pick[aria-pressed="true"] { border-color: var(--text); }
+  button.pick[aria-pressed="true"]::before { border-color: var(--text); border-width: 6px; }
+  button.pick.correct { border-color: var(--green); color: var(--green); }
+  button.pick.wrong { border-color: var(--red); color: var(--red); opacity: .6; }
+  button.pick:disabled { cursor: not-allowed; }
+  /* One question and its options. A fieldset because three sets of choices
+     need three accessible names; without it a screen reader reads twelve
+     options with nothing saying which question each belongs to. GS-354. */
+  .question {
+    display: flex; flex-direction: column; gap: 10px;
+    margin: 0; padding: 0; border: 0;
+  }
+  .question + .question { margin-top: 22px; }
+  .question legend { padding: 0; color: var(--muted); font-size: 15px; }
+  .actions { display: flex; gap: 12px; align-items: center; }
+  button.submit {
+    padding: 14px 22px; border: 0; border-radius: 999px;
+    background: var(--gamestage-primary, var(--red)); color: #fff; font: inherit; font-weight: 650; cursor: pointer;
+  }
+  button.submit:disabled { opacity: .4; cursor: not-allowed; }
+  .state { display: flex; gap: 22px; color: var(--muted); font-size: 15px; }
+  .state b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .verdict { margin: 0; min-height: 1.5em; }
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+</style>
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<main>
+  <div>
+    <h1 id="game-name">Call It</h1>
+    <p class="strapline" id="strapline" hidden></p>
+    <p class="strapline" id="edition-name" hidden></p>
+    <p class="strapline" id="edition-strapline" hidden></p>
+    <p class="strapline" id="how-to-play" hidden></p>
+    <p class="prompt" id="prompt">Loading the round…</p>
+  </div>
+
+  <div class="options" id="board"></div>
+
+  <div class="actions">
+    <button class="submit" id="submit" disabled>Lock it in</button>
+    <span class="state">
+      <span>Calls <b id="attempts">0</b></span>
+      <span>Score <b id="score">0</b></span>
+    </span>
+  </div>
+
+  <p class="verdict" id="verdict"></p>
+
+  <footer>
+    The result lives on the Gamestage Engine, and it is not here yet. This page
+    sends a call and renders what the server committed.
+  </footer>
+</main>
+
+<script>
+// A module that fails to load fails silently: the page sits on "Loading the
+// round…" for ever and a creator who has not run `gamestage client` sees a hang
+// with nothing in the interface to explain it. Capture phase, because a
+// resource error does not bubble.
+window.addEventListener(
+  "error",
+  (event) => {
+    if (!(event.target instanceof HTMLScriptElement)) return;
+    const prompt = document.getElementById("prompt");
+    if (prompt) {
+      prompt.textContent =
+        "This game could not load its Gamestage client. Run `gamestage client` next to it.";
+    }
+  },
+  true,
+);
+</script>
+<script type="module">
+import { applyPresentation, start } from "https://gamestage.ai/client/0.48.0/gamestage.js";
+
+// What makes this archetype different from the others, and the only thing worth
+// reading before editing it: **a play here has no verdict.** The result does not
+// exist when the call is made, so the Engine commits the prediction and says so,
+// and marking happens later when the round is declared again with its result
+// filled in. A page that showed right or wrong at submission would be inventing
+// an outcome, which is exactly the failure this format guards against.
+
+const el = (id) => document.getElementById(id);
+/**
+ * One answer per question, keyed by question id. GS-354.
+ *
+ * Was a single `chosen` string, which is the shape of a round that asks one
+ * thing. This round asks three: the Engine serves `challenge.questions[]` and
+ * this page read `challenge.options`, which a three-question round does not
+ * carry at all. So it threw on load with "Cannot read properties of undefined
+ * (reading 'map')" and never drew a board.
+ *
+ * The single-question shape is still real and still served, for a round that
+ * asks one thing, so `renderBoard` handles both rather than assuming three.
+ */
+let answers = {};
+let finished = false;
+let game;
+
+function renderState(state) {
+  if (!state) return;
+  el("attempts").textContent = `${state.attempts_used}/${state.attempts_allowed ?? "-"}`;
+  el("score").textContent = state.score;
+  if (state.finished) {
+    finished = true;
+    el("submit").disabled = true;
+    // "pending" is the honest third answer, and it is the common one here: the
+    // call is in and the world has not decided yet.
+    el("verdict").textContent =
+      state.outcome === "won" ? "Called it. The Engine settled that, not this page." :
+      state.outcome === "lost" ? "Wrong call. The Engine settled that, not this page." :
+      "Your call is in. It settles when the result does.";
+  }
+}
+
+/**
+ * Every question the round asks, whichever shape it came in.
+ *
+ * A round declares `questions` or a bare `options`, never both, and the Engine
+ * sends `questions` for either. The fallback is here so a round authored in the
+ * older single-question shape still draws, and so this page cannot throw on a
+ * round that is merely older than it is.
+ */
+function questionsOf(challenge) {
+  if (Array.isArray(challenge.questions) && challenge.questions.length) {
+    return challenge.questions;
+  }
+  return challenge.options
+    ? [{ id: "1", prompt: challenge.prompt, options: challenge.options }]
+    : [];
+}
+
+function renderBoard() {
+  const challenge = game.round.challenge;
+  const questions = questionsOf(challenge);
+  el("prompt").textContent = challenge.prompt ?? "Make your call.";
+
+  // An empty round is drawn as an empty round rather than as a crash. A
+  // producer who has authored nothing yet should meet a sentence, not a page
+  // that never finished loading.
+  if (!questions.length) {
+    el("board").replaceChildren();
+    el("verdict").textContent = "This round has no questions yet.";
+    return;
+  }
+
+  el("board").replaceChildren(
+    ...questions.map((question) => {
+      const group = document.createElement("fieldset");
+      group.className = "question";
+      // A legend rather than a paragraph: three sets of radio-style buttons
+      // need three accessible names, or a screen reader reads twelve options
+      // with nothing saying which question each belongs to.
+      const legend = document.createElement("legend");
+      legend.textContent = question.prompt ?? "Make your call.";
+      group.append(legend);
+
+      for (const option of question.options ?? []) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "pick";
+        button.textContent = option.label;
+        button.dataset.key = option.key;
+        button.dataset.question = question.id;
+        button.setAttribute("aria-pressed", "false");
+        button.onclick = () => {
+          if (finished) return;
+          // Choosing replaces within its own question: a second tap is a change
+          // of mind rather than a second prediction on the same question.
+          answers[question.id] = option.key;
+          for (const other of group.querySelectorAll("button.pick")) {
+            other.setAttribute("aria-pressed", String(other === button));
+          }
+          // **Every question, or the Engine refuses the play as
+          // `incomplete_prediction` and spends an attempt doing it.** The
+          // button is the only thing standing between a fan and that refusal.
+          el("submit").disabled = questions.some((q) => answers[q.id] === undefined);
+        };
+        group.append(button);
+      }
+      return group;
+    }),
+  );
+}
+
+async function main() {
+  game = await start({
+    // Where a player's token comes from, if this game has one. Gamestage ships no
+    // identity provider at any tier: this is whatever your own login system gives
+    // you, and `gamestage dev --as alice` writes one here so a signed-in player can
+    // be developed against with no accounts and no network.
+    identity: () => window.GAMESTAGE_TOKEN,
+  });
+
+  // What a producer set in Studio, applied to the elements this page nominates.
+  applyPresentation(game.presentation, {
+    displayName: el("game-name"),
+    strapline: el("strapline"),
+    howToPlay: el("how-to-play"),
+    playButtonLabel: el("submit"),
+    editionName: el("edition-name"),
+    editionStrapline: el("edition-strapline"),
+    root: document.documentElement,
+  }, {
+    // The name the game was deployed with, behind the producer's own. Without
+    // it a game whose `display_name` nobody has set keeps the heading in this
+    // file, which is a hard-coded name a producer cannot change. GS-325.
+    displayName: game.deployedName,
+  });
+
+
+  // The round moved, which for this format usually means the result arrived.
+  // Redrawn from the round the facade re-read from the Engine, never from the
+  // announcement: an element update says something changed and never what to.
+  game.onRoundChanged(async () => {
+    answers = {};
+    finished = false;
+    renderBoard();
+    renderState(await game.client.getRoundState(game.round.id));
+  });
+
+  renderBoard();
+  renderState(await game.client.getRoundState(game.round.id));
+
+  // Consent gates this, and nothing is recorded until something grants it.
+  game.track("round_opened", { round: game.round.number ?? null });
+}
+
+el("submit").onclick = async () => {
+  el("submit").disabled = true;
+
+  try {
+    // `picks`, plural, holding one key. The facade's play takes `picks` and
+    // forwards nothing else, so a `{ pick }` is silently dropped and the Engine
+    // marks an empty key: the round refuses it as `unknown_option`, which reads
+    // like a broken board rather than a dropped field. The rules for this
+    // archetype read `picks[0]`.
+    //
+    // The facade mints one idempotency key per call and hands it back, so a
+    // caller retrying a lost response reuses it rather than spending the
+    // player's single call.
+    /**
+     * `answers` for a round that asks several, `picks` for the single-question
+     * shape, and both sent so the Engine can read whichever it expects.
+     *
+     * `answersFrom` in the Engine's predict rules takes `answers` when it is
+     * there and falls back to the single pick otherwise, so sending both is
+     * not two answers to one question: it is the same answer said twice for a
+     * one-question round, and the multi-question one for the rest. `picks`
+     * carries the first question's answer so an older Engine still marks a
+     * one-question round rather than refusing an empty key.
+     */
+    const asked = questionsOf(game.round.challenge);
+    const result = await game.play({
+      answers,
+      picks: asked.length === 1 ? [answers[asked[0].id]] : [],
+    });
+
+    if (result.outcome === "stale") {
+      el("verdict").textContent = "The round moved on. Try again.";
+      el("submit").disabled = false;
+      return;
+    }
+
+    if (result.outcome === "rejected") {
+      el("verdict").textContent = `Refused: ${result.reason}`;
+      return;
+    }
+
+    // `marked` is false here whenever the result has not arrived, which is the
+    // normal case. Feedback exists only for a call made after settlement.
+    if (result.marked && result.feedback?.length) {
+      for (const item of result.feedback) {
+        const button = [...el("board").children].find((b) => b.dataset.key === item.key);
+        if (button) button.classList.add(item.verdict === "correct" ? "correct" : "wrong");
+      }
+      const right = result.feedback.some((f) => f.verdict === "correct");
+      el("verdict").textContent = right ? "Called it." : "Wrong call.";
+      game.track("call_marked", { correct: right });
+    } else {
+      el("verdict").textContent = "Your call is in. It settles when the result does.";
+      game.track("call_committed", { round: game.round.number ?? null });
+    }
+
+    renderState(result.round_state);
+  } catch (error) {
+    el("verdict").textContent = error.message;
+    el("submit").disabled = false;
+  }
+};
+
+// The failure a fan meets when the Engine cannot be reached, said in a sentence
+// rather than left as a blank screen and an exception in a console nobody opens.
+main().catch((error) => {
+  el("prompt").textContent = `Could not load the round: ${error.message}`;
+});
+</script>
+</body>
+</html>
