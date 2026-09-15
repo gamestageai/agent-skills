@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-14
+version: 2026-09-15
 ---
 
 # Gamestage
 
-Pack version 2026-09-14.
-Pack digest 0e909bfa24feb4c5.
+Pack version 2026-09-15.
+Pack digest db7c4e6039d3922b.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -739,9 +739,9 @@ Do not run it on a machine that `start` said is already signed in. It rebinds
 the machine to whichever account the browser is holding, and a developer who
 has two is now working in the wrong workspace with nothing saying so.
 
-`gamestage link github` still needs a person: it is the same device flow, but
-it is a first deploy's gate rather than a step in the migration, so it belongs
-in the handover with the refusal that named it. Approval of a registered
+`gamestage link github` still needs a person: it is the same device flow. It
+stopped being a first deploy's gate on 2026-09-15 and nothing is blocked
+without it, so hand it over only if a refusal actually names it. Approval of a registered
 account is ours to give, not yours to wait out. `gamestage suspend`, `wake` and
 `archive` change what a live audience can reach. `gamestage promote` is the same family and the largest of them: it
 approves a game to move from dev to prod, which is a real audience's game
