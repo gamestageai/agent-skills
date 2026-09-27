@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-5
+version: 2026-09-27-6
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-5.
-Pack digest 312a9427771e9b56.
+Pack version 2026-09-27-6.
+Pack digest cea47cc35d9f811e.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -571,6 +571,31 @@ phone. When `verify` warns, fix what it names before you call the game done.
 **For a native app, tell the developer what their app team must do**, because
 it is in the app rather than the page: set the web view's background to the
 game's background colour, and create the web view before the player taps.
+
+## Give anonymous players a way back to their progress
+
+**Any game whose players are anonymous gets recovery, on a Profile screen or
+the page's menu.** Without it a fan who clears their browser or changes phone
+loses their name, scores, streak and achievements, and nothing can bring them
+back.
+
+Two halves, and include both:
+
+- **"Keep your progress"**: `game.client.issueRecoveryCode()` returns a code,
+  four words and two digits. Show it once, large, with Copy and Share, and tell
+  the fan to keep it private.
+- **"I've played before"**: take the saved code in a text field (a word
+  keyboard, not a number pad; case and spaces don't matter) and call
+  `game.client.restoreFromRecoveryCode(code)`. A refusal throws
+  `code_not_recognised`: say plainly that the code isn't recognised.
+
+In a plain page, `mountRecovery(game, element)` from the client draws both as a
+dialog in one line. In a Gamestage UI game, use the `recovery-code` component.
+Every word is a Studio setting; put them in `gamestage.settings.json`.
+
+Tell the developer the three limits, because each changes what the screen
+should say: it is for anonymous players only; restoring does not merge the
+progress the device already had; and a code is effectively a password.
 
 ## Build the loading state and the reconnection handling
 
