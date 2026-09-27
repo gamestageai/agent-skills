@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-10
+version: 2026-09-27-11
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-10.
-Pack digest c3f7374065410f08.
+Pack version 2026-09-27-11.
+Pack digest a470d89f1e02658e.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -298,6 +298,28 @@ https://ui.gamestage.ai/.
 Whichever they choose, the rules that make it a Gamestage game do not change:
 the page holds no answers, the Engine decides every result, and every word a
 fan reads can be changed by a producer.
+
+## Before you draw an asset, check the third-party registry
+
+**When the game needs a sprite, an icon, a sound, a font or a pitch to plot
+data on, check [Third-party tools and assets](https://gamestage.ai/docs/third-party)
+before you draw or generate one.** It lists open-source tools and CC0 asset
+packs that suit a sports fan game, PitchKit for a football pitch and a set of
+Kenney packs for interface art, with what each one is, its licence, its cost,
+when to reach for it and when to skip it.
+
+**Prefer a listed CC0 or MIT item over drawing your own**, when it genuinely
+fits the game. A Kenney UI pack or a PitchKit pitch is tested, licensed and
+free; an asset you generate from nothing costs time and still needs a licence
+decided for it. The registry says when to skip an entry too: reach past it
+when the game needs a look a generic pack cannot give it, such as a licensed
+team's actual kit or a producer's brand identity, and say so rather than
+forcing a generic sprite onto a brand that owns a better one.
+
+**State the licence when you add something from the list.** CC0 needs no
+attribution; a paid tool such as Asset Forge is paid for the app, not for what
+you export with it. Both are safe to ship; say which applies so the developer
+is never guessing.
 
 ## Ask what data the game needs, and offer the sources that exist
 
