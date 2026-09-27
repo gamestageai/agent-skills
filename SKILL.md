@@ -7,7 +7,7 @@ version: 2026-09-27
 # Gamestage
 
 Pack version 2026-09-27.
-Pack digest f171139d9f8e6c4c.
+Pack digest 066b54a8968803ca.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -283,20 +283,17 @@ show them the options:
 | Option | Use it for | Start with |
 | --- | --- | --- |
 | Their own | a look they already have, or a brand kit you have been given | nothing to install |
+| Gamestage UI | the game itself: scores, timers, answer buttons, rewards, leaderboards, built to feel like a mobile game rather than a form | `npx gamestage-ui init`, then `npx gamestage-ui add choice` |
 | shadcn/ui | functional screens: forms, settings, sign-in, tables, anything that is an app around the game rather than the game | `npx shadcn@latest init` |
 | Plain HTML and CSS | the smallest thing that plays, and what `gamestage create` scaffolds | nothing to install |
 
 Recommend by what the screen is for. The board a fan plays on wants to feel
-like a game, so it should not look like a settings page; the account and
-results screens around it can. Mixing is fine: shadcn/ui around the game and
-your own styling on the board is a sound default for anything larger than one
-screen.
-
-**Gamestage UI**, Monterosa's components for game interfaces (scores, timers,
-answer buttons, rewards, leaderboards), is not in this table yet because it
-cannot be installed from outside Monterosa today. Do not offer it, and do not
-run `npx gamestage-ui`: it is not on npm and fails. This line changes when it
-can be installed.
+like a game, so Gamestage UI is the default for it; the account and settings
+screens around it can use shadcn/ui. Mixing is fine and is the sound default
+for anything larger than one screen. Gamestage UI is React and installs as
+source into the project, so a plain HTML game that wants it becomes a small
+React app; say so before choosing it for one. The gallery is
+https://ui.gamestage.ai/.
 
 Whichever they choose, the rules that make it a Gamestage game do not change:
 the page holds no answers, the Engine decides every result, and every word a
