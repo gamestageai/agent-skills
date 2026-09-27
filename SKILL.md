@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-15
+version: 2026-09-27
 ---
 
 # Gamestage
 
-Pack version 2026-09-15.
-Pack digest db7c4e6039d3922b.
+Pack version 2026-09-27.
+Pack digest f171139d9f8e6c4c.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -269,6 +269,38 @@ to.
 
 The developer in that trial said the vocabulary on its own would have been
 enough to make him give up. He was not confused about his own game.
+
+## Ask how the game should look, when you are building its interface
+
+**A migration keeps the creator's interface, so do not raise this there.**
+Their game already has a look, and restyling it is not what they asked for.
+Ask only when you are building a game from nothing, or when the developer asks
+for a new look.
+
+Then ask once, in the same breath as the format and subject if you can, and
+show them the options:
+
+| Option | Use it for | Start with |
+| --- | --- | --- |
+| Their own | a look they already have, or a brand kit you have been given | nothing to install |
+| shadcn/ui | functional screens: forms, settings, sign-in, tables, anything that is an app around the game rather than the game | `npx shadcn@latest init` |
+| Plain HTML and CSS | the smallest thing that plays, and what `gamestage create` scaffolds | nothing to install |
+
+Recommend by what the screen is for. The board a fan plays on wants to feel
+like a game, so it should not look like a settings page; the account and
+results screens around it can. Mixing is fine: shadcn/ui around the game and
+your own styling on the board is a sound default for anything larger than one
+screen.
+
+**Gamestage UI**, Monterosa's components for game interfaces (scores, timers,
+answer buttons, rewards, leaderboards), is not in this table yet because it
+cannot be installed from outside Monterosa today. Do not offer it, and do not
+run `npx gamestage-ui`: it is not on npm and fails. This line changes when it
+can be installed.
+
+Whichever they choose, the rules that make it a Gamestage game do not change:
+the page holds no answers, the Engine decides every result, and every word a
+fan reads can be changed by a producer.
 
 ## Never hand over a URL you have not fetched
 
