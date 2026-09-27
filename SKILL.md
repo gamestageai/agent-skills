@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-7
+version: 2026-09-27-8
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-7.
-Pack digest a6df3f370747ec81.
+Pack version 2026-09-27-8.
+Pack digest ae3274467a3dfb66.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -851,7 +851,7 @@ keeping solutions server-side applies here unchanged. Send the outcome, never
 the thing that decided it.
 
 **Do not gate it on consent yourself.** The client holds one consent gate in
-front of every destination, and an event refused by it is refused everywhere at
+front of every destination, fed by the consent banner described below, and an event refused by it is refused everywhere at
 once. A second check in the game is a second thing to get wrong, and a game that
 withheld its own events would report less than the fan agreed to.
 
@@ -859,6 +859,52 @@ If the human asks for PostHog or Google Analytics, those are switches on their
 Analytics screen rather than code you write: the same captured stream is routed
 to them, so turning one on needs no change to the game and no redeploy. Say so
 rather than writing an integration.
+
+## Every game asks for consent before it records anything
+
+**A game must ask a fan before anything records them, and `deploy` refuses a
+game that does not.** The Gamestage client asks for you: it draws a consent
+banner with Accept all, Reject all and Choose the moment the page connects,
+whenever nobody has answered yet. Leave it on. You write no consent code.
+
+```js
+const game = await gamestage.start({
+  consentBanner: { settingsIn: document.querySelector("footer") },
+});
+```
+
+`settingsIn` adds a "Privacy settings" button so a fan can change their mind.
+Put it somewhere a fan will find it, such as the footer or the Profile screen.
+In a Gamestage UI game, use the `consent` component and pass
+`consentBanner: false`, because the component draws the same banner itself.
+
+**The fan's answer is one object, `game.consent.record()`**: the categories
+`necessary`, `analytics`, `marketing` and `functional`, who decided (`host`,
+`fan` or `default`), when, and the producer's policy version. Every gate in the
+client reads it: analytics, storage and Monterosa Analytics all wait for a yes.
+
+**An app that embeds the game has usually asked already, and the game then
+never asks again.** A Monterosa SDK host calls `setConsentState` from
+`@monterosa/sdk-consent-kit` in its own page and the answer reaches the game.
+A host without the SDK posts it into the frame:
+
+```js
+frame.contentWindow.postMessage(
+  { type: "gamestage:consent", categories: { analytics: true, marketing: false, functional: true } },
+  new URL(frame.src).origin,
+);
+```
+
+The host's answer always beats the game's banner.
+
+**The words are the producer's**, in Studio under Wording (`consent_title`,
+`consent_accept_label` and the rest), and `consent_policy_version` asks every
+fan again when the privacy policy changes. Do not hard code them.
+
+**Never turn the banner off and ask nobody.** `gamestage verify` loads the game
+as a new fan and fails it if analytics leaves the page before the fan answers,
+if no consent control appears, or if anything is sent after they say no.
+`gamestage deploy` runs the same check before it publishes a single file.
 
 ## Put the leaderboard on a screen a crowd can see
 
