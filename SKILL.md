@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-2
+version: 2026-09-27-3
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-2.
-Pack digest 74f21e6d9225c902.
+Pack version 2026-09-27-3.
+Pack digest 99cdf5d5bb74d35f.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -298,6 +298,42 @@ https://ui.gamestage.ai/.
 Whichever they choose, the rules that make it a Gamestage game do not change:
 the page holds no answers, the Engine decides every result, and every word a
 fan reads can be changed by a producer.
+
+## Ask what data the game needs, and offer the sources that exist
+
+**When a game needs real-world figures, run `gamestage sources` before you
+design it.** Goals, points, prices, wages, results: anything the game is scored
+against that neither you nor the developer should make up. It prints every
+source Gamestage has, what each offers and covers, what it costs, its licence
+position, and its state for this developer's workspace. Trust that list over
+anything written here, because it is the only one that cannot go stale.
+
+Recommend in this order, and say why:
+
+1. **A source that is already connected.** Its data is in the workspace now, so
+   the game can use it today. Name the dataset it printed.
+2. **A source they could connect.** Say what it covers, what is free
+   and what costs money, and give the sign-up link it printed. The
+   developer signs up themselves; you do not.
+3. **Their own data**, pushed with `gamestage reference push`. Always
+   available, and the right answer when they hold the figures already.
+
+**Say the licence position plainly**, in the words the list uses. An unofficial
+source is fine for a prototype and not for a prize. A source they license is
+their terms, not ours.
+
+**Design around what the source actually has.** A source offers some measures
+and not others: Fantasy Premier League has points and prices and no wages. Pick
+the game's measure from what `gamestage sources` printed, and if the idea
+needs a figure no source has, say so before building rather than inventing it.
+
+**Never ask for, accept or type an access key.** Not in the chat, not in a
+file, not as a command argument. A source that needs a key is connected with
+`gamestage sources connect <id>`, which prints a link to a Gamestage page where
+the developer pastes the key themselves. Give them that link, wait until they
+tell you it says "Connected", then run `gamestage sources` again to see it. If
+they paste a key into the chat anyway, tell them to revoke it with the provider
+and connect a new one through the page.
 
 ## Never hand over a URL you have not fetched
 
