@@ -7,7 +7,7 @@ version: 2026-09-27-3
 # Gamestage
 
 Pack version 2026-09-27-3.
-Pack digest 99cdf5d5bb74d35f.
+Pack digest 74833e7b77bee098.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -318,9 +318,18 @@ Recommend in this order, and say why:
 3. **Their own data**, pushed with `gamestage reference push`. Always
    available, and the right answer when they hold the figures already.
 
-**Say the licence position plainly**, in the words the list uses. An unofficial
-source is fine for a prototype and not for a prize. A source they license is
-their terms, not ours.
+**Say the licence position plainly**, in the words the list uses. A source
+they license is their terms, not ours.
+
+**An unofficial source is for prototyping only.** When you suggest one, such
+as Fantasy Premier League or ESPN, tell the developer this, word for word,
+before they build on it:
+
+> Requests to this source are made on behalf of you, the game builder. You are responsible for the data you consume, and for securing the legal rights and licence to use it. We recommend using it for testing only, and not launching with it unless you have explicit permission from the data owner.
+
+Recommend it for a prototype or a test, and recommend a licensed source or
+their own data before they launch. `verify`, `deploy` and `promote` will say
+the same thing again; it is a warning, and nothing is blocked.
 
 **Design around what the source actually has.** A source offers some measures
 and not others: Fantasy Premier League has points and prices and no wages. Pick
