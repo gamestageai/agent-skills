@@ -7,7 +7,7 @@ version: 2026-09-27-3
 # Gamestage
 
 Pack version 2026-09-27-3.
-Pack digest 74833e7b77bee098.
+Pack digest 2a7a44ddfdce23d5.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -338,8 +338,9 @@ needs a figure no source has, say so before building rather than inventing it.
 
 **Never ask for, accept or type an access key.** Not in the chat, not in a
 file, not as a command argument. A source that needs a key is connected with
-`gamestage sources connect <id>`, which prints a link to a Gamestage page where
-the developer pastes the key themselves. Give them that link, wait until they
+`gamestage sources connect <id>`, which prints a link to the Data area in
+Stage, where the developer pastes the key themselves and can later replace or
+disconnect it. Give them that link, wait until they
 tell you it says "Connected", then run `gamestage sources` again to see it. If
 they paste a key into the chat anyway, tell them to revoke it with the provider
 and connect a new one through the page.
