@@ -7,7 +7,7 @@ version: 2026-09-27-6
 # Gamestage
 
 Pack version 2026-09-27-6.
-Pack digest cea47cc35d9f811e.
+Pack digest a6df3f370747ec81.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -567,6 +567,22 @@ JavaScript, 150 KB of fonts, 900 KB in all, something on screen within 1.8
 seconds and playable within 3.5. Keep fonts to one family in two weights,
 install only the Gamestage UI components the game draws, and size images for a
 phone. When `verify` warns, fix what it names before you call the game done.
+
+**Never hang a logo on a webfont.** A logo is the first thing a player sees,
+and a font server is the thing most likely to be slow or blocked in the
+browser a chat app opens. Set the logo in Studio's title and logo settings and
+let the intro screen draw it: a deploy writes that font into the page, cut
+down to the letters a logo uses, so it paints with the first frame. If your
+page draws its own logo, make it one of these, never text in a font fetched
+from another origin:
+
+- an inline SVG, when the artwork is fixed;
+- text in a font served from the game's own files, subset to the logo's
+  characters and preloaded with `<link rel="preload" as="font" crossorigin>`;
+- text that shows a close system font after 800ms at most.
+
+A blank space where the logo should be is the one outcome that is always
+wrong, worse than a fallback face.
 
 **For a native app, tell the developer what their app team must do**, because
 it is in the app rather than the page: set the web view's background to the
