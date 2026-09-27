@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-3
+version: 2026-09-27-4
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-3.
-Pack digest 2a7a44ddfdce23d5.
+Pack version 2026-09-27-4.
+Pack digest 4da34996cc6cd44d.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -344,6 +344,13 @@ disconnect it. Give them that link, wait until they
 tell you it says "Connected", then run `gamestage sources` again to see it. If
 they paste a key into the chat anyway, tell them to revoke it with the provider
 and connect a new one through the page.
+
+There is one other route and it is not yours: `gamestage sources connect <id>
+--from-op <op://...>` reads the key from the developer's own 1Password at their
+own terminal. **Never run it, and never write or suggest the `op://` reference
+for them.** It exists for a person away from a browser, and 1Password asking
+that person to approve the read is the protection. Recommend the page; mention
+this only if they say they cannot use one, and then leave it to them.
 
 ## Never hand over a URL you have not fetched
 
