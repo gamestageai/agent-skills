@@ -1,4 +1,4 @@
-import { start, applyPresentation, shootProgressOf, latestShot } from 'https://gamestage.ai/client/0.57.0/gamestage.js';
+import { start, applyPresentation, shootProgressOf, latestShot } from 'https://gamestage.ai/client/0.58.0/gamestage.js';
 import { Pitch } from './pitch.js';
 import { Sound } from './audio.js';
 import { shootPending } from './pending.js';
