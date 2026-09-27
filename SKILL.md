@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27
+version: 2026-09-27-2
 ---
 
 # Gamestage
 
-Pack version 2026-09-27.
-Pack digest 066b54a8968803ca.
+Pack version 2026-09-27-2.
+Pack digest 74f21e6d9225c902.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -548,12 +548,35 @@ not a heading, an empty state, an error a fan reads or the name of the game.
 Every word a fan sees is a producer's to change, which means it arrives at
 runtime and the page renders what it is given.
 
-Readable defaults in the page are fine and are not the same thing. A default is
-what shows until a producer sets that field; `applyPresentation` leaves an
-element alone when nothing is set, so a game keeps the words it shipped with
-rather than blanking. The test is not whether words appear in your file. It is
-whether a producer can change every word a fan reads without you deploying. If
-they cannot, that copy is hard coded however it got there.
+**The game's words and colours start in Studio, not in the page.** Put the
+values a fan sees by default (the game's name, its how-to-play text, its button
+labels, its colours) in `gamestage.settings.json` beside `gamestage.yaml`, keyed
+by the Studio field keys:
+
+```json
+{
+  "display_name": "Wages",
+  "how_to_play": "Pick one player from each line. Stay under £1,000,000 a week.",
+  "play_button_label": "Select Player",
+  "primary_colour": "#1D428A",
+  "css_variables_backgroundMainColour": "#0B1620"
+}
+```
+
+A deploy writes each value into the game's Studio project **where that field is
+empty**, so a producer opening Studio sees exactly what a fan sees and edits it
+there, and their edit is never overwritten by a later deploy. `gamestage create`
+writes this file for you from the scaffold's own page. `manifest validate` and
+`deploy` refuse a key Studio does not have and name the ones it does.
+
+Until 2026-09-27 this said readable defaults in the page were fine. They are not
+the right home: a producer opened Studio to empty boxes for a game that plainly
+had a name, rules and colours, because those lived only in the page. A fallback
+in the page is still allowed as a safety net for a failed load, but it must be
+the same value as the file, and `verify` fails a game whose page reads a field
+the file leaves empty (`settings-seeded`). The test is still whether a producer
+can change every word a fan reads without you deploying, and now also whether
+they can see it first.
 
 A customer's first request is always to change the wording. A game that needs an
 engineer for that is a game we run rather than one they run.
@@ -609,7 +632,7 @@ alike blanks its own heading the first time a producer saves the form without
 typing anything.
 
 Under `gamestage dev` there is no producer, so `game.presentation` is empty and
-the game keeps every word it was built with. That is the correct result and the
+the game shows its safety-net fallbacks, which match `gamestage.settings.json`. That is the correct result and the
 wire is fine. These settings reach a fan only on a game provisioned into
 Interaction Cloud, which is above the Starter plan.
 
