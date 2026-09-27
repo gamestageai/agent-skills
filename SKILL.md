@@ -1,12 +1,12 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-6
+version: 2026-09-27-7
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-6.
+Pack version 2026-09-27-7.
 Pack digest a6df3f370747ec81.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
