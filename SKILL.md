@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-8
+version: 2026-09-27-10
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-8.
-Pack digest ae3274467a3dfb66.
+Pack version 2026-09-27-10.
+Pack digest c3f7374065410f08.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -561,6 +561,18 @@ the game. `verify` measures this and warns.
    `window.gamestageReady()` (scaffolds define it), or
    `performance.mark("gamestage:playable")` if your page does not have it.
 
+**Every scaffold from `create` opens on an intro screen**: a full-screen
+gradient, the game's name in its own font, a progress bar, then a Play button.
+You do not build this; call `gamestageReady()` correctly and it appears. Pass
+`{ resume: true }` when the fan has a round in progress (button reads
+"Continue") and `{ failed: true }` when the game could not load (shows the
+error state and a retry button). Wait for `window.gamestageStart` or the
+`gamestage:start` event before opening anything that asks the fan something,
+such as How to play: the tap on Play is what unlocks sound and starts the
+game. Its colours and words are the game's Brand and Wording settings in
+Studio (`title_font`, `logo_text`, `splash_gradient_start` and the rest); see
+`docs/layout-and-loading` for the full list.
+
 **Load fast.** `verify` loads the game on a mid-range phone over 4G and warns
 when it goes over its layout's budget: for a `screen` game, 350 KB of
 JavaScript, 150 KB of fonts, 900 KB in all, something on screen within 1.8
@@ -606,8 +618,10 @@ Two halves, and include both:
   `code_not_recognised`: say plainly that the code isn't recognised.
 
 In a plain page, `mountRecovery(game, element)` from the client draws both as a
-dialog in one line. In a Gamestage UI game, use the `recovery-code` component.
-Every word is a Studio setting; put them in `gamestage.settings.json`.
+dialog in one line, and is the one route today. A `recovery-code` Gamestage UI
+component exists but is not yet in the published registry; check
+`npx gamestage-ui list` before telling a developer to add it. Every word is a
+Studio setting; put them in `gamestage.settings.json`.
 
 Tell the developer the three limits, because each changes what the screen
 should say: it is for anonymous players only; restoring does not merge the
@@ -864,8 +878,16 @@ rather than writing an integration.
 
 **A game must ask a fan before anything records them, and `deploy` refuses a
 game that does not.** The Gamestage client asks for you: it draws a consent
-banner with Accept all, Reject all and Choose the moment the page connects,
-whenever nobody has answered yet. Leave it on. You write no consent code.
+banner with Reject all, Accept all and Manage preferences the moment the page
+connects, whenever nobody has answered yet, in the game's own colours and
+type. The game stays playable underneath it. Leave it on. You write no consent
+code.
+
+**Ask the human two things before the first deploy, and put both in
+`gamestage.settings.json`**: the brand the banner names as asking
+(`consent_brand_name`, e.g. "Arsenal"), and the address of their privacy
+policy (`privacy_policy_url`, https). `verify` fails and `deploy` refuses
+while either is empty. Never invent either one.
 
 ```js
 const game = await gamestage.start({
@@ -873,8 +895,9 @@ const game = await gamestage.start({
 });
 ```
 
-`settingsIn` adds a "Privacy settings" button so a fan can change their mind.
-Put it somewhere a fan will find it, such as the footer or the Profile screen.
+`settingsIn` puts the "Privacy settings" button where a fan will find it, such
+as the Profile screen. Without it the banner adds a small footer at the end of
+the page to hold the button, so every game has a way back to the choices.
 In a Gamestage UI game, use the `consent` component and pass
 `consentBanner: false`, because the component draws the same banner itself.
 
