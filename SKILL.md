@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-4
+version: 2026-09-27-5
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-4.
-Pack digest 4da34996cc6cd44d.
+Pack version 2026-09-27-5.
+Pack digest 312a9427771e9b56.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -519,6 +519,59 @@ at `2` rather than at "done".
 game, an invalid manifest, a rejected play: these are the product working. Read
 the reason, which is written to be acted on, and change the cause.
 
+## Ask where the game runs, and make it load smoothly and fast
+
+**Ask this with the format, before you scaffold.** Where a game is opened and
+how it sits on the screen change how it is built, and they are expensive to
+change later. Ask the developer where fans will open it, and show them the
+choices:
+
+| Where it runs | `--host` | What they get by default |
+| --- | --- | --- |
+| Full screen, from a carousel, a Hub or a link | `fullscreen` | a `screen` game that fills the phone |
+| A card in an article that opens full screen | `article-launch` | `launch` |
+| A box inside an article | `article-embed` | `card` |
+| Inside their own native app, in a web view | `app-webview` | a `screen` game that fills the phone |
+
+Then pass it: `gamestage create --name "…" --format hunt --host app-webview`.
+Add `--layout` only if they want other than the default.
+
+**Recommend full screen, and say why in plain words:** players come back to a
+game they can play properly; a widget in an article reads as throwaway and gets
+scrolled past. For an article, recommend `launch` over `card`, and use `card`
+only when their host cannot open a game full screen. `create` prints the same
+advice, and `docs/layout-and-loading` is the chapter to point them at.
+
+**Build for the layout you chose.** A `screen` game fits 360×640, 390×844 and
+landscape without the page scrolling; if a list must scroll, it scrolls inside
+the game. `verify` measures this and warns.
+
+**Load smoothly. Do this without being asked:**
+
+1. **The game's colour from the first frame.** In the head, before any script:
+   `<meta name="color-scheme">`, `<meta name="theme-color">` with the
+   background colour, and a `<style>` painting `html, body` in it. Inside a
+   native app this is the difference between the game appearing and a white
+   flash first.
+2. **A loading state, never text.** A centred spinner, or a bar when progress is
+   known, in a box the game's size, so the game replaces it in one step. Never
+   "Loading…" on its own. Scaffolds from `create` do both of these already; keep
+   them. With Gamestage UI, use `Loading`.
+3. **Say when it is playable.** When the round is drawn or has failed, call
+   `window.gamestageReady()` (scaffolds define it), or
+   `performance.mark("gamestage:playable")` if your page does not have it.
+
+**Load fast.** `verify` loads the game on a mid-range phone over 4G and warns
+when it goes over its layout's budget: for a `screen` game, 350 KB of
+JavaScript, 150 KB of fonts, 900 KB in all, something on screen within 1.8
+seconds and playable within 3.5. Keep fonts to one family in two weights,
+install only the Gamestage UI components the game draws, and size images for a
+phone. When `verify` warns, fix what it names before you call the game done.
+
+**For a native app, tell the developer what their app team must do**, because
+it is in the app rather than the page: set the web view's background to the
+game's background colour, and create the web view before the player taps.
+
 ## Build the loading state and the reconnection handling
 
 **Not optional.** A game that paints a playable board before it is connected is
@@ -536,8 +589,11 @@ showLoading();
 const game = await start({ identity: () => window.GAMESTAGE_TOKEN });
 
 // After start(): the board is real, so it can be drawn and touched.
-hideLoading();
 render(game.round);
+hideLoading();
+// Playable now: removes a scaffold's loading shell and marks the moment
+// verify times load by.
+window.gamestageReady?.();
 ```
 
 **Then check what you are connected to.** `game.platform` is `monterosa` on a
