@@ -299,8 +299,12 @@
    An earlier reading gave locked the raised secondary face, which made a locked
    control look pressable with a padlock on it. The padlock, not the fill, is
    what separates locked from disabled: "not yet" against "not ever". */
-.gs-button[data-gs-locked='true'],
-.gs-button[data-gs-disabled='true'] {
+/* The doubled attribute is specificity, deliberately: the large primary face
+   (`[data-gs-variant][data-gs-size]`) is 0,3,0 and painted a locked Select
+   Player live green with its raised edge, so the button looked ready and a
+   tap did nothing. Wages, 2026-09-28. */
+.gs-button[data-gs-locked='true'][data-gs-locked],
+.gs-button[data-gs-disabled='true'][data-gs-disabled] {
   cursor: not-allowed;
   color: var(--gs-color-disabled-ink);
   background: var(--gs-color-disabled);
