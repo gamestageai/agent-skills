@@ -1,0 +1,262 @@
+/* Feedback. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 5d draws the four variants, correct, wrong, score and reward, and
+   design/twins/5d.json measures ours against them declaration by declaration;
+   3i, the older game-feel sheet, still pairs the three frames it draws. Only
+   the resting appearance is here: the keyframes a plate plays are the motion
+   layer's (packages/tokens/motion.css) and the pairing does not measure them.
+
+   The plate anatomy the drawing gives: glyph 28, label at 18/900 in the
+   display face in capitals, gap 10, padding 12 18, radius 16, a 3px edge, and
+   an optional message below the label. */
+
+.gs-feedback {
+  display: inline-grid;
+  /* How long a correct or wrong plate holds before it fades: the drawing's
+     1200ms. No motion token is a hold, so it is six emphasis beats, which
+     also keeps it under reduced motion, where every movement token is zeroed
+     and emphasis is not. Token request: motion.hold. */
+  --gs-feedback-hold: calc(var(--gs-motion-emphasis) * 6);
+}
+
+/* The element that moves. Which way it moves is data-gs-motion's, applied by
+   packages/tokens/motion.css from the drawing's own keyframes: pop, shake,
+   floatup or slam, one per outcome. Nothing here is timed and no keyframe is
+   defined here for them.
+
+   Each is an `animation`, not a `transition`: the element mounts once, on
+   settlement, with nothing earlier on screen to transition from. Under
+   reduced motion, tokens.css forces animation-duration to 0s on anything
+   carrying data-gs-animates="motion", so the keyframe still runs, just
+   instantly, and its default fill-mode (none) leaves the plate sitting at its
+   ordinary, fully visible style rather than frozen on a faded-out frame. */
+.gs-feedback__motion {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gs-space-gap);
+  /* A button when the reward waits to be tapped; the plate is the plate. */
+  margin: 0;
+  font: inherit;
+  cursor: inherit;
+}
+
+button.gs-feedback__motion {
+  cursor: pointer;
+}
+
+/* -- the plates ------------------------------------------------------------ */
+/* Correct, wrong and reward are a word on a plate: the control radius, the
+   ui stroke, the title face in capitals where the theme's primary action
+   shouts. Correct is filled with positive, ringed in the edge, standing on a
+   shelf and tilted; wrong is the surface with a dashed negative ring and no
+   shelf, which is the frame reduced motion keeps when the shake goes; reward
+   is the surface on the reward ring with the shelf. */
+.gs-feedback[data-gs-feedback='correct'] .gs-feedback__motion,
+.gs-feedback[data-gs-feedback='wrong'] .gs-feedback__motion,
+.gs-feedback[data-gs-feedback='reward'] .gs-feedback__motion {
+  box-sizing: border-box;
+  /* The drawing pads 12 18; there is no 18px space token, so space.4 and the
+     pair carries the 2px. Token request in the round 5 report. */
+  padding: var(--gs-space-3) var(--gs-space-4);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+  text-align: left;
+}
+
+.gs-feedback[data-gs-feedback='correct'] .gs-feedback__motion {
+  color: var(--gs-color-on-bright);
+  background: var(--gs-color-positive);
+  box-shadow: 0 var(--gs-press-travel) 0 var(--gs-color-edge);
+  /* The drawing's three-degree tilt, a resting transform rather than motion.
+     The pop keyframe overrides it while it plays and hands it back after. */
+  transform: rotate(-3deg);
+}
+
+.gs-feedback[data-gs-feedback='wrong'] .gs-feedback__motion {
+  color: var(--gs-color-negative-solid);
+  background: var(--gs-color-surface);
+  border-style: dashed;
+  border-color: var(--gs-color-negative-solid);
+}
+
+/* Arcade's surface is a mid blue, and its negative is a light red, so the
+   drawn wrong plate put red words on blue at 2.5:1: "Wrong" and the reason
+   under it were the least readable text on the screen at the moment the
+   player most needed to read it. In arcade the wrong plate is filled, as the
+   correct plate is, in the negative with the dark bright-ink words over it,
+   ringed and shelved in the edge like every filled arcade face. The dashed
+   ring stays the other themes' mark, where it reads; arcade's cross and fill
+   carry the meaning without colour. */
+:where([data-gs-theme='arcade']) .gs-feedback[data-gs-feedback='wrong'] .gs-feedback__motion {
+  color: var(--gs-color-on-bright);
+  background: var(--gs-color-negative);
+  border-style: solid;
+  border-color: var(--gs-color-edge);
+  box-shadow: 0 var(--gs-press-travel) 0 var(--gs-color-edge);
+}
+
+/* The reward ring is the drawing's `0 0 0 3px reward` with a soft glow and
+   the 6px shelf. The ring and the shelf are here; the glow, 0 0 22px of the
+   reward colour at half alpha, is a soft glow no depth token carries, and the
+   pair allows it with the token request. */
+.gs-feedback[data-gs-feedback='reward'] .gs-feedback__motion {
+  color: var(--gs-color-ink);
+  background: var(--gs-color-surface);
+  box-shadow:
+    0 0 0 var(--gs-stroke-ui) var(--gs-color-reward-solid),
+    0 var(--gs-press-travel) 0 var(--gs-color-edge);
+}
+
+/* -- the words ------------------------------------------------------------- */
+.gs-feedback__text {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* The word on the plate: the drawing sets it at 900 18px in the display face.
+   Arcade's title is that face at 900 20px, the nearest token, and the pair
+   carries the 2px. Token request in the round 5 report. */
+.gs-feedback__label {
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: 1;
+  /* One property borrowed from the action axis, not the axis re-implemented:
+     the result word shouts where the theme's primary action shouts. */
+  text-transform: var(--gs-type-action-text-transform-primary, var(--gs-type-action-text-transform, none));
+  /* Emphasis, not motion: the colour change survives reduced motion, because
+     that is how a player who cannot see movement still gets the answer. */
+  transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* A reward's name is smaller than a result word, 900 15px drawn, under its
+   kicker: figure is the display face at 900 14px. */
+.gs-feedback[data-gs-feedback='reward'] .gs-feedback__label {
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+}
+
+/* The kicker over a reward's name, EARNED: the eyebrow role, in capitals, in
+   the secondary ink. The drawing sets it at 9px; 12px is the floor for a
+   label on a phone. */
+.gs-feedback__note {
+  font-family: var(--gs-type-eyebrow-font-family);
+  font-size: var(--gs-type-eyebrow-font-size);
+  font-weight: var(--gs-type-eyebrow-font-weight);
+  letter-spacing: var(--gs-type-eyebrow-letter-spacing);
+  text-transform: var(--gs-type-eyebrow-text-transform, uppercase);
+  line-height: 1.2;
+  color: var(--gs-color-ink-secondary);
+}
+
+/* The optional line under the word: the reason, in the body role, in the
+   plate's own ink. The drawing names it at 13px; body is 17px by Tom's floor. */
+.gs-feedback__detail {
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-body-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  margin-top: var(--gs-space-1);
+}
+
+/* -- the mark -------------------------------------------------------------- */
+/* A disc holding the glyph, because colour alone is not an answer. On the
+   correct plate the disc is the dark ink and the tick is light; on the wrong
+   plate the disc is negative, ringed in the edge, and the cross is light; on
+   the reward card the disc is the reward colour, ringed in the edge, with the
+   star. The drawing draws the discs at 28 and the reward's at 36; icon.control
+   is 24 and control.small 40, and the pairs carry the token requests. */
+.gs-feedback__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  inline-size: var(--gs-size-icon-control);
+  block-size: var(--gs-size-icon-control);
+  border-radius: var(--gs-radius-full);
+  font-size: var(--gs-size-icon-utility);
+  line-height: 1;
+  color: var(--gs-color-ink);
+  transition: opacity var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-feedback[data-gs-feedback='correct'] .gs-feedback__glyph {
+  background: var(--gs-color-on-bright);
+}
+
+.gs-feedback[data-gs-feedback='wrong'] .gs-feedback__glyph {
+  background: var(--gs-color-negative);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+}
+
+/* On arcade's filled wrong plate a negative disc would vanish into the
+   plate, so it takes the correct plate's dark disc instead. */
+:where([data-gs-theme='arcade']) .gs-feedback[data-gs-feedback='wrong'] .gs-feedback__glyph {
+  background: var(--gs-color-on-bright);
+}
+
+.gs-feedback[data-gs-feedback='reward'] .gs-feedback__glyph {
+  inline-size: var(--gs-size-control-small);
+  block-size: var(--gs-size-control-small);
+  background: var(--gs-color-reward);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  color: var(--gs-color-on-bright);
+}
+
+/* -- the points ------------------------------------------------------------ */
+/* No plate: the number itself, in positive, standing on the display shadow,
+   is the signal. The drawing sets it at 900 28px (its `type.stat.lg`); stat
+   is 22 and score 34, so it is the stat size and the pair carries the token
+   request. */
+.gs-feedback[data-gs-feedback='score'] .gs-feedback__label {
+  font-size: var(--gs-type-stat-font-size);
+  color: var(--gs-color-positive-solid);
+}
+
+/* -- the lifetime ---------------------------------------------------------- */
+/* Only when the host asked to be told (`onDismiss`): correct and wrong hold,
+   then fade over the emphasis beat; a score fades once its float has ended,
+   and stays where the float left it in between; a reward fades when tapped.
+   The fade is on the root, which is not a motion element, so reduced motion
+   leaves it its 200ms rather than zeroing it, and the plate is still read
+   before it goes. */
+@keyframes gs-feedback-exit {
+  to { opacity: 0; }
+}
+
+.gs-feedback--timed {
+  animation: gs-feedback-exit var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis) var(--gs-feedback-hold) forwards;
+}
+
+/* The float ends at opacity 0 and must stay there, timed or not. It had the
+   default fill-mode, so at 600ms the "+50" reverted to the base rule,
+   reappeared where it started and stayed on screen until the host removed it
+   (GSUI-85). Scoping this to `--timed` put that defect back for every host
+   that does not pass onDismiss, which is what the gallery does. */
+.gs-feedback[data-gs-feedback='score'] .gs-feedback__motion {
+  animation-fill-mode: forwards;
+}
+
+.gs-feedback--exit {
+  animation: gs-feedback-exit var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis) forwards;
+}
+
+/* -- reduced motion -------------------------------------------------------- */
+/* No transform: the tilt goes with the movement, and a zero-length float must
+   not leave the number on its invisible last frame. Fill, glyph and text
+   still change, and the hold and the fade above still run. */
+@media (prefers-reduced-motion: reduce) {
+  .gs-feedback[data-gs-feedback='correct'] .gs-feedback__motion {
+    transform: none;
+  }
+
+  /* A different path, not a shorter one. `forwards` on a zeroed duration would
+     land on the last frame at once and the "+50" would never be readable, so
+     under reduced motion the float does not run and the number simply stays. */
+  .gs-feedback[data-gs-feedback='score'] .gs-feedback__motion {
+    animation: none;
+  }
+}

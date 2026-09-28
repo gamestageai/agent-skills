@@ -68,6 +68,13 @@
         "components/gamestage/error-state.css": "2a185817a488eda4c14465991ebf23d655053d6ec1b8df514aac6db9dc3fe5e1"
       }
     },
+    "feedback": {
+      "installed": "2026-09-28T22:01:45.751Z",
+      "files": {
+        "components/gamestage/feedback.tsx": "e7274bb5d79c7f693f1fcfce9bd7f239ac0ba56c2776178663cd1ccb8f9ccba4",
+        "components/gamestage/feedback.css": "c997b3d06654c49412215874e078efe593a923f78210c8a194fe5c2f614725a9"
+      }
+    },
     "feel": {
       "installed": "2026-09-28T19:07:36.506Z",
       "files": {

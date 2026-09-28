@@ -402,5 +402,29 @@ body { font-family: var(--gs-type-font-family-interface); font-size: var(--gs-ty
 /* How to play leaves the nav showing: it fills the screen above the floating
    nav, and the nav sits over its foot as on every other page. The end-of-round
    story still covers everything. Tom, 2026-09-28. */
-.ringers-stories[data-keep-nav] { box-sizing: border-box; padding-bottom: var(--ringers-nav-room, 96px); }
+/* How to play fills the whole screen, top to bottom and under the home bar,
+   and the nav floats over it as it does over the game. It used to stop above
+   the nav, which left a strip of a different colour and cut the stripes off
+   along a hard edge (Tom, 2026-09-28). The words keep clear of the nav with
+   padding inside the frame instead. The end-of-round story still covers the
+   nav. */
+.ringers-stories[data-keep-nav] .ringers-frame { padding-bottom: calc(var(--ringers-nav-room, 96px) + 24px); }
 .ringers:has(.ringers-stories[data-keep-nav]) .ringers-nav { z-index: 31; }
+
+/* A pick that played for them. GS-600, Tom 2026-09-28: the toast was boring.
+   The wrong plate sits over the board; the tile shakes (motion.css plays
+   data-gs-motion="shake") and flashes the negative colour, which stays under
+   reduced motion as a colour change. */
+.ringers-feedback {
+  position: absolute; inset-inline: 0; top: 300px; z-index: 40;
+  display: grid; place-items: center; pointer-events: none;
+}
+.ringers-feedback:empty { display: none; }
+@keyframes ringers-wrong-flash {
+  0%, 35% { background: var(--gs-color-negative); border-color: var(--gs-color-negative); color: var(--gs-color-on-accent, #fff); }
+  100% { }
+}
+.gs-choice__option[data-wrong-flash] { animation: ringers-wrong-flash 700ms ease-out; }
+@media (prefers-reduced-motion: no-preference) {
+  .gs-choice__option[data-wrong-flash] { animation: gs-shake var(--gs-motion-shake, 400ms) var(--gs-motion-ease-shake, ease), ringers-wrong-flash 700ms ease-out; }
+}

@@ -14,6 +14,7 @@ import { Streak } from '@/components/gamestage/streak'
 import { Toast } from '@/components/gamestage/toast'
 import { Toggle } from '@/components/gamestage/toggle'
 import { Stories, type RevealFrame } from './stories'
+import { useWrongFeedback } from './wrong-feedback'
 
 /**
  * Ringers, drawn with Gamestage UI in a monochrome demo register.
@@ -325,6 +326,8 @@ export function App() {
     }
   }, [round, state, failure])
 
+  const wrongFeedback = useWrongFeedback('ringers-feedback')
+
   async function lockIn() {
     if (!round || chosen.length === 0 || !game.current) return
     const picks = [...chosen]
@@ -365,13 +368,15 @@ export function App() {
         const feedback: { key: string; verdict: string }[] = played.feedback ?? []
         const right = feedback.filter((f) => f.verdict === 'correct').length
         const wrongNames = feedback.filter((f) => f.verdict !== 'correct').map((f) => f.key)
-        setNotice(
-          wrongNames.length === 0
-            ? word('label_right', { n: right })
-            : right === 0
-              ? word('label_wrong', { n: wrongNames.length })
-              : word('label_mixed', { right, wrong: wrongNames.length }),
-        )
+        // A pick that played for them shakes its tile and shows the wrong
+        // plate over the board, as Stat Attack does. All right is a toast.
+        if (wrongNames.length === 0) setNotice(word('label_right', { n: right }))
+        else
+          wrongFeedback.show(
+            wrongNames,
+            word('label_wrong_plate'),
+            right === 0 ? word('label_wrong', { n: wrongNames.length }) : word('label_mixed', { right, wrong: wrongNames.length }),
+          )
         setMissed((m) => [...new Set([...m, ...wrongNames])])
         setChosen([])
         setResumed(0)
@@ -1016,6 +1021,8 @@ export function App() {
             Gamestage UI places it; this layer is that ancestor, under the
             header, so a toast never covers the name or the round count. */}
         <div className="ringers-toast-layer">
+          {wrongFeedback.node}
+
           <Toast open={Boolean(notice)} onDismiss={() => setNotice(null)}>
             {notice}
           </Toast>
