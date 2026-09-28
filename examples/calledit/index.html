@@ -85,7 +85,7 @@
 <body>
 <main>
   <div>
-    <h1 id="game-name">Call It</h1>
+    <h1 id="game-name"></h1>
     <p class="strapline" id="strapline" hidden></p>
     <p class="strapline" id="edition-name" hidden></p>
     <p class="strapline" id="edition-strapline" hidden></p>
@@ -96,10 +96,10 @@
   <div class="options" id="board"></div>
 
   <div class="actions">
-    <button class="submit" id="submit" disabled>Lock it in</button>
+    <button class="submit" id="submit" disabled></button>
     <span class="state">
       <span>Calls <b id="attempts">0</b></span>
-      <span>Score <b id="score">0</b></span>
+      <span><span data-gs-word="score_label"></span> <b id="score">0</b></span>
     </span>
   </div>
 
@@ -155,6 +155,16 @@ const el = (id) => document.getElementById(id);
 let answers = {};
 let finished = false;
 let game;
+
+// The words this page shares with the gamestage.ai taster, from Studio's
+// label_taster_* settings. The page keeps none of its own. GS-580.
+function word(key) {
+  return game?.presentation?.labels?.[`taster_${key}`] ?? "";
+}
+function applyWords() {
+  for (const node of document.querySelectorAll("[data-gs-word]")) node.textContent = word(node.dataset.gsWord);
+  for (const node of document.querySelectorAll("[data-gs-aria]")) node.setAttribute("aria-label", word(node.dataset.gsAria));
+}
 
 function renderState(state) {
   if (!state) return;
@@ -252,6 +262,8 @@ async function main() {
   });
 
   // What a producer set in Studio, applied to the elements this page nominates.
+  applyWords();
+
   applyPresentation(game.presentation, {
     displayName: el("game-name"),
     strapline: el("strapline"),

@@ -183,7 +183,7 @@
 <body>
 <main>
   <div>
-    <h1 id="game-name">Bingo</h1>
+    <h1 id="game-name"></h1>
     <p class="strapline" id="strapline" hidden></p>
     <p class="strapline" id="edition-name" hidden></p>
     <p class="strapline" id="edition-strapline" hidden></p>
@@ -214,22 +214,22 @@
        alternative and a fan cannot count dots at a glance, nor can a screen
        reader read them. "Board 2 of 4" works in both directions. -->
   <div class="carousel" id="carousel" hidden>
-    <button class="step" id="previous-board" aria-label="The board before this one">&lsaquo;</button>
+    <button class="step" id="previous-board" data-gs-aria="bingo_previous_label">&lsaquo;</button>
     <span class="which" id="which-board"></span>
-    <button class="step" id="next-board" aria-label="The next board">&rsaquo;</button>
+    <button class="step" id="next-board" data-gs-aria="bingo_next_label">&rsaquo;</button>
   </div>
 
   <!-- The round's own lock has passed. Shown before a fan presses anything,
        beside the control it disables, and it is also what a refused deal
        says. A default rather than a producer's field: no App Spec setting
        carries this sentence yet, so `applyPresentation` leaves it alone. -->
-  <p class="locked" id="locked" role="status" hidden>This round has locked.</p>
+  <p class="locked" id="locked" role="status" hidden data-gs-word="round_locked_label"></p>
 
   <div class="actions">
-    <button class="secondary" id="shuffle" hidden>Deal my boards</button>
-    <button class="primary" id="lock" disabled hidden>Back this board</button>
+    <button class="secondary" id="shuffle" hidden data-gs-word="bingo_deal_label"></button>
+    <button class="primary" id="lock" disabled hidden></button>
     <span class="state">
-      <span>Score <b id="score">0</b></span>
+      <span><span data-gs-word="score_label"></span> <b id="score">0</b></span>
     </span>
   </div>
 
@@ -292,6 +292,16 @@ const PENDING_POLL_MS = 5000;
  */
 let seenLines;
 let game;
+
+// The words this page shares with the gamestage.ai taster, from Studio's
+// label_taster_* settings. The page keeps none of its own. GS-580.
+function word(key) {
+  return game?.presentation?.labels?.[`taster_${key}`] ?? "";
+}
+function applyWords() {
+  for (const node of document.querySelectorAll("[data-gs-word]")) node.textContent = word(node.dataset.gsWord);
+  for (const node of document.querySelectorAll("[data-gs-aria]")) node.setAttribute("aria-label", word(node.dataset.gsAria));
+}
 let currentState;
 /**
  * Which board of the carousel is on screen.
@@ -491,7 +501,7 @@ function renderBoard() {
     watch.replaceChildren();
     const said = document.createElement("strong");
     said.textContent =
-      completeLines > 0 ? "You have a line" : oneAway ? "One to go" : "Your board is live";
+      completeLines > 0 ? word("bingo_line_label") : oneAway ? word("bingo_one_away_label") : word("bingo_watching_label");
     const count = document.createElement("span");
     count.textContent = `${called} of ${own.length} called`;
     watch.append(said, count);
@@ -721,11 +731,14 @@ async function main() {
   game = await start({
     identity: () => window.GAMESTAGE_TOKEN,
   });
+  applyWords();
+
 
   applyPresentation(game.presentation, presentationTargets, {
     displayName: game.deployedName,
   });
   game.onPresentationChanged((presentation) => {
+    applyWords();
     applyPresentation(presentation, presentationTargets, {
       displayName: game.deployedName,
     });

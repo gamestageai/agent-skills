@@ -68,7 +68,7 @@
 <body>
 <main>
   <div>
-    <h1 id="game-name">Ringers</h1>
+    <h1 id="game-name"></h1>
     <p class="strapline" id="strapline" hidden></p>
     <p class="strapline" id="edition-name" hidden></p>
     <p class="strapline" id="edition-strapline" hidden></p>
@@ -79,11 +79,11 @@
   <div class="board" id="board"></div>
 
   <div class="actions">
-    <button class="submit" id="submit" disabled>Submit picks</button>
+    <button class="submit" id="submit" disabled></button>
     <span class="state">
       <span>Attempts <b id="attempts">0</b></span>
-      <span>Mistakes <b id="mistakes">0</b></span>
-      <span>Score <b id="score">0</b></span>
+      <span><span data-gs-word="mistakes_label"></span> <b id="mistakes">0</b></span>
+      <span><span data-gs-word="score_label"></span> <b id="score">0</b></span>
     </span>
   </div>
 
@@ -133,6 +133,16 @@ const el = (id) => document.getElementById(id);
 const selected = new Set();
 let finished = false;
 let game;
+
+// The words this page shares with the gamestage.ai taster, from Studio's
+// label_taster_* settings. The page keeps none of its own. GS-580.
+function word(key) {
+  return game?.presentation?.labels?.[`taster_${key}`] ?? "";
+}
+function applyWords() {
+  for (const node of document.querySelectorAll("[data-gs-word]")) node.textContent = word(node.dataset.gsWord);
+  for (const node of document.querySelectorAll("[data-gs-aria]")) node.setAttribute("aria-label", word(node.dataset.gsAria));
+}
 
 // How many the round wants found. `HuntBoard.tsx` calls this `wanted`; here it
 // is `game.round.challenge.pick`, the same field the Engine put on the
@@ -223,6 +233,8 @@ async function main() {
   // Nothing here decides an outcome: it is the game's name, its wording and the
   // colour of the button, and a field nobody has filled in leaves the page as it
   // was built rather than blanking it.
+  applyWords();
+
   applyPresentation(game.presentation, {
     displayName: el("game-name"),
     strapline: el("strapline"),

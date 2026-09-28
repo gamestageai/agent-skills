@@ -51,7 +51,7 @@ function renderState() {
   dots(el('shot-dots'));
 }
 function presentation() {
-  copy = resolveCopy(display);
+  copy = resolveCopy(display, game.presentation);
   applyCopy(copy);
   const targets = { displayName: el('game-name'), strapline: el('strapline'), howToPlay: el('how-to-play'), playButtonLabel: el('shoot-label'), editionName: el('edition-name'), editionStrapline: el('edition-line'), root: document.documentElement };
   applyPresentation(game.presentation, targets, { displayName: game.deployedName });
