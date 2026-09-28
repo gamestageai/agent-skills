@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-7
+version: 2026-09-28-8
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-7.
-Pack digest ecb2ac489c8f38d5.
+Pack version 2026-09-28-8.
+Pack digest a3d591413f29b608.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -320,6 +320,17 @@ forcing a generic sprite onto a brand that owns a better one.
 attribution; a paid tool such as Asset Forge is paid for the app, not for what
 you export with it. Both are safe to ship; say which applies so the developer
 is never guessing.
+**A game with a bottom nav uses the floating pill.** `<Nav presentation="floating">`
+from Gamestage UI: a capsule above the home indicator, the current tab showing
+its mark and word and the rest their marks alone, each at least 48px. It
+reserves its own height, so nothing scrolls out of reach behind it; raise any
+sheet or modal above it (it sits at z-index 50). Every tab's word comes from a
+Studio setting and stays the tab's accessible name. Give "Privacy settings" a
+home in the page's flow with a `data-gs-slot="privacy-settings"` element, on a
+Profile screen or at the foot of one, so the client never floats it under the
+pill. The starters `create` scaffolds have one screen and no nav; add the
+floating one when a game grows a second.
+
 **Every control a fan taps presses, and never selects text.** On an iPhone a
 long press on a button otherwise selects its label and shows text handles, and
 a raised button does not move, because Safari applies `:active` only once the
