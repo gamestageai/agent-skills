@@ -110,5 +110,9 @@
   "display_name": "ELEVEN",
   "play_button_label": "Take the shot",
   "how_to_play": "Aim at the goal, hold to build power, then release. Arrow keys aim; hold and release Space to shoot. The keeper has already decided where to dive. Five penalties, three to win.",
-  "primary_colour": "#1c1c1c"
+  "primary_colour": "#1c1c1c",
+  "consent_detail": "{brand} would like to record analytics on how you play, so we can improve the game. We only do this if you agree. Data needed to run the game, such as your scores, is processed on the basis of legitimate interests.",
+  "consent_accept_label": "Accept",
+  "consent_reject_label": "Reject",
+  "consent_choose_label": "Manage preferences"
 }

@@ -1,0 +1,518 @@
+/* Stat. Every value comes from a token; nothing here is a literal colour. */
+
+.gs-stat {
+  display: inline-grid;
+  grid-template-areas: 'label glyph' 'value delta';
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 0 var(--gs-space-2);
+}
+
+.gs-stat__label {
+  grid-area: label;
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  letter-spacing: var(--gs-type-label-letter-spacing);
+  text-transform: uppercase;
+  color: var(--gs-color-ink-secondary);
+}
+
+/* Tabular numerals, or the whole row shifts every time a digit changes and the
+   number reads as jittering rather than counting. */
+.gs-stat__value {
+  grid-area: value;
+  /* A display number sets its own leading.
+
+     It had none, so it inherited the page's body line-height: a 36px score sa
+     in a 57.6px line box, 60% taller than the glyphs, and the container grew to
+     fit it. That is what made a score chip 78px tall beside 55px pills in the
+     same HUD row, and it is why the shapes read as irregular before anybody
+     could say why.
+
+     1 rather than a token: these are tabular numerals with no descenders doing
+     the work, and the box's own padding is what gives them room. */
+  line-height: 1;
+  font-family: var(--gs-type-stat-font-family);
+  font-size: var(--gs-type-stat-font-size);
+  font-weight: var(--gs-type-stat-font-weight);
+  font-variant-numeric: var(--gs-type-score-font-variant-numeric);
+  /* Room for the digits the host said to expect, so a timer at 0:09 is the
+     same width it was at 0:10 and nothing beside it re-lays out. stat.tsx
+     counts them into --gs-stat-digits; a ch is one tabular digit.
+
+     Bounded by the room there is, which is the half that was missing. A
+     reservation is a floor under the number, not a licence to grow past
+     whatever holds it: in a profile tile 63px wide, five digits reserved 78px
+     and the score hung 7px outside its own stat. `min()` keeps the floor
+     wherever it fits and yields where it does not, and the type step that
+     makes it fit is the tile's business (profile.css sizes this number
+     through a container unit). Same shape as the `min-w-0` a flex child
+     needs: reserve what you can, never more than you have. */
+  min-inline-size: min(100%, calc(var(--gs-stat-digits, 1) * 1ch));
+  color: var(--gs-color-ink);
+  /* Colour is emphasis: it changes when the value turns critical and mus
+     survive reduced motion, because it is how a player who cannot see the
+     pulse still knows. */
+  transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* Score is the one a player looks at from across a room, when it has the room.
+
+   The size follows the presentation, not the word "score". A score standing on
+   its own at the end of a round is the score token, 36px. The same number in a
+   chip or a pill is a HUD reading, and the design draws those at the stat size:
+   its own system already carries both, `stat` for a chip and `score` for the
+   moment a player looks up, and we were choosing between them by the stat's
+   name instead.
+
+   It is not a preference. At 36px a score chip is 174px wide, so four chips
+   need three rows at phone width and the HUD becomes a block that eats a third
+   of the screen where the design has a strip across the top. The same fault pu
+   a four figure score across the name beside it on the podium and truncated
+   names in the leaderboard. */
+.gs-stat[data-gs-stat='score'] .gs-stat__value {
+  font-family: var(--gs-type-score-font-family);
+  font-size: var(--gs-type-score-font-size);
+  font-weight: var(--gs-type-score-font-weight);
+}
+
+.gs-stat[data-gs-stat='score']:is(
+    [data-gs-presentation='chip'],
+    [data-gs-presentation='pill'],
+    [data-gs-presentation='dots'],
+    [data-gs-presentation='pips']
+  )
+  .gs-stat__value {
+  font-size: var(--gs-type-stat-font-size);
+  font-weight: var(--gs-type-stat-font-weight);
+}
+
+/* A level on its own is a small number: "LEVEL 7" is a fact about the player,
+   not a reading they watch. The 5f handoff sizes it 14/900, which is exactly
+   type.figure, the token the drawing draws 18 times; the other kinds the
+   handoff sizes apart (multiplier 16, xp 12) have no token and no specimen
+   that draws them, so they stay at stat until one does. Plain only: inside a
+   chip or a pill every kind reads at the stat size, so a HUD is a row of
+   equals. */
+.gs-stat[data-gs-stat='level'][data-gs-presentation='plain'] .gs-stat__value {
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+}
+
+.gs-stat__max {
+  font-size: var(--gs-type-label-font-size);
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-stat__delta {
+  grid-area: delta;
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  color: var(--gs-color-positive-solid);
+  /* The float itself is motion.css's: the element carries
+     data-gs-motion="floatup" and the shared keyframe rises it 48px over the
+     float-up token. Nothing here is timed. */
+}
+
+/* The sign carries the colour, so it survives reduced motion even though the
+   float does not. */
+.gs-stat[data-gs-delta^='-'] .gs-stat__delta { color: var(--gs-color-negative-solid); }
+
+.gs-stat__glyph {
+  grid-area: glyph;
+  font-family: var(--gs-type-stat-font-family);
+  font-size: var(--gs-size-icon-control);
+  line-height: 1;
+  color: var(--gs-color-warning);
+  transition: opacity var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* Critical changes the fill, adds a glyph, and changes the accessible name.
+   Never colour alone.
+
+   It used to bump the weight to 900 as a third signal, which is a signal only
+   in a theme whose display face has more than one weight. Arcade's was Bungee
+   at the time, which ships one, so the browser faux-bolded it and the numerals
+   smeared into each other. A signal that destroys legibility in the state where
+   reading the number matters most is not a signal, and it is not needed even
+   now that arcade is back on a face with real weights. The fill, the glyph and the name carry
+   it, and all three work in every theme. */
+.gs-stat[data-gs-critical='true'] .gs-stat__value {
+  color: var(--gs-color-warning);
+}
+
+/* A paused clock is not a stopped one. It dims and keeps its place. */
+.gs-stat[data-gs-paused='true'] .gs-stat__value { color: var(--gs-color-ink-secondary); }
+
+/* An optimistic number is the player's, not yet the host's. It reads as real,
+   because it is what the player will keep in almost every case; the only
+   difference is that it has not settled. */
+.gs-stat[data-gs-settlement='optimistic'] .gs-stat__value { opacity: 0.85; }
+
+/* A correction is worth noticing, so it is emphasis rather than a silent swap. */
+.gs-stat[data-gs-settlement='corrected'] .gs-stat__value {
+  color: var(--gs-color-warning);
+}
+
+/* -- the silhouettes (GSUI-100) ------------------------------------------- */
+/* Container and marks, and nothing else. Not one rule below changes the number,
+   its name or any state: those are identical in all five presentations, which is
+   why this is a prop rather than five components. stat.tsx has the reasoning.
+
+   Specimen 3b draws every one of these and design/twins/3b.json measures ours
+   against it, declaration by declaration. Where a rule below names a value, the
+   drawing draws that value; where it names a token, the token was derived from
+   the drawing. */
+
+/* Everything but `plain` is a container, so they share the box.
+
+   One height for every container, so a row of them is a row: the drawing stands
+   the score chip, the three timers, the lives pill and the lit streak all at
+   52px, which is size.chip. They used to take size.actionLarge, 68px in arcade,
+   which is a button's height and made a HUD row of pills as tall as the GO
+   button underneath it. The number keeps its size; the box does not take its
+   size from the number. */
+.gs-stat[data-gs-presentation='chip'],
+.gs-stat[data-gs-presentation='pill'],
+.gs-stat[data-gs-presentation='dots'],
+.gs-stat[data-gs-presentation='pips'] {
+  min-height: var(--gs-size-chip);
+  box-sizing: border-box;
+  /* A contained number is a badge and takes the width of what it holds. Without
+     this the box stretched to whatever the host's layout offered, so a score
+     pill and a lives pill in the same HUD came out at different widths: score
+     hugged three characters and lives ran the full width of the row to hold
+     three dots. `justify-self` rather than a width, so the rule works the same
+     in a grid, a flex row and normal flow, and a host that wants a full-width
+     badge can still say so. */
+  justify-self: start;
+  inline-size: fit-content;
+  padding: 0 var(--gs-space-4);
+  border: var(--gs-stroke-ui, var(--gs-stroke-hairline)) solid transparent;
+  /* Emphasis: fill and stroke are the timer's thresholds, and a threshold a
+     player only sees if they can see animation is not a threshold. */
+  transition:
+    background-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis),
+    border-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* No display shadow on a contained number, and the face's own leading rather
+   than the tight 1 the plain stat uses: the container's height comes from
+   size.chip and centres its contents, so the number no longer has to set the
+   box.
+
+   arcade sets type.displayShadow to a 3px offset, which is right under a 48px
+   headline and wrong under a 22px stat: at that size the shadow sits inside the
+   glyphs and "1240" reads double-struck. The drawing draws no shadow on any
+   number in a chip or a pill. */
+.gs-stat[data-gs-presentation='chip'] .gs-stat__value,
+.gs-stat[data-gs-presentation='pill'] .gs-stat__value,
+.gs-stat[data-gs-presentation='dots'] .gs-stat__value,
+.gs-stat[data-gs-presentation='pips'] .gs-stat__value {
+  line-height: normal;
+  text-shadow: none;
+}
+
+/* A chip is a hole punched in the surface, not a plate laid on it.
+
+   Specimen 3b draws this exact chip: a 52px pill filled with colour.edge, the
+   dark, ringed at the 3px control stroke in edgeHigh, the contents centred on
+   one line with the drawing's 10px gap, and floating on depth.floating. Dark
+   fill and bright ring is the whole idea: it is why the score reads at a glance
+   over a scene the library does not own.
+
+   The label keeps ink-secondary, which is what the drawing sets (var(--ink2)).
+   An earlier fix made it white on a bad measurement. */
+.gs-stat[data-gs-presentation='chip'] {
+  align-items: center;
+  gap: var(--gs-space-gap);
+  border-color: var(--gs-color-edge-high);
+  border-width: var(--gs-stroke-control, var(--gs-stroke-ui));
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-edge);
+  box-shadow: var(--gs-depth-floating);
+}
+
+/* A pill is the surface itself, outlined in colour.edge at the 3px stroke, and
+   it is round: the drawing's streak is a 999px pill. The timer below squares it
+   to radius.control, because that is what the drawing draws for the timer and
+   only the timer. */
+.gs-stat[data-gs-presentation='pill'] {
+  position: relative;
+  border-color: var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-surface);
+}
+
+/* The lives pill is the score chip's box without its shadow: colour.edge
+   filled, ringed in edgeHigh, padded at space.inset, the dots 8px apart. The
+   drawing draws the two side by side in the same HUD and they share the dark
+   hole; only the score floats. */
+.gs-stat[data-gs-presentation='dots'] {
+  position: relative;
+  padding: 0 var(--gs-space-inset);
+  border-color: var(--gs-color-edge-high);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-edge);
+}
+
+/* The round row has no box at all. The drawing lays the pips on the scene with
+   the words ROUND 3 after them, in label type: the pips carry the position and
+   the text names it. It used to be a filled pill with the number at stat size
+   in front of the marks, which is a second HUD chip where the drawing has a
+   strip. */
+.gs-stat[data-gs-presentation='pips'] {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+/* One row, not three.
+
+   The marks used to sit under the number with the label above it, which is
+   three stacked rows and forces the pill into a circle: lives and round both
+   came out as discs with the content crammed into a corner and two thirds of
+   the shape empty. The design draws a wide pill holding the marks.
+
+   Dots: the marks alone. The drawing's lives pill holds three dots and no
+   number, because three dots with one dashed already say "2 of 3". The number
+   and the label stay in the accessible name, so a screen reader still hears
+   "Lives, 2 of 3": hidden from the eye, not removed. */
+.gs-stat[data-gs-presentation='dots'] {
+  grid-template-areas: 'marks delta glyph';
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  justify-items: start;
+  gap: var(--gs-space-2);
+}
+
+/* Pips: the marks first, then the label and the number as one phrase, ROUND 3,
+   both in label type. The label's own margin is the drawing's margin-left: 8px
+   on the row's 8px gap, so the words sit 16px clear of the last pip. */
+.gs-stat[data-gs-presentation='pips'] {
+  grid-template-areas: 'marks label value delta glyph';
+  grid-template-columns: auto auto auto auto auto;
+  align-items: center;
+  justify-items: start;
+  gap: var(--gs-space-2);
+}
+
+.gs-stat[data-gs-presentation='pips'] .gs-stat__label {
+  margin-inline-start: var(--gs-space-2);
+}
+
+/* ROUND and 3 are one phrase, a word space apart. The row's gap is the 8px the
+   drawing draws between the pips, and a word space at 12px is nearer 4px, so
+   the number gives half the gap back rather than the row losing it. */
+.gs-stat[data-gs-presentation='pips'] .gs-stat__value {
+  margin-inline-start: calc(var(--gs-space-1) - var(--gs-space-2));
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  letter-spacing: var(--gs-type-label-letter-spacing);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* -- the timer's three thresholds ----------------------------------------- */
+/* Running, going, running out: a solid fill, then an outline, then a solid fill
+   in another hue with the `!` beside it. Three shapes before three colours, so a
+   player who cannot tell the hues apart still gets three answers.
+
+   The drawing squares the timer to radius.control, 16px, where every other
+   HUD element is a 999px pill: a clock face is a different shape from a score.
+   Blue while it is running, gold only at the warning threshold, red only at
+   critical. It used to take `interactive`, which arcade defines as the orange
+   gradient, so a timer with three minutes left looked exactly like the design's
+   warning state, and painting the calm state in the alarm colour teaches a
+   player the wrong thing. */
+.gs-stat[data-gs-presentation='pill'][data-gs-stat='timer'] {
+  border-radius: var(--gs-radius-control);
+}
+
+/* A pill is one row, and its label is heard rather than seen.
+
+   The design draws a pill holding the thing itself: the time, the streak, the
+   row of life marks. It never puts the word "TIMER" or "STREAK" inside. Ours
+   stacked the label above the value, which is two rows, which forces the pill
+   into a circle: timer, streak, lives and round all came out as discs with the
+   content crammed into one corner.
+
+   The label stays in the accessible name, so a screen reader still hears
+   "Streak, 4". Hidden from the eye, not removed. */
+.gs-stat[data-gs-presentation='pill'] {
+  grid-template-areas: 'value marks delta glyph';
+  grid-template-columns: auto auto auto auto;
+  align-items: center;
+  justify-items: start;
+  gap: var(--gs-space-2);
+}
+
+/* A chip keeps its label, beside the number rather than above it: the design
+   draws "SCORE 12,450" on one line inside an outlined chip. */
+.gs-stat[data-gs-presentation='chip'] {
+  grid-template-areas: 'label value delta glyph';
+  grid-template-columns: auto auto auto auto;
+  align-items: center;
+  gap: var(--gs-space-gap);
+  /* Never narrower than the label and the number together. A HUD at phone
+     width hands each item half the row and lets it shrink, and the chip's
+     min-content leaves the number out: the value reserves its digits as
+     min(100%, Nch), and a percentage of a track sized by its own content
+     counts as nothing when the browser works out how far the chip can shrink.
+     So "OPPONENT 552" in the stage demo at 390 kept its label and drew the
+     number at zero width. The HUD wraps, so a whole chip takes the next row
+     instead of losing its number. */
+  min-inline-size: max-content;
+}
+
+/* Heard, not seen: the pill's and the dots' label, and the dots' number. */
+.gs-stat[data-gs-presentation='pill'] .gs-stat__label,
+.gs-stat[data-gs-presentation='dots'] .gs-stat__label,
+.gs-stat[data-gs-presentation='dots'] .gs-stat__value {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-inline-size: 0;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Going: the same surface, the stroke and the numerals turned to the warning
+   colour. The drawing changes the outline and the ink and nothing else. */
+.gs-stat[data-gs-presentation='pill'][data-gs-warning='true'] {
+  border-color: var(--gs-color-warning);
+  /* On the pill itself, as the drawing sets it (5f), so the glyph and anything
+     else inside inherit the same answer as the numerals. */
+  color: var(--gs-color-warning);
+}
+
+.gs-stat[data-gs-presentation='pill'][data-gs-warning='true'] .gs-stat__value {
+  color: var(--gs-color-warning);
+}
+
+/* Running out. After warning in the file, so the stronger claim wins when a
+   host sets both. The fill turns to the negative colour, the outline goes back
+   to colour.edge, and the numerals are white: colour.ink, which is the same
+   white the running timer draws them in. The drawing writes plain white here, and
+   on-bright, the dark ink for a bright fill, was drawing near-black numerals on
+   a red pill where the drawing has white ones.
+
+   The beat is motion.css's: stat.tsx puts data-gs-motion="pulse" on a critical
+   pill and the shared keyframe swells it by 1.06 on the pulse token. It stops
+   under reduced motion; the fill, the glyph and the name still carry it. */
+.gs-stat[data-gs-presentation='pill'][data-gs-critical='true'] {
+  border-color: var(--gs-color-edge);
+  background: var(--gs-color-negative);
+  color: var(--gs-color-ink);
+}
+
+/* A critical timer pulses, once a second, for as long as it is critical
+   (specimen 3b: "critical: motion.pulse 1s loop · sfx.tick each second ·
+   haptic.light · reduced-motion: static red fill"). Only the timer: a critical
+   streak or a last life is a state, not a clock running down, and the design
+   pulses neither.
+
+   No data-gs-animates="motion" here, deliberately. The attribute is per
+   element, and this element already carries the fill and stroke transitions
+   that ARE the threshold; marking the root as motion would zero those under
+   reduced motion and take the red fill's arrival with them. So the
+   reduced-motion path is written out below rather than inherited, and it is a
+   different path and not a shorter one: the pulse does not happen at all, and
+   what remains is the static red fill the design asks for. */
+.gs-stat[data-gs-presentation='pill'][data-gs-stat='timer'][data-gs-critical='true'] {
+  animation: gs-timer-pulse var(--gs-motion-pulse) var(--gs-motion-ease-pulse) infinite;
+}
+
+@keyframes gs-timer-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-stat[data-gs-presentation='pill'][data-gs-stat='timer'][data-gs-critical='true'] {
+    animation: none;
+  }
+}
+
+/* On a filled pill the ink comes from the fill, not the page, or a light-on-dark
+   theme draws a dark number on a dark fill. */
+.gs-stat[data-gs-presentation='pill'][data-gs-stat='timer'] .gs-stat__value,
+.gs-stat[data-gs-presentation='pill'][data-gs-stat='timer'] .gs-stat__label,
+.gs-stat[data-gs-presentation='pill'][data-gs-critical='true'] .gs-stat__value,
+.gs-stat[data-gs-presentation='pill'][data-gs-critical='true'] .gs-stat__label,
+.gs-stat[data-gs-presentation='pill'][data-gs-critical='true'] .gs-stat__glyph {
+  color: inherit;
+}
+
+/* -- the marks ------------------------------------------------------------ */
+.gs-stat__marks {
+  grid-area: marks;
+  display: inline-flex;
+  align-items: center;
+  /* 8px between marks in both the lives pill and the round row. */
+  gap: var(--gs-space-2);
+  /* Emphasis: the marks change shape and never move, so they survive reduced
+     motion, which is the whole point of drawing them. */
+  transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-stat__mark {
+  display: block;
+  box-sizing: border-box;
+  border: var(--gs-stroke-ui, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+}
+
+/* Dots: a resource that is spent and can come back. Held is a disc of the
+   negative colour ringed in colour.edge, the drawing's life; spent is the same
+   circle left empty and dashed in muted, which is what says it can come back. A
+   broken heart said the opposite, which is why the drawing changed. Fill and
+   stroke style both differ, so nothing here depends on the colour.
+
+   size.iconControl, 24px, for the drawing's 22px dot: the 2px is not worth a
+   token. */
+.gs-stat[data-gs-presentation='dots'] .gs-stat__mark {
+  width: var(--gs-size-icon-control);
+  height: var(--gs-size-icon-control);
+  border-radius: var(--gs-radius-full);
+}
+
+.gs-stat__mark--held  { background: var(--gs-color-negative); }
+.gs-stat__mark--spent {
+  background: none;
+  border-style: dashed;
+  border-color: var(--gs-color-muted);
+}
+
+/* Pips: a position in a sequence. Done is a positive pill outlined in edge,
+   current is wider and taller in the reward colour, coming is a bare edge-
+   coloured pill with no outline. Two sizes and two fills, before any colour.
+
+   The drawing draws a done pip 28 by 12, and 28 is no token: space.6 is 24 and
+   space.8 is 32. Ours is 24 until a token lands (a request in the twin file).
+   The current pip is 40 by 16, which size.controlSmall and space.4 carry. */
+.gs-stat[data-gs-presentation='pips'] .gs-stat__mark {
+  width: var(--gs-space-6);
+  height: var(--gs-space-3);
+  border-radius: var(--gs-radius-full);
+}
+
+.gs-stat__mark--done    { background: var(--gs-color-positive); }
+/* Scoped like the rule above it, or that rule's width wins and the current pip
+   is the same size as a done one, which is what it silently was. */
+.gs-stat[data-gs-presentation='pips'] .gs-stat__mark--current {
+  width: var(--gs-size-control-small);
+  height: var(--gs-space-4);
+  background: var(--gs-color-reward);
+}
+.gs-stat__mark--coming  { border: 0; background: var(--gs-color-edge); }
+
+/* Down to the last of them. The held dots take the warning colour, so nothing
+   needs a second attribute. Last, so it wins over the dots' own fill. */
+.gs-stat[data-gs-critical='true'] .gs-stat__mark--held { background: var(--gs-color-warning); }

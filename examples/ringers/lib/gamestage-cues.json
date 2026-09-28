@@ -1,0 +1,79 @@
+{
+  "sfx": {
+    "$description": "Sound intent, not files. One sound per state change, never on hover, 400ms or less unless noted, honours OS silent.",
+    "press": {
+      "$value": "tick"
+    },
+    "select": {
+      "$value": "soft click"
+    },
+    "commit": {
+      "$value": "lock, weighted"
+    },
+    "correct": {
+      "$value": "bright, short"
+    },
+    "wrong": {
+      "$value": "low, dull, never harsh"
+    },
+    "score": {
+      "$value": "tick per 10 pts during count-up"
+    },
+    "streak": {
+      "$value": "pitched by n"
+    },
+    "xp": {
+      "$value": "rising with amount"
+    },
+    "rankUp": {
+      "$value": "whoosh up; rank lost is silent"
+    },
+    "hint": {
+      "$value": "single chime"
+    },
+    "countdown": {
+      "$value": "3 pips"
+    },
+    "go": {
+      "$value": "accent hit"
+    },
+    "tick": {
+      "$value": "per second when timer critical"
+    },
+    "reveal": {
+      "$value": "build then sfx.reward"
+    },
+    "reward": {
+      "$value": "shimmer"
+    },
+    "collect": {
+      "$value": "pop into inventory"
+    },
+    "levelUp": {
+      "$value": "rising 3-note"
+    },
+    "win": {
+      "$value": "fanfare 1.5s or less"
+    },
+    "celebrate": {
+      "$value": "burst 1.5s or less"
+    }
+  },
+  "haptic": {
+    "light": {
+      "$value": "tap, select, collect"
+    },
+    "medium": {
+      "$value": "commit, streak, GO"
+    },
+    "heavy": {
+      "$value": "win"
+    },
+    "success": {
+      "$value": "correct, reward, level up"
+    },
+    "error": {
+      "$value": "wrong, life lost"
+    }
+  }
+}

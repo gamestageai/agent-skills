@@ -1,0 +1,253 @@
+/* Podium. Every value comes from a token; nothing here is a literal colour.
+
+   The numbers are specimen 3e's, measured by design/twins/3e.json against the
+   drawing with scripts/twin. Where the drawing uses a value no token carries,
+   the twins file says which token stands in and why. */
+
+.gs-podium {
+  display: grid;
+  gap: var(--gs-space-3);
+  font-family: var(--gs-type-body-font-family);
+  color: var(--gs-color-ink);
+}
+
+.gs-podium__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* DOM order is 1, 2, 3, because that is the order it must be read in. The
+   arrangement is `order`, which moves nothing a screen reader or a stylesheet-
+   less render sees. */
+.gs-podium__list {
+  display: grid;
+  /* minmax(0, 1fr), not 1fr: a grid track's default minimum is its content, so
+     a long name widened its own column and pushed the other two. "Verstappen"
+     ran 135px wide in a 107px column and sat across the player beside it. The
+     name already truncates; this is what lets it. */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--gs-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A column: the avatar, the name, the block, stacked and centred, 6px apart in
+   the drawing, 8 here (the nearest token). */
+.gs-podium__row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gs-space-2);
+  min-width: 0;
+  text-align: center;
+  transition: transform var(--gs-motion-reorder) var(--gs-motion-ease-reorder);
+}
+
+.gs-podium__row[data-gs-place='1'] { order: 2; }
+.gs-podium__row[data-gs-place='2'] { order: 1; }
+.gs-podium__row[data-gs-place='3'] { order: 3; }
+
+/* -- the player ------------------------------------------------------------ */
+/* Identity draws the disc beside the name; the podium stands it above. The
+   winner's disc is identity's large step, 64px; the other two are the chip
+   size, 52px, which identity has no step for, and every disc wears the 3px
+   ring the drawing draws. */
+.gs-podium__row > [data-gs-component='identity'] {
+  flex-direction: column;
+  gap: var(--gs-space-2);
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.gs-podium__row > [data-gs-component='identity'][data-gs-size='default'] [data-gs-part='avatar'] {
+  inline-size: var(--gs-size-chip);
+  block-size: var(--gs-size-chip);
+}
+
+.gs-podium__row > [data-gs-component='identity'][data-gs-size] [data-gs-part='avatar'] {
+  /* Border-box, as drawn: a 52px disc is 52px with its ring. */
+  box-sizing: border-box;
+  border-width: var(--gs-stroke-ui);
+}
+
+/* The winner's disc carries the reward ring and glow. */
+.gs-podium__row[data-gs-place='1'] > [data-gs-component='identity'] [data-gs-part='avatar'] {
+  box-shadow: var(--gs-depth-reward);
+}
+
+/* The name is the label role: the interface face at 12px, weight 800, which is
+   what specimen 3e sets under every disc. It was body type, 17px, and wider
+   than the block it stood over. Identity's own size steps set the name in the
+   body or title face, so the role is set here for every step. */
+.gs-podium__row > [data-gs-component='identity'][data-gs-size] [data-gs-part='label'] {
+  display: block;
+  max-inline-size: 100%;
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  /* An arbitrary-length name must not widen its column and squash the other
+     two blocks. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gs-podium__row > [data-gs-component='identity'] [data-gs-part='detail'] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -- the block ------------------------------------------------------------- */
+/* The block, with the numeral and the score standing on it. Height is the
+   rank, so the shape survives a theme changing every class name. The drawing
+   draws 92, 64 and 48: the hero size and the 48 step are exact, and 96 is the
+   nearest the scale has to 92. Open at the bottom, because the block stands
+   on the rule under the podium. */
+.gs-podium__block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gs-space-1);
+  box-sizing: border-box;
+  inline-size: 100%;
+  background: var(--gs-color-surface-raised);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-bottom: 0;
+  border-radius: var(--gs-radius-sm) var(--gs-radius-sm) 0 0;
+}
+
+/* `min-block-size`, not `block-size`, on all three: the number standing on a
+   block is the whole point of the block, so a block grows rather than cropping
+   it. A theme with a taller display face, or a fourth digit in a bigger step,
+   then costs a taller column instead of a number touching its own edge. */
+.gs-podium__row[data-gs-place='1'] .gs-podium__block {
+  min-block-size: calc(var(--gs-space-12) * 2);
+  /* One block colour on every step: a different fill on the winner's read as
+     a state. The height and the numeral's colour say the place. */
+  /* The drawing draws the raised highlight alone along the winner's block; the
+     raised token carries that highlight and brings the theme's shelf with it.
+     A highlight-only token is on the request list. */
+  box-shadow: var(--gs-depth-raised);
+}
+
+.gs-podium__row[data-gs-place='2'] .gs-podium__block {
+  min-block-size: var(--gs-size-icon-hero);
+}
+
+/* One space step taller than the drawing's 48, and the reason is our own type.
+   Specimen 3e steps the numeral 28, 20 and 18 by place and the score 12, 11,
+   11; ours are one token each, stat at 22 and figure at 14, which docs/
+   type-roles.json settles and which is right for a number a player reads at a
+   glance. That puts 40px of type in a 48px column: 3px above the numeral and
+   3px below the score, which is not a gap, it is a near miss, and in a capture
+   it reads as the number sitting on the edge of its own block. 56 gives it
+   space.2 at each end, the same token the column's own gaps are set in. The
+   first two blocks have the room already and keep the heights as drawn, so the
+   podium still steps 96, 64, 56. */
+.gs-podium__row[data-gs-place='3'] .gs-podium__block {
+  min-block-size: calc(var(--gs-space-12) + var(--gs-space-2));
+}
+
+/* The numeral is a rank, and a rank on a block is the stat size: the drawing
+   steps it 28, 20 and 18 by place, and 22 is the one token in that range.
+   Gold, silver and bronze by place. There is no silver or bronze token:
+   ink-secondary and the reward base stand in, and both are on the request
+   list. The display shadow comes with gs-display-type. */
+.gs-podium__rank {
+  font-family: var(--gs-type-stat-font-family);
+  font-size: var(--gs-type-stat-font-size);
+  font-weight: var(--gs-type-stat-font-weight);
+  line-height: 1;
+  color: var(--gs-podium-silver, var(--gs-color-ink-secondary));
+}
+
+/* Gold, silver and bronze by the step, never by the rank, so a tie on 1 still
+   stands gold, silver, bronze. Each is a property a theme or a game sets:
+   --gs-podium-gold, --gs-podium-silver and --gs-podium-bronze. */
+.gs-podium__row[data-gs-place='1'] .gs-podium__rank {
+  color: var(--gs-podium-gold, var(--gs-color-reward-solid));
+}
+
+.gs-podium__row[data-gs-place='3'] .gs-podium__rank {
+  color: var(--gs-podium-bronze, var(--gs-color-reward-base-solid));
+}
+
+/* The score's own label would read "score" three times across the podium. */
+.gs-podium__score[data-gs-component='stat'] [data-gs-part='label'] {
+  display: none;
+}
+
+/* A podium score is a figure: the display face at 14px, which is what the
+   drawing sets under each numeral (12, 11 and 11), and no shadow, because a
+   number standing on a block beside its rank is a reading and not the hero.
+   At the score size a four figure number was wider than its column and ran
+   under the name beside it. */
+.gs-podium [data-gs-component='stat'][data-gs-stat='score'] .gs-stat__value {
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  text-shadow: none;
+  color: var(--gs-color-ink);
+}
+
+/* The player's own place is marked by a stroke on the block; identity marks
+   the name. Not the block colour alone, which already means the rank. */
+.gs-podium__row[data-gs-you='true'] .gs-podium__block {
+  outline: var(--gs-stroke-selected) solid var(--gs-color-player);
+  outline-offset: calc(var(--gs-stroke-selected) * -1);
+}
+
+/* Colour and weight together, as identity marks a you name, so the place is
+   findable by someone who cannot tell the two colours apart. The place carries
+   data-gs-you; identity is not told, or one place says "you" twice. */
+.gs-podium__row[data-gs-you='true'] > [data-gs-component='identity'][data-gs-size] [data-gs-part='label'] {
+  color: var(--gs-color-player);
+  font-weight: var(--gs-type-action-font-weight);
+}
+
+/* -- empty ----------------------------------------------------------------- */
+/* An empty podium is a designed state, never a blank rectangle. */
+.gs-podium__empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--gs-space-2);
+  padding: var(--gs-space-8) var(--gs-space-4);
+  text-align: center;
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-hairline) dashed var(--gs-color-edge);
+  border-radius: var(--gs-radius-lg);
+}
+
+.gs-podium__empty-glyph {
+  font-size: var(--gs-size-icon-hero);
+  line-height: 1;
+  color: var(--gs-color-muted);
+}
+
+.gs-podium__empty-heading {
+  margin: 0;
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  color: var(--gs-color-ink);
+}
+
+.gs-podium__empty-body {
+  margin: 0;
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  line-height: var(--gs-type-body-line-height);
+  color: var(--gs-color-ink-secondary);
+}

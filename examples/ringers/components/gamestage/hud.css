@@ -1,0 +1,142 @@
+/* Hud. Every value comes from a token; nothing here is a literal colour.
+   The numbers, their labels, the hearts and the flame belong to the components
+   inside; this file owns the row they sit in and nothing else.
+
+   Every rule is scoped through `.gs-hud`, and that is the composition rule
+   rather than a style preference. A bare `.gs-stat { … }` here would tie with
+   the `.gs-stat { … }` in stat.css at 0,1,0, and a tie is decided by which
+   stylesheet the bundler put last. Import order happens to favour hud today,
+   because hud imports its children before its own CSS, but that holds only
+   while one component depends on the other. Two components that are siblings
+   have no such order, so nothing in this library may rely on a tie. */
+
+/* Specimen 3j draws the strip and design/twins/3j.json measures ours against
+   it: chips centred on one line, 8px apart, with the timer taking whatever
+   width the chips leave. Centred rather than on a baseline, because the
+   things in the row are plates of different heights and a baseline lines up
+   their numbers while leaving their edges ragged. */
+.gs-hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gs-space-2);
+}
+
+/* A HUD is read in one glance over a scene, so the row stays on one line while
+   it fits and wraps rather than scrolls when it does not. Nothing here sets a
+   width: the HUD is as wide as the host's container, because it does not know
+   what it is sitting on. */
+
+.gs-hud[data-gs-placement='bottom'],
+.gs-hud[data-gs-placement='bottom-left'],
+.gs-hud[data-gs-placement='bottom-right'] {
+  align-items: flex-end;
+}
+
+/* Across the top the timer fills the middle, so the row needs no spreading
+   there; centred and along the bottom the parts spread out instead. */
+.gs-hud[data-gs-placement='center'],
+.gs-hud[data-gs-placement='bottom'] {
+  justify-content: space-between;
+}
+
+.gs-hud > [data-gs-stat='timer'] {
+  flex: 1 1 0;
+}
+
+.gs-hud[data-gs-placement='top-right'],
+.gs-hud[data-gs-placement='bottom-right'],
+.gs-hud[data-gs-placement='right'] {
+  justify-content: flex-end;
+}
+
+/* Left and right are columns, because a HUD down the side of a scene is a
+   column whatever the components in it think they are. */
+.gs-hud[data-gs-placement='left'],
+.gs-hud[data-gs-placement='right'] {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.gs-hud[data-gs-placement='right'] {
+  align-items: flex-end;
+}
+
+/* Stat is `inline-grid` on its own, which is right when a number stands alone
+   on a page and wrong in a flex row, where the label and the value want to
+   stack. Specificity 0,2,0 against stat.css's 0,1,0, so it wins whichever
+   stylesheet loads first. */
+.gs-hud .gs-stat {
+  display: grid;
+}
+
+/* The four components each have a root of their own between the HUD and the
+   number, so the flex row's alignment has to reach through it. Everything but
+   the timer keeps its own width. */
+.gs-hud > :not([data-gs-stat='timer']) {
+  flex: 0 0 auto;
+}
+
+/* Over a scene the numbers have to survive whatever is behind them, and the
+   only thing that reliably does is the text's own treatment: there is no HUD
+   plate, because a plate would cover the scene the stage exists not to cover.
+
+   The rule that used to be here read `--gs-type-display-shadow` by name, and it
+   was the only one in the library that did, so arcade's shadow reached the four
+   numbers inside a HUD and none of the numbers anywhere else. type.displayShadow
+   is now a token with a `none` default and the shadow travels on the
+   gs-display-type class, which every number a player reads carries, inside a HUD
+   and out of one. Nothing is left to declare here. */
+
+/* -- narrow ---------------------------------------------------------------- */
+/* A phone is too narrow for four readings in a line, and a wrapped flex row
+   leaves the second line ragged. Under 480px the first reading, the score,
+   takes the whole first line, the rest pair up, and an odd last one takes a
+   whole line too, so the block is symmetrical whatever the count. The query
+   reads the strip's own width: a container query looks at an ancestor, so the
+   strip is the container and its children carry the rule. */
+.gs-hud { container-type: inline-size; }
+
+/* Except where nothing else decides the width.
+ *
+ * `container-type: inline-size` is size containment, and a size-contained box
+ * contributes nothing to an intrinsic width. That is harmless wherever
+ * something else sizes the HUD: in normal flow, or in a stage layer pinned to
+ * two opposite edges. In a shrink-to-fit context it is fatal, because the
+ * width is derived from the contents and the contents now measure zero. A HUD
+ * in a layer placed `bottom-right` came out 0px wide inside a 338px stage and
+ * its score and streak were drawn 53 and 125px outside the scene: the three
+ * readings a player looks at, painted on the page beside the game.
+ *
+ * So the query is switched off for exactly the placements that hug their
+ * contents: the four corners and the two sides. `top`, `bottom` and `center`
+ * keep both side edges and therefore keep a width to query. Selected on
+ * `data-gs-layer` and `data-gs-placement`, which are public attributes in the
+ * contract rather than another component's class names, so this states a fact
+ * about the box the HUD was given and takes no position on stage's stylesheet.
+ */
+[data-gs-layer]:is(
+    [data-gs-placement='top-left'],
+    [data-gs-placement='top-right'],
+    [data-gs-placement='bottom-left'],
+    [data-gs-placement='bottom-right'],
+    [data-gs-placement='left'],
+    [data-gs-placement='right']
+  )
+  > .gs-hud {
+  container-type: normal;
+}
+
+/* Not for a lone reading: stretched, it lost its placement (top right drew
+   centred on a phone). */
+@container (max-width: 479px) {
+  .gs-hud:not([data-gs-placement='left']):not([data-gs-placement='right']) > :not(:only-child) {
+    flex: 1 1 calc(50% - var(--gs-space-2));
+    inline-size: auto;
+    justify-content: center;
+  }
+  .gs-hud:not([data-gs-placement='left']):not([data-gs-placement='right']) > :first-child:not(:only-child),
+  .gs-hud:not([data-gs-placement='left']):not([data-gs-placement='right']) > :last-child:nth-child(even) {
+    flex-basis: 100%;
+  }
+}

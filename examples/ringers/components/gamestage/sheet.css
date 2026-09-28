@@ -1,0 +1,170 @@
+/* Sheet. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 5c draws this and design/twins/5c.json measures ours against it: a
+   scrim over the scene, a surface panel anchored to the foot of the container
+   with a 3px edge on its top and sides, 22px round at the top, padded 12 16
+   24, a 48 by 5 grab handle in edge-high 14px below the top, then the header
+   row, the content, a positive primary and a ghost. */
+
+/* The root covers its container, so a host puts `position: relative` on the
+   surface the sheet belongs to, as it does for a coach mark. Above the coach
+   mark's 1: a sheet is in front of guidance. */
+.gs-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+/* The drawing writes its scrim as a navy at 60% inline; ours is the scrim token, which is
+   what every other darkened layer in the library reads. */
+.gs-sheet__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--gs-color-scrim);
+}
+
+.gs-sheet__panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* Sixty percent of the container. Taller content is a page, not a sheet; what
+     does not fit scrolls inside the content region below. */
+  max-height: 60%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--gs-space-3) var(--gs-space-4) var(--gs-space-6);
+
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-body-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  color: var(--gs-color-ink);
+
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-ui, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+  border-bottom: 0;
+  border-radius: var(--gs-radius-xl) var(--gs-radius-xl) 0 0;
+  /* The drawing casts `inset 0 2px 0 edge-high, 0 -12px 40px shadow`: the
+     raised highlight along the top and a soft drop upward on to the scene.
+     No depth token is an upward drop. depth.raised carries the same highlight
+     in arcade and puts its shelf below the sheet, where the container clips
+     it; the upward drop is a token request, depth.sheet. */
+  box-shadow: var(--gs-depth-raised);
+  outline: none;
+}
+
+/* 48 by 5, 3px round, edge-high, centred, 14 below the top. space.12 is the
+   48; the height is space.1, 4px, because 5px is not a length any token has;
+   a pill radius on a 5px bar is the same shape as the drawing's 3px. */
+.gs-sheet__thumb {
+  flex: none;
+  width: var(--gs-space-12);
+  height: var(--gs-space-1);
+  margin: 0 auto var(--gs-space-inset);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-edge-high-solid);
+}
+
+/* -- the header row -------------------------------------------------------- */
+.gs-sheet__header {
+  flex: none;
+  display: flex;
+  gap: var(--gs-space-inset);
+  align-items: center;
+  margin-bottom: var(--gs-space-4);
+}
+
+/* The art: 88px square, 16px round, 3px edge. No size token is 88;
+   size.iconHero, 64, is the nearest and is what a hero-sized mark takes
+   everywhere else. Token request size.media. Whatever the host puts in it
+   fills it; a reward ring or glow is the host's reward state and not the
+   sheet's. */
+.gs-sheet__media {
+  flex: none;
+  box-sizing: border-box;
+  width: var(--gs-size-icon-hero);
+  height: var(--gs-size-icon-hero);
+  overflow: hidden;
+  border: var(--gs-stroke-ui, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+}
+
+.gs-sheet__media > img,
+.gs-sheet__media > picture,
+.gs-sheet__media > video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gs-sheet__words {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+}
+
+/* PRIZE, UNCLAIMED: the label token in the warning colour. The drawing types
+   it at 10px; arcade's label is 12 and that is the floor for a phone. */
+.gs-sheet__note {
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  letter-spacing: var(--gs-type-label-letter-spacing);
+  text-transform: var(--gs-type-label-text-transform, none);
+  color: var(--gs-color-warning-solid);
+}
+
+/* The heading: the title token, in capitals, with the display shadow behind
+   it. Arcade's title is Unbounded 20 at 900, which is what the drawing sets. */
+.gs-sheet__label {
+  margin-top: var(--gs-space-1);
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: var(--gs-type-title-line-height);
+  text-transform: uppercase;
+  text-shadow: var(--gs-type-display-shadow, none);
+}
+
+/* The line under it, in the secondary ink. Tom's floor: body is never under
+   17px, so the drawing's 12px is not followed here. */
+.gs-sheet__body {
+  margin-top: var(--gs-space-2);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* -- the middle ------------------------------------------------------------ */
+/* Whatever the host puts here: a list of options, a share row, filters. It is
+   the one region that scrolls when the sheet is at its cap. */
+.gs-sheet__content {
+  min-height: 0;
+  overflow: auto;
+}
+
+/* -- the actions ----------------------------------------------------------- */
+.gs-sheet__actions {
+  flex: none;
+  display: grid;
+  gap: var(--gs-space-2);
+  margin-top: var(--gs-space-4);
+}
+
+.gs-sheet__actions > .gs-button {
+  width: 100%;
+}
+
+/* The drawing paints the sheet's primary positive, the way the large game
+   action is painted: it is the one thing the sheet is for. The library's
+   primary is the interactive colour at this size, so the sheet sets the
+   positive paint here, from the same two tokens the large action reads. */
+.gs-sheet__actions > .gs-button[data-gs-variant='primary'] {
+  color: var(--gs-color-on-bright);
+  background: var(--gs-color-positive);
+  box-shadow: var(--gs-depth-pressable-positive);
+}
+
+.gs-sheet__actions > .gs-button[data-gs-variant='primary']:active:not([aria-disabled='true']) {
+  box-shadow: var(--gs-depth-pressable-positive-pressed);
+}

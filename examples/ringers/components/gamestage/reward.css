@@ -1,0 +1,632 @@
+/* Reward. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 3d draws this, and design/twins/3d.json measures ours against it
+   declaration by declaration: the card in four states, and the reveal. Where a
+   value below is not the drawing's, the twins file says which token was the
+   nearest and why, so a difference reads as a decision rather than a miss.
+
+   The motion is motion.css's, which ships with @gamestage/tokens: the pulse,
+   the reveal and the rays are asked for with data-gs-motion and this file
+   only says where each one sits. */
+
+/* -- the card ------------------------------------------------------------- */
+/* A surface with a 3px outline at the large radius, padded 12, its parts
+   stacked at 8: art, name, and a tail that is the state. Left-aligned text,
+   as drawn. The card takes the width it is given; an inventory gives it a
+   column. */
+.gs-reward {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-2);
+  inline-size: 100%;
+  margin: 0;
+  padding: var(--gs-space-3);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-lg);
+  background: var(--gs-color-surface);
+  color: var(--gs-color-ink);
+  text-align: start;
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  /* Emphasis: the state changes the fill and the outline, and a state change a
+     player only sees if they can see animation is not a state change. */
+  transition:
+    background-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis),
+    border-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis),
+    box-shadow var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* Only a reward that can be opened invites a press. */
+.gs-reward[data-gs-reward-state='earned']:not([data-gs-revealed]) { cursor: pointer; }
+.gs-reward[aria-disabled='true'] { cursor: default; }
+
+.gs-reward:focus-visible {
+  outline: var(--gs-stroke-focus) solid var(--gs-color-ink);
+  outline-offset: var(--gs-space-1);
+}
+
+/* -- the face ------------------------------------------------------------- */
+/* The surface the reveal plays on: it holds the art, the words and the track,
+   stacked at the card's gap, and it remounts with data-gs-motion="reveal" when
+   the reward opens. The rays behind an open reward are drawn by motion.css and
+   turned by the rays token; the face clips them and paints them behind its own
+   contents. It is a stacking context, so a negative z-index lands between the
+   face's background and its glyph rather than behind the whole reward. */
+.gs-reward__face {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-2);
+  overflow: hidden;
+  /* The clip is for the rays; the words start on its edge, and WebKit clips a
+     letter's overshoot at the box. Sideways it was "Gold Helmet" drawing a
+     notched G and "Unlocks" a notched U on a phone. Downwards it is every
+     descender: a Q's tail, a g, a y, a comma. The first fix gave three pixels
+     to the inline axis only, which is the half of the problem that had been
+     noticed; a Q in a detail line is still notched without the block axis too.
+     Given back as a negative margin on both, so nothing moves. */
+  padding-inline: 3px;
+  margin-inline: -3px;
+  padding-block: 3px;
+  margin-block: -3px;
+  border-radius: inherit;
+}
+
+.gs-reward__rays {
+  z-index: -1;
+}
+
+/* -- the art slot --------------------------------------------------------- */
+/* 64 tall at the small radius, the host's picture inside it. Empty, it is a
+   dark well: the drawing draws the locked slot that way and gives the other
+   three a striped placeholder that stands for art not yet supplied, which is
+   the designer's note and not the component's. */
+.gs-reward__media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  block-size: var(--gs-size-icon-hero);
+  overflow: hidden;
+  border-radius: var(--gs-radius-sm);
+  background: var(--gs-color-scrim);
+}
+
+.gs-reward__media > img,
+.gs-reward__media > picture,
+.gs-reward__media > video {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+/* -- the glyph ------------------------------------------------------------ */
+/* Centred in the art slot at the control icon size. Each state restyles it
+   below; the drawing puts the padlock and the tick here. */
+.gs-reward__glyph {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--gs-size-icon-control);
+  block-size: var(--gs-size-icon-control);
+  font-family: var(--gs-type-stat-font-family);
+  font-size: var(--gs-size-icon-control);
+  font-weight: var(--gs-type-stat-font-weight);
+  line-height: 1;
+  color: var(--gs-color-ink-secondary);
+  /* Emphasis, not motion: this duration survives reduced motion on purpose. It
+     is how a player who sees no movement still sees the state change. */
+  transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis),
+              opacity var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* -- the words ------------------------------------------------------------ */
+/* The name: the interface face, heavy, sentence case, no tracking. The
+   drawing sets 800 13px; type.label is 800 12px and the nearest role. */
+.gs-reward__label {
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+}
+
+
+
+.gs-reward__value {
+  font-family: var(--gs-type-stat-font-family);
+  font-size: var(--gs-type-stat-font-size);
+  font-weight: var(--gs-type-stat-font-weight);
+  font-variant-numeric: var(--gs-type-score-font-variant-numeric);
+  text-shadow: none;
+}
+
+/* The line under the name, in the body face and the secondary ink. It is a
+   sentence a player reads ("Land a squad exactly on the budget"), so it was
+   below the 17px floor at the caption's 11px. GS-566. */
+.gs-reward__detail {
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-body-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* -- the claim control ---------------------------------------------------- */
+/* A 40px primary at the small radius with the 3px outline and a shelf: the
+   drawing's Claim. Type is the action axis at the figure size, one property
+   borrowed, because a 19px action face does not fit a 180px card. */
+.gs-reward__commit {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  block-size: var(--gs-size-control-small);
+  margin: 0;
+  padding: 0 var(--gs-space-3);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-sm);
+  background: var(--gs-color-interactive);
+  color: var(--gs-color-on-accent);
+  box-shadow: var(--gs-depth-raised);
+  font-size: var(--gs-type-figure-font-size);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.gs-reward__commit:focus-visible {
+  outline: var(--gs-stroke-focus) solid var(--gs-color-ink);
+  outline-offset: var(--gs-space-1);
+}
+
+/* -- the progress track --------------------------------------------------- */
+/* Inset, per the depth rule: the track is the hole the fill sits in. The
+   drawing draws it 12 tall; the library's tracks are the utility icon size. */
+.gs-reward__track {
+  --gs-progress: 0;
+  position: relative;
+  display: block;
+  overflow: hidden;
+  block-size: var(--gs-size-icon-utility);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-edge);
+}
+
+.gs-reward__fill {
+  display: block;
+  block-size: 100%;
+  inline-size: calc(var(--gs-progress) * 100%);
+  border-radius: inherit;
+  background: var(--gs-color-positive);
+  /* BDS-022: the fill runs over motion.fill. Motion only. */
+  transition: inline-size var(--gs-motion-fill) var(--gs-motion-ease-fill);
+}
+
+/* -- the lifecycle -------------------------------------------------------- */
+/* Each state changes the surface, the glyph and the text at once. A state that
+   is only a colour fails the accessibility stage, and rightly. */
+
+/* Locked: it exists and it is not yours yet. The outline colour as the fill,
+   a dashed muted outline, muted ink, no depth, a padlock in the well. */
+.gs-reward[data-gs-reward-state='locked'] {
+  background: var(--gs-color-edge);
+  border-style: dashed;
+  border-color: var(--gs-color-muted);
+  color: var(--gs-color-muted);
+  box-shadow: var(--gs-depth-flat);
+}
+
+.gs-reward[data-gs-reward-state='locked'] .gs-reward__glyph,
+.gs-reward[data-gs-reward-state='locked'] .gs-reward__detail {
+  color: inherit;
+}
+
+/* Available: reachable, not yet taken. It stands on a shelf and carries the
+   track. No glyph: this is the idle state, and the track is what says it. */
+.gs-reward[data-gs-reward-state='available'] {
+  box-shadow: var(--gs-depth-raised);
+}
+
+/* Earned: the ring and glow from the three-things table, and once open the
+   reward mark in the corner of the art and the claim control underneath. */
+.gs-reward[data-gs-reward-state='earned'] {
+  box-shadow: var(--gs-depth-reward);
+}
+
+.gs-reward[data-gs-reward-state='earned'][data-gs-revealed] .gs-reward__glyph {
+  inset: var(--gs-space-1) var(--gs-space-1) auto auto;
+  margin: 0;
+  inline-size: var(--gs-size-icon-utility);
+  block-size: var(--gs-size-icon-utility);
+  font-size: var(--gs-size-icon-utility);
+  color: var(--gs-color-reward-solid);
+}
+
+/* Claimed: it happened, it is done, it stops shouting. Three quarters opacity,
+   no depth, and the tick in a positive disc on the art. */
+.gs-reward[data-gs-reward-state='claimed'] {
+  opacity: 0.75;
+  box-shadow: var(--gs-depth-flat);
+}
+
+.gs-reward[data-gs-reward-state='claimed'] .gs-reward__glyph {
+  box-sizing: border-box;
+  border-radius: var(--gs-radius-full);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  background: var(--gs-color-positive);
+  font-size: var(--gs-size-icon-utility);
+  color: var(--gs-color-on-bright);
+}
+
+/* -- waiting to be opened ------------------------------------------------- */
+/* The pulse is the only motion here and it stops dead under reduced motion, so
+   waiting is carried by the glyph and the ring as well. Both of those are
+   emphasis and both survive. This is the rule BDS-023 exists to state. The
+   loop itself is motion.css's: the ring carries data-gs-motion="pulse" and
+   the drawing's own keyframe scales it 1 to 1.06 over the pulse token. */
+.gs-reward[data-gs-reward-state='earned']:not([data-gs-revealed]) .gs-reward__glyph {
+  color: var(--gs-color-reward-solid);
+}
+
+.gs-reward__pulse {
+  position: absolute;
+  inset: calc(-1 * var(--gs-stroke-ui));
+  border-radius: var(--gs-radius-full);
+  box-shadow: var(--gs-depth-reward);
+  pointer-events: none;
+}
+
+/* -- the reveal ----------------------------------------------------------- */
+/* The tap-to-reveal surface: a raised slab at the largest radius, centred,
+   holding a question mark in a disc and the instruction under it. The whole
+   slab is the button and travels the press distance on its shelf. */
+.gs-reward[data-gs-presentation='reveal'] {
+  align-items: center;
+  justify-content: center;
+  gap: var(--gs-space-3);
+  padding: var(--gs-space-8) var(--gs-space-4);
+  overflow: hidden;
+  /* The open state's rays sit at a negative z-index; the slab is its own
+     stacking context so they paint over its fill and under its contents. */
+  isolation: isolate;
+  border-radius: var(--gs-radius-xl);
+  background: var(--gs-color-surface-raised);
+  box-shadow: var(--gs-depth-raised);
+  text-align: center;
+}
+
+.gs-reward[data-gs-presentation='reveal'] .gs-reward__face {
+  align-items: center;
+  justify-content: center;
+  gap: var(--gs-space-3);
+  overflow: visible;
+}
+
+/* The disc: the surface colour on a 4px outline, the question mark in the
+   display face and the reward colour with the display shadow. The pulse rides
+   inside it and scales the ring, not the glyph. */
+.gs-reward[data-gs-presentation='reveal'] .gs-reward__glyph {
+  position: relative;
+  inset: auto;
+  margin: 0;
+  box-sizing: border-box;
+  inline-size: var(--gs-size-action-large);
+  block-size: var(--gs-size-action-large);
+  border-radius: var(--gs-radius-full);
+  border: var(--gs-stroke-selected) solid var(--gs-color-edge);
+  background: var(--gs-color-surface);
+  font-family: var(--gs-type-score-font-family);
+  font-size: var(--gs-type-score-font-size);
+  font-weight: var(--gs-type-score-font-weight);
+  color: var(--gs-color-reward-solid);
+  text-shadow: var(--gs-type-display-shadow);
+}
+
+.gs-reward[data-gs-presentation='reveal'] .gs-reward__pulse {
+  inset: calc(-1 * var(--gs-stroke-selected));
+}
+
+/* "Tap to reveal": the figure face, uppercase as drawn. */
+.gs-reward__note {
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  text-transform: uppercase;
+  color: var(--gs-color-ink);
+}
+
+/* Open: the slab goes dark and flat, rays turn behind a prize disc on the
+   reward ring, and the name lands under it in the title face with the
+   display shadow. The rays are clipped by the slab rather than the face, so
+   they fill the drawing's whole open surface. */
+.gs-reward[data-gs-presentation='reveal'][data-gs-revealed] {
+  background: var(--gs-color-edge);
+  box-shadow: var(--gs-depth-flat);
+}
+
+.gs-reward[data-gs-presentation='reveal'][data-gs-revealed] .gs-reward__face {
+  position: static;
+}
+
+.gs-reward[data-gs-presentation='reveal'] .gs-reward__media {
+  position: relative;
+  box-sizing: border-box;
+  inline-size: var(--gs-size-action-large);
+  block-size: var(--gs-size-action-large);
+  border-radius: var(--gs-radius-full);
+  border: var(--gs-stroke-selected) solid var(--gs-color-edge);
+  background: var(--gs-color-reward);
+  box-shadow: var(--gs-depth-reward);
+  color: var(--gs-color-on-bright);
+}
+
+.gs-reward[data-gs-presentation='reveal'][data-gs-revealed] .gs-reward__glyph {
+  inline-size: auto;
+  block-size: auto;
+  border: 0;
+  background: none;
+  font-size: var(--gs-size-icon-control);
+  color: var(--gs-color-on-bright);
+  text-shadow: none;
+}
+
+.gs-reward[data-gs-presentation='reveal'] .gs-reward__label {
+  position: relative;
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: var(--gs-type-title-line-height);
+  text-transform: uppercase;
+  text-shadow: var(--gs-type-display-shadow);
+}
+
+/* -- compact: the inventory cell ------------------------------------------ */
+/* Specimen 5b draws the inventory as a grid of these, three or four to a row,
+   and design/twins/5b.json measures ours against it. A surface at the control
+   radius, outlined at 3px, padded 8, its parts stacked and centred at 6, on a
+   hard 4px shelf. The state sits on the cell rather than under it.
+
+   Two values the drawing draws that no token carries, composed here from the
+   tokens rather than written as literals:
+
+   * the 6px gap between art and name, and the 6px the count and the NEW pill
+     sit in from the edge. The drawing draws 6px thirty-three times and the
+     scale steps 4 to 8; a space.1-5 is a token request in the report.
+   * the 4px shelf, 0 4px 0 edge, drawn thirty-one times. depth.raised is the
+     library's nearest depth and adds a 2px highlight over a 5px shelf; a bare
+     shelf, depth.shelf, is a token request in the report. */
+.gs-reward[data-gs-presentation='compact'] {
+  --gs-reward-compact-gap: calc(var(--gs-space-1) * 1.5);
+  align-items: center;
+  gap: var(--gs-reward-compact-gap);
+  padding: var(--gs-space-2);
+  border-radius: var(--gs-radius-control);
+  box-shadow: 0 var(--gs-space-1) 0 var(--gs-color-edge);
+  text-align: center;
+}
+
+/* Every cell is the button when the host passes onSelect, whatever its state. */
+.gs-reward[data-gs-presentation='compact'].gs-pressable:not([aria-disabled='true']) { cursor: pointer; }
+
+.gs-reward[data-gs-presentation='compact'] .gs-reward__face {
+  inline-size: 100%;
+  align-items: center;
+  gap: var(--gs-reward-compact-gap);
+}
+
+/* The art: a square the width of the cell, at the drawing's 10px radius to
+   within the 2px radius.sm allows. No well behind it: the drawing paints the
+   host's art straight onto the surface, and the striped placeholder in the
+   demo is the designer's note for art not yet supplied. */
+.gs-reward[data-gs-presentation='compact'] .gs-reward__media {
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 1;
+  border-radius: var(--gs-radius-sm);
+  background: none;
+}
+
+/* The name: the display face at weight 900, uppercase and centred. The drawing
+   sets it at 10px, which is below the 12px floor a phone label carries; 12px
+   is the label size, and type.stat.xs is a token request in the report. */
+.gs-reward[data-gs-presentation='compact'] .gs-reward__label {
+  padding-inline: 0;
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+/* A badge: the art is a circle with the tier's ring. Gold is the reward
+   colour; bronze and silver have no token and stand in as the podium does,
+   bronze in the reward base and silver in the secondary ink. Both are token
+   requests in the report. The ring is the selected stroke, 3px against the
+   drawing's 4. */
+.gs-reward[data-gs-presentation='compact'][data-gs-tier] .gs-reward__media {
+  box-sizing: border-box;
+  border-radius: var(--gs-radius-full);
+  border: var(--gs-stroke-selected) solid var(--gs-color-reward-solid);
+  background: var(--gs-color-surface-raised);
+}
+
+.gs-reward[data-gs-presentation='compact'][data-gs-tier='bronze'] .gs-reward__media {
+  border-color: var(--gs-color-reward-base-solid);
+}
+
+.gs-reward[data-gs-presentation='compact'][data-gs-tier='silver'] .gs-reward__media {
+  border-color: var(--gs-color-ink-secondary);
+}
+
+/* The count, x3, over the art: the figure face in the ink, a hairline of the
+   outline colour around each glyph and the display shadow under it. */
+.gs-reward[data-gs-presentation='compact'] .gs-reward__value {
+  position: absolute;
+  top: 34%;
+  right: var(--gs-reward-compact-gap);
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  line-height: 1;
+  color: var(--gs-color-ink);
+  -webkit-text-stroke: var(--gs-stroke-hairline) var(--gs-color-edge);
+  text-shadow: var(--gs-type-display-shadow);
+}
+
+/* Earned: the reward ring, and the NEW pill hung over the top right corner in
+   the reward colour. The pill's word is 9px in the drawing; 12px is the floor. */
+.gs-reward[data-gs-presentation='compact'][data-gs-reward-state='earned'] {
+  box-shadow: var(--gs-depth-reward);
+}
+
+.gs-reward[data-gs-presentation='compact'] .gs-reward__note {
+  position: absolute;
+  top: calc(-1 * var(--gs-space-2));
+  right: calc(-1 * var(--gs-reward-compact-gap));
+  padding: calc(var(--gs-space-1) / 2) var(--gs-reward-compact-gap);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-reward);
+  font-size: var(--gs-type-label-font-size);
+  line-height: 1;
+  color: var(--gs-color-on-bright);
+}
+
+/* Claimed: the cell dims, the tick lands on the art and the name goes to the
+   secondary ink. The shelf stays, as drawn. */
+.gs-reward[data-gs-presentation='compact'][data-gs-reward-state='claimed'] {
+  box-shadow: 0 var(--gs-space-1) 0 var(--gs-color-edge);
+}
+
+.gs-reward[data-gs-presentation='compact'][data-gs-reward-state='claimed'] .gs-reward__label {
+  color: var(--gs-color-ink-secondary);
+}
+
+/* Locked: no art, no shelf. The padlock sits in the middle of the dashed well
+   with the level under it in the label type, which is the drawing's 800 at the
+   12px floor rather than its 9. The padlock is the control icon size, 24px,
+   against the drawing's 20: no icon token is 20px, and a size.iconSmall is a
+   token request in the report. */
+.gs-reward[data-gs-presentation='compact'][data-gs-reward-state='locked'] {
+  justify-content: center;
+  box-shadow: var(--gs-depth-flat);
+}
+
+.gs-reward[data-gs-presentation='compact'][data-gs-reward-state='locked'] .gs-reward__face {
+  flex: 1 0 auto;
+  justify-content: center;
+}
+
+.gs-reward[data-gs-presentation='compact'][data-gs-reward-state='locked'] .gs-reward__glyph {
+  position: static;
+  inset: auto;
+  margin: 0;
+}
+
+.gs-reward[data-gs-presentation='compact'][data-gs-reward-state='locked'] .gs-reward__detail {
+  padding-inline: 0;
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  text-align: center;
+}
+
+/* -- badge: the tier-ringed roundel ---------------------------------------
+
+   Specimens 3d and 4d. One disc, 64px, the ring saying the tier and the
+   centre a glyph slot the host fills; 48px on the profile's badge row, which
+   arrives as data-gs-size="small"; 72px when it is the one the surface is
+   leading with, which is the featured tier. No name under it: a badge row is
+   read as a row of marks, which is the whole difference from the compact cell
+   above.
+
+   Gold, silver and bronze have no tokens. The same three stand-ins podium
+   uses stand in here, for the same reason and with the same token request:
+   gold is the reward colour, bronze the reward base, silver the secondary
+   ink. Every ring is drawn with a `-solid` companion, because a theme may set
+   any of them to a gradient and a gradient in border-color or a box-shadow is
+   an invalid declaration the browser drops without saying so. */
+.gs-reward[data-gs-presentation='badge'] {
+  display: inline-flex;
+  flex: none;
+  inline-size: var(--gs-size-icon-hero);
+  block-size: var(--gs-size-icon-hero);
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+.gs-reward[data-gs-presentation='badge'] .gs-reward__face {
+  display: flex;
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.gs-reward[data-gs-presentation='badge'] .gs-reward__media {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+
+  border-radius: var(--gs-radius-full);
+  border: var(--gs-stroke-selected) solid var(--gs-color-reward-solid);
+  background: var(--gs-color-surface-raised);
+  /* The edge ring outside the tier ring, which is what lifts the disc off
+     whatever it is drawn on. */
+  box-shadow: 0 0 0 var(--gs-stroke-ui) var(--gs-color-edge-solid);
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-reward[data-gs-presentation='badge'][data-gs-tier='bronze'] .gs-reward__media {
+  border-color: var(--gs-color-reward-base-solid);
+}
+
+.gs-reward[data-gs-presentation='badge'][data-gs-tier='silver'] .gs-reward__media {
+  border-color: var(--gs-color-ink-secondary);
+}
+
+/* The one the surface leads with: filled rather than ringed, on the edge
+   stroke, with the reward ring and the glow outside it. depth.reward is that
+   bundle already - a ring in the background colour, a ring in the reward
+   colour and a 28px glow - so the drawing's 3px ring and 26px glow are read
+   from the token rather than written out again. */
+.gs-reward[data-gs-presentation='badge'][data-gs-tier='featured'] {
+  inline-size: calc(var(--gs-size-icon-hero) + var(--gs-space-2));
+  block-size: calc(var(--gs-size-icon-hero) + var(--gs-space-2));
+}
+
+.gs-reward[data-gs-presentation='badge'][data-gs-tier='featured'] .gs-reward__media {
+  border-color: var(--gs-color-edge-solid);
+  background: var(--gs-color-reward);
+  box-shadow: var(--gs-depth-reward);
+  color: var(--gs-color-on-bright);
+}
+
+/* Nothing earned yet: the drawing's dashed well with a padlock in it. A
+   locked reward is data-gs-reward-state="locked" and never data-gs-locked,
+   which stays a control attribute. */
+.gs-reward[data-gs-presentation='badge'][data-gs-reward-state='locked'] .gs-reward__media {
+  border-style: dashed;
+  border-color: var(--gs-color-muted-solid);
+  background: var(--gs-color-edge);
+  box-shadow: none;
+  color: var(--gs-color-muted);
+}
+
+.gs-reward[data-gs-presentation='badge'] .gs-reward__glyph svg {
+  inline-size: var(--gs-size-icon-utility);
+  block-size: var(--gs-size-icon-utility);
+}
+
+/* The profile's row, where six discs share a phone width. */
+.gs-reward[data-gs-presentation='badge'][data-gs-size='small'] {
+  inline-size: var(--gs-size-icon-object);
+  block-size: var(--gs-size-icon-object);
+}

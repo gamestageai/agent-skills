@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-8
+version: 2026-09-28-9
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-8.
-Pack digest a3d591413f29b608.
+Pack version 2026-09-28-9.
+Pack digest 9c0d722a12500fe9.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -946,9 +946,9 @@ rather than writing an integration.
 
 **A game must ask a fan before anything records them, and `deploy` refuses a
 game that does not.** The Gamestage client asks for you: it draws a consent
-banner with Reject all, Accept all and Manage preferences the moment the page
+card with Accept, Reject, Manage preferences and a × the moment the page
 connects, whenever nobody has answered yet, in the game's own colours and
-type. The game stays playable underneath it. Leave it on. You write no consent
+type, floating clear of the game's pill nav and pinned main button. The game stays playable underneath it. Leave it on. You write no consent
 code.
 
 **Ask the human two things before the first deploy, and put both in

@@ -1,0 +1,49 @@
+/* Gamestage fonts: DM Sans (interface text) and Unbounded (numbers a player
+   tracks: score, timer, rank, multiplier, level).
+
+   Self-hosted. Nothing here reaches a third-party origin, and that is the
+   point rather than a detail: `@import url("https://fonts.googleapis.com/…")`
+   sent every player's IP address to Google on page load, before any consent
+   gate could run, and a German court has ruled on that pattern. It stopped a
+   prize draw in four territories (GSUI-149). BDS-005 chose to link rather than
+   self-host, weighing one line against a licence question and roughly 300KB;
+   the licence question has an answer, and this is the other side of that
+   decision.
+
+   Both faces are under the SIL Open Font License 1.1, which permits
+   redistributing the files with the licence beside them. The licence texts,
+   the versions and where each file came from are in gamestage-fonts/README.md.
+
+   The files are the latin subset, so western Europe is covered and Polish,
+   Czech, Turkish and Vietnamese are not. Adding latin-ext is a decision in
+   that README rather than a set of files carried in advance.
+
+   Import this once at the root, before gamestage-tokens.css, so the family
+   names tokens.css declares are already loaded. The url() paths are relative
+   to this stylesheet, and the registry ships the files to the directory beside
+   it, so the same paths resolve here and in a customer's app.
+
+   No preconnect hint is needed any more. The faces come from the origin the
+   page is already on. */
+
+@font-face {
+  font-family: 'DM Sans';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('./gamestage-fonts/dm-sans-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Unbounded';
+  font-style: normal;
+  font-weight: 500 900;
+  font-display: swap;
+  src: url('./gamestage-fonts/unbounded-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}

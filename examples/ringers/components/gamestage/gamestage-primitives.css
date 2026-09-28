@@ -1,0 +1,330 @@
+/* Shared rule sets, so a theme axis reaches a component without the component
+ * remembering to read it.
+ *
+ * The problem this solves, measured rather than predicted. Every theme axis used
+ * to need every component to opt in by hand, one CSS property at a time, and
+ * nothing detected a component that missed one. Four of the six stylesheets
+ * using the action type read `--gs-type-action-text-transform` and two did not,
+ * so the arcade theme's uppercase reached four controls and silently skipped
+ * two. The press gesture was the same shape of problem across five files.
+ *
+ * At 25 components that is an afternoon of patching. At 45 it is a permanent tax
+ * and a permanent source of themes that are half applied, because the failure is
+ * always silent: a missing line looks exactly like a theme that chose not to
+ * change anything.
+ *
+ * So the rules live once, here, and a component includes a class rather than
+ * re-declaring six `var()` lines. A theme adding a seventh property to an axis
+ * changes this file and reaches every component that already uses the class.
+ *
+ * This ships with `@gamestage/tokens`, which every component already depends on,
+ * so including it costs a consumer nothing they were not already installing.
+ */
+
+@layer gs.primitives {
+  /* The page the game sits on. colour.background was defined by the tokens,
+   * overridden by every theme, and consumed by nothing, so a correct install
+   * gave a white page. This paints the element that opted in by carrying the
+   * theme rather than `body`, which a library embedded in someone else's page
+   * has no business painting. A host who wants neither writes their own rule:
+   * unlayered author styles beat every layer. */
+  [data-gs-theme] {
+    background: var(--gs-color-background);
+    color: var(--gs-color-ink);
+  }
+
+  /* Type for anything a player presses to act: buttons, choices, commits.
+   * A theme that changes the action typeface, its weight or its casing reaches
+   * every one of them through this rule alone. */
+  .gs-action-type {
+    font-family: var(--gs-type-action-font-family);
+    font-size: var(--gs-type-action-font-size);
+    font-weight: var(--gs-type-action-font-weight);
+    letter-spacing: var(--gs-type-action-letter-spacing);
+    text-transform: var(--gs-type-action-text-transform, none);
+  }
+
+  /* Type for a number a player reads at a glance: score, stat, rank, level,
+   * timer. The theme owns the face, the weight and the shadow behind it.
+   *
+   * text-shadow is the axis that needed this. arcade has defined
+   * type.displayShadow since the beginning, one component read it by name, and
+   * the other seven numbers on screen had no shadow at all. Declared here it
+   * reaches every number that carries the class.
+   *
+   * Family, size and weight are a floor rather than a ruling: a component
+   * stylesheet is unlayered, so its own font-size beats this one whatever the
+   * selector, and a stat stays 22px while a podium place stays 56px. If anyone
+   * ever wraps packages/ui/src/*.css in a layer, that stops being true and
+   * every number jumps to the display size. Wrap this file at the same time. */
+  .gs-display-type {
+    font-family: var(--gs-type-display-font-family);
+    font-size: var(--gs-type-display-font-size);
+    font-weight: var(--gs-type-display-font-weight);
+    text-shadow: var(--gs-type-display-shadow, none);
+  }
+
+  /* Case is not the library's decision, and it is not only the theme's either.
+   *
+   * A theme sets the default: arcade uppercases its actions because a cabinet
+   * marquee shouts, paper does not. A host overrules it anywhere, on the
+   * document for the whole app, on a section, or on one component, by setting
+   * data-gs-case. Nothing here is baked in and nothing needs a prop on
+   * twenty-five components to reach.
+   *
+   *   <html data-gs-case="none">            every action in sentence case
+   *   <section data-gs-case="upper">        this part shouts
+   *
+   * The precedent is worth naming. Material UI hardcoded uppercase into its
+   * button and its tabs, and a decade of issues followed from people trying to
+   * turn it off, because the only way out was overriding component internals.
+   * shadcn has the opposite answer and it only works because you own the source:
+   * case is a utility class in a file you can edit, and the theme layer carries
+   * colour and radius and no typography at all. We are a registry, so a
+   * consumer does own the component file, but they should not have to edit it
+   * to answer a question this ordinary.
+   *
+   * These rules sit in gs.primitives, which is declared after gs.theme, so a
+   * host always wins over a theme. */
+  [data-gs-case='upper'] {
+    --gs-type-action-text-transform: uppercase;
+    --gs-type-action-text-transform-primary: uppercase;
+  }
+  [data-gs-case='none'] {
+    --gs-type-action-text-transform: none;
+    --gs-type-action-text-transform-primary: none;
+  }
+
+  /* The theme's loud face lands on the primary action and nowhere else.
+   *
+   * arcade shouts on the action a screen is built around and leaves the rest in
+   * sentence case: options, nav destinations, dismiss links. This needed a
+   * second typeface while arcade drew in Bungee, which has no lowercase glyphs
+   * at all, so an option computed text-transform: none and still read EASY.
+   * Arcade is back on the design's own face, which has lowercase, so one font
+   * does both jobs and the rule below is only about case. The drawn design does not do that. It shouts one
+   * word, the one the screen is built around, and keeps the rest in sentence
+   * case, and a screen with everything uppercased reads as an error message
+   * rather than a game.
+   *
+   * Primary means one of two things, both already in the markup: the element
+   * carries data-gs-variant="primary", which is a button's default, or it is
+   * the commit, the control that locks an answer in.
+   *
+   * A theme that says nothing about primary case gets the general one: the base
+   * token is declared as an alias of it, so the two move together until a theme
+   * separates them. A host setting data-gs-case wins over either, because those
+   * rules set both custom properties. */
+  .gs-action-type:is([data-gs-variant='primary'], [data-gs-part='commit']):not([data-gs-locked='true']) {
+    text-transform: var(
+      --gs-type-action-text-transform-primary,
+      var(--gs-type-action-text-transform, none)
+    );
+  }
+
+  /* A locked primary is not the action the screen is built around while it
+   * cannot be pressed, so it does not shout: specimens 1f and 2b type "Level 8"
+   * and "Lv 8" in sentence case beside an uppercase START. A disabled one keeps
+   * its case: 4c draws VERIFY and ENTER in capitals while they wait for input,
+   * because they are still the action, only not yet. */
+
+  /* The press gesture. A theme picks the whole transform, so it may travel on an
+   * offset base, scale, or not move at all and shift colour instead.
+   *
+   * The transition is deliberately the only timed part: a press is movement, so
+   * reduced motion zeroes it. Fill, glyph and glow changes are emphasis and are
+   * not governed here, because that is how a player who cannot see movement
+   * still learns what happened.
+   *
+   * The one exception, and it is written out at the bottom of this file: under
+   * reduced motion a press changes depth and stroke, because otherwise it
+   * changes nothing at all (GSUI-164). */
+  .gs-pressable {
+    /* No 300ms wait for a double-tap on a phone, so the press shows at once. */
+    touch-action: manipulation;
+    /* A tap presses and never selects. On an iPhone a long press on a button
+       selected its label and showed text handles instead of pressing it (Tom,
+       2026-09-27, Wages' Select Player), and the grey tap flash and the
+       copy-and-look-up callout are the same accident. */
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    /* `motion.press` is 80ms and linear: "press is instant, no easing on the
+       way down" (specimen 4a's rules and the motion table in 3i). It was
+       ease-out here, which is a curve the drawing gives nothing. */
+    transition:
+      transform var(--gs-motion-press) var(--gs-motion-ease-press),
+      box-shadow var(--gs-motion-press) var(--gs-motion-ease-press);
+  }
+
+  /* Pressed while a finger or a pointer is down. `:active` alone does not
+   * apply on iOS Safari to an element with no touch listener, so a raised
+   * button never went down under a thumb there (Tom, 2026-09-27: "check that
+   * 3d buttons depress on tap"); a component that sets data-gs-pressed from
+   * pointer events is pressed on every device. */
+  .gs-pressable:active:not([aria-disabled='true']):not([data-gs-disabled='true']),
+  .gs-pressable[data-gs-pressed='true']:not([aria-disabled='true']):not([data-gs-disabled='true']) {
+    transform: var(--gs-press-transform);
+    box-shadow: var(--gs-depth-pressable-pressed);
+  }
+
+  /* A control that is not available does not move when pressed. Stated here
+   * rather than in each component, for the same reason as everything else in
+   * this file. */
+  .gs-pressable[aria-disabled='true']:active,
+  .gs-pressable[data-gs-disabled='true']:active,
+  .gs-pressable:disabled:active,
+  .gs-pressable:disabled[data-gs-pressed='true'] {
+    transform: none;
+  }
+
+  /* The named button style, chosen by one token.
+   *
+   * A style query rather than a value substitution, for identity.css's reason:
+   * depth.style holds a keyword, and `box-shadow: squeeze` is invalid and would
+   * compute to nothing without saying so.
+   *
+   * Each block remaps the three tokens a pressable control already reads,
+   * rather than declaring box-shadow and transform here. That is not a detour.
+   * A component stylesheet is unlayered and therefore outranks everything in
+   * this layer whatever the selector, so a box-shadow written here would lose
+   * to `.gs-button[data-gs-variant='primary']` and never arrive on screen; and
+   * the offset base belongs to the primary variant alone, so declaring it on
+   * every .gs-pressable would put a coloured slab under the ghost buttons too.
+   * Remapping reaches the declaration the component already makes, and only
+   * where the component makes one.
+   *
+   * A theme may still take a bundle apart for a bespoke look: override
+   * depth.styles.<style>.pressable, or the colour and stroke tokens the bundles
+   * are composed from. Overriding depth.pressable itself still reaches anything
+   * that is not a .gs-pressable, which is where the base's own composition
+   * lives. */
+  @container style(--gs-depth-style: offset) {
+    .gs-pressable {
+      --gs-depth-pressable: var(--gs-depth-styles-offset-pressable);
+      --gs-depth-pressable-pressed: var(--gs-depth-styles-offset-pressed);
+      --gs-press-transform: var(--gs-depth-styles-offset-transform);
+    }
+  }
+
+  @container style(--gs-depth-style: squeeze) {
+    .gs-pressable {
+      --gs-depth-pressable: var(--gs-depth-styles-squeeze-pressable);
+      --gs-depth-pressable-pressed: var(--gs-depth-styles-squeeze-pressed);
+      --gs-press-transform: var(--gs-depth-styles-squeeze-transform);
+    }
+  }
+
+  @container style(--gs-depth-style: glow) {
+    .gs-pressable {
+      --gs-depth-pressable: var(--gs-depth-styles-glow-pressable);
+      --gs-depth-pressable-pressed: var(--gs-depth-styles-glow-pressed);
+      --gs-press-transform: var(--gs-depth-styles-glow-transform);
+    }
+  }
+
+  /* A locked control, pressed. The padlock answers; nothing else changes.
+   *
+   * A locked control refuses the press, so it moves nothing, fires no cue and
+   * calls no handler: that is right, because a cue would say the press had
+   * registered when it had not. What was wrong is that it then answered in no
+   * way at all, and a control that does nothing when you press it is
+   * indistinguishable from a broken one. On the reference game it is the
+   * control a player meets first and the largest thing on the screen
+   * (GSUI-233).
+   *
+   * The padlock, not the face. Taking the whole control to full ink would say
+   * "this is available", which is the opposite of the truth; it is already
+   * the thing that separates "not yet" from "not ever" (BDS-013), so it is
+   * the thing that should speak. And it is a colour change, not a movement,
+   * so a player who has asked for reduced motion gets it too: a shake would
+   * have reopened the hole the rule below this one just closed, and would
+   * break BDS-013's other half, that a locked control keeps its shape.
+   *
+   * One rule, no component touched. Every mark in the library is `.gs-glyph`
+   * from glyphs.tsx and every one of them strokes in `currentColor`, so this
+   * reaches the padlock in button, nav, tutorial-step, stage, selector,
+   * slider and reward alike; measured on all 58 gallery demos, seven locked
+   * controls answer. A component's own colour is set on the control and inherited by the
+   * mark, and a declaration on the element beats an inherited value, so this
+   * arrives despite the layer.
+   *
+   * No sound. The cue vocabulary has no name for a refusal: `wrong` is the
+   * settled outcome of an answer and `hint` is a chime, and a component never
+   * invents a cue name. It is raised instead. */
+  /* Scoped to a locked control's own mark rather than declared on `.gs-glyph`
+     outright. Every mark in the library carries that class, so a bare rule
+     would give a 200ms colour fade to every glyph that changes colour
+     anywhere, which is a library-wide change of behaviour riding in a ticket
+     about locked controls. */
+  .gs-pressable[data-gs-locked='true'] .gs-glyph {
+    transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+  }
+
+  .gs-pressable[data-gs-locked='true']:not([data-gs-disabled='true']):active .gs-glyph {
+    color: var(--gs-color-ink);
+  }
+
+  /* Reduced motion, restated on the element and deliberately last.
+   *
+   * The build zeroes press.transform on :root, which reaches a control by
+   * inheritance, and an element's own declaration beats an inherited value
+   * whatever the layer. So the three blocks above would have handed every
+   * pressable its theme's gesture back under prefers-reduced-motion, and the
+   * default project in the browser matrix cannot see it. Same selector, same
+   * specificity, same layer: source order decides, so this stays at the bottom.
+   * The shadow still collapses to the pressed value, so the control answers the
+   * tap without moving. */
+  @media (prefers-reduced-motion: reduce) {
+    .gs-pressable { --gs-press-transform: none; }
+
+    /* The exception BDS-013 now names, and the reason it has to exist.
+     *
+     * "Pressable controls never fade or darken, they move" is the right rule
+     * for the default audience and leaves this one with nothing: with the
+     * gesture zeroed, a player who asked for stillness pressed a control and
+     * the screen answered in no way at all. Measured on 20 September across
+     * every gallery demo, 22 pressables changed not one computed property
+     * between resting and held, among them every field box, every nav
+     * destination, the slider's commit, the reward's commit, the story's
+     * action and the onboarding back control. A press that says nothing is
+     * indistinguishable from a press that did not register.
+     *
+     * So under reduced motion, and only there, a press changes depth and
+     * stroke instead of position. The rule remaps tokens rather than
+     * declaring box-shadow or border-color, and that is the whole trick: a
+     * component stylesheet is unlayered and beats everything in
+     * gs.primitives whatever the selector, so a property declared here would
+     * lose to the component's own and never arrive. Remapping reaches the
+     * declaration the component already makes, wherever it makes one.
+     *
+     * `colour.selected` is in the list for the control that made the case for
+     * a `base` companion: a chosen radio in `field`, whose ring is drawn in
+     * colour.selected and whose shelf is already flat, so neither the stroke
+     * nor the depth had anywhere to go and it was the last control in the
+     * library answering a press with nothing. The token was raised and
+     * granted rather than worked around here.
+     *
+     * `nav` needs its own rule for a related reason and has one at the bottom
+     * of nav.css: an inactive destination draws from the nav's own idle
+     * tokens and casts nothing. */
+    /* Pressed while a finger or a pointer is down. `:active` alone does not
+   * apply on iOS Safari to an element with no touch listener, so a raised
+   * button never went down under a thumb there (Tom, 2026-09-27: "check that
+   * 3d buttons depress on tap"); a component that sets data-gs-pressed from
+   * pointer events is pressed on every device. */
+  .gs-pressable:active:not([aria-disabled='true']):not([data-gs-disabled='true']),
+  .gs-pressable[data-gs-pressed='true']:not([aria-disabled='true']):not([data-gs-disabled='true']) {
+      --gs-color-edge: var(--gs-color-edge-high);
+      --gs-color-surface: var(--gs-color-surface-raised);
+      --gs-color-selected: var(--gs-color-selected-base);
+      --gs-depth-pressable: var(--gs-depth-pressable-pressed);
+      --gs-depth-pressable-positive: var(--gs-depth-pressable-positive-pressed);
+      /* A control drawn on a plain shelf rather than a pressable base comes
+         down off it, which is what a field's tick box does when it is
+         ticked. */
+      --gs-depth-raised: var(--gs-depth-flat);
+    }
+  }
+}

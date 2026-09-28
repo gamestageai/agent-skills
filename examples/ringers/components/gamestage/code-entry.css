@@ -1,0 +1,199 @@
+/* CodeEntry. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 4c's second card draws this surface, and 4b draws the boxes again;
+   design/twins/4c.json and 4b.json measure ours against both. */
+
+.gs-code-entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-3);
+  font-family: var(--gs-type-body-font-family);
+  color: var(--gs-color-ink);
+}
+
+/* The title scale, in capitals with the display shadow under it, as every
+   form title in the drawing. See the note in form.css. */
+.gs-code-entry__title {
+  margin: 0;
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: var(--gs-type-title-line-height);
+  text-transform: uppercase;
+  text-shadow: var(--gs-type-display-shadow, none);
+}
+
+/* The line under it, in the caption token: the drawing's 600 13px against
+   caption's 600 11px, the nearest token. */
+.gs-code-entry__detail {
+  margin: 0;
+  color: var(--gs-color-ink-secondary);
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  overflow-wrap: anywhere;
+}
+
+/* -- the field ------------------------------------------------------------- */
+/* One input, laid over the boxes and invisible. It keeps the caret, the paste
+   and the browser's one-time-code autofill; the boxes are the rendering. */
+.gs-code-entry__field {
+  position: relative;
+}
+
+.gs-code-entry__input {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: transparent;
+  caret-color: transparent;
+  font-size: var(--gs-type-body-font-size);
+  outline: none;
+  z-index: 1;
+}
+
+.gs-code-entry__boxes {
+  display: flex;
+  gap: var(--gs-space-2);
+}
+
+/* A box is the action height, 60px in arcade, 48 wide in the drawing and
+   stretched to share the row here, radiused at radius.md, on the surface with
+   the control stroke. The drawing stands each one on a 0 4px 0 edge shelf
+   though it is typed into; there is no such token, so ours is flat and the
+   twins file has it on record. */
+.gs-code-entry__box {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* Inset, because this is typed into. BDS-040. No minimum width: the boxes
+     share whatever column they are given, and the drawing's own six squeeze
+     to 38px in a 260px card. The real target is the input laid over the row. */
+  min-inline-size: 0;
+  block-size: var(--gs-size-action);
+  box-sizing: border-box;
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-control) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-md);
+  box-shadow: var(--gs-depth-flat);
+
+  /* The digit is a stat: the display face at 900, the drawing's 24 against
+     the token's 22. */
+  font-family: var(--gs-type-stat-font-family);
+  font-size: var(--gs-type-stat-font-size);
+  font-weight: var(--gs-type-stat-font-weight);
+  font-variant-numeric: var(--gs-type-score-font-variant-numeric);
+
+  transition: border-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* A box holding a character brightens its stroke to the high edge, so the
+   filled part of the code reads at a glance against the empty part. */
+.gs-code-entry__box:not(:empty) {
+  border-color: var(--gs-color-edge-high);
+}
+
+/* The box the next character lands in. The input above it holds the caret, so
+   without this there is nothing on screen saying where typing goes. */
+.gs-code-entry__box[data-gs-active='true'] {
+  border-color: var(--gs-color-selected);
+}
+
+.gs-code-entry__input:focus-visible ~ .gs-code-entry__boxes .gs-code-entry__box[data-gs-active='true'] {
+  box-shadow: 0 0 0 var(--gs-stroke-focus) var(--gs-color-selected);
+}
+
+/* -- refused --------------------------------------------------------------- */
+/* Dashed, negative and said in words below. Three changes, so a player who
+   cannot tell the two colours apart still sees that the code was wrong. */
+.gs-code-entry[data-gs-invalid='true'] .gs-code-entry__box {
+  border-style: dashed;
+  border-color: var(--gs-color-negative-solid);
+}
+
+.gs-code-entry__reason {
+  margin: 0;
+  color: var(--gs-color-ink-secondary);
+  font-size: var(--gs-type-label-font-size);
+  line-height: var(--gs-type-body-line-height);
+}
+
+.gs-code-entry[data-gs-invalid='true'] .gs-code-entry__reason {
+  color: var(--gs-color-negative-solid);
+  font-weight: var(--gs-type-label-font-weight);
+}
+
+/* -- busy ------------------------------------------------------------------ */
+/* Busy looked exactly like a full code, "type here" stroke included. The
+   caret mark goes and the row breathes; reduced motion holds it dimmed. */
+.gs-code-entry[data-gs-busy='true'] .gs-code-entry__field {
+  cursor: progress;
+}
+
+.gs-code-entry[data-gs-busy='true'] .gs-code-entry__box {
+  border-color: var(--gs-color-edge-high);
+  box-shadow: var(--gs-depth-flat);
+}
+
+.gs-code-entry[data-gs-busy='true'] .gs-code-entry__boxes {
+  animation: gs-code-entry-busy calc(var(--gs-motion-emphasis) * 4) var(--gs-motion-ease-emphasis) infinite alternate;
+}
+
+@keyframes gs-code-entry-busy {
+  from { opacity: 1; }
+  to { opacity: 0.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-code-entry[data-gs-busy='true'] .gs-code-entry__boxes {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* -- resend ---------------------------------------------------------------- */
+/* While the host is counting, the resend is a line of text with the time in
+   it, which is what the drawing draws: "Resend in 0:42", the time in the
+   figure face and the warning colour. It keeps data-gs-locked, because that
+   is what a control that comes back later carries everywhere else. */
+.gs-code-entry__resend {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: var(--gs-space-1);
+  margin: 0;
+  color: var(--gs-color-ink-secondary);
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+}
+
+.gs-code-entry__countdown {
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  font-variant-numeric: var(--gs-type-score-font-variant-numeric);
+  color: var(--gs-color-warning);
+}
+
+/* Once it is available it is a control again: a ghost, underlined, the way
+   the drawing draws every quiet link on these cards. */
+.gs-code-entry .gs-code-entry__again {
+  align-self: flex-start;
+  text-decoration: underline;
+}
+
+/* -- commit ---------------------------------------------------------------- */
+/* The drawing draws a Verify under the boxes, unavailable until the sixth
+   digit is in. The code still reports itself on the sixth digit; the button
+   is for the player who does not trust that it did. */
+.gs-code-entry .gs-code-entry__commit {
+  inline-size: 100%;
+}

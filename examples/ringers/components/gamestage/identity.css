@@ -1,0 +1,281 @@
+/* Identity. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 3a draws this and design/twins/3a.json measures ours against it:
+   the avatar at three sizes ringed at the UI stroke with the presence dot on
+   its corner, the no-picture symbol on a hued disc, and the boxed player and
+   opponent row. */
+
+.gs-identity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gs-space-3);
+  font-family: var(--gs-type-body-font-family);
+  color: var(--gs-color-ink);
+}
+
+/* -- avatar ---------------------------------------------------------------- */
+/* The shape is the theme's, not this file's: arcade sets --gs-shape-identity to
+   `circle`, and a border-radius written here would be the one thing a theme
+   swap could not reach. The default is the same rounded rectangle every other
+   surface uses, so a theme that says nothing still looks like the system.
+
+   The ring is the UI stroke, which arcade draws at 3px and the drawing draws
+   at 3px on every avatar it has. */
+.gs-identity__avatar {
+  position: relative;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--gs-size-icon-object);
+  block-size: var(--gs-size-icon-object);
+  background: var(--gs-color-surface-raised);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-md);
+  user-select: none;
+}
+
+/* A style query rather than a value substitution, because the token is a shape
+   word and not a length: `border-radius: circle` is invalid and would compute
+   to a square corner, silently. */
+@container style(--gs-shape-identity: circle) {
+  .gs-identity__avatar { border-radius: var(--gs-radius-full); }
+}
+
+/* The picture clips itself to the shape, because the avatar cannot clip: the
+   presence dot hangs off its corner. */
+.gs-identity__image {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+/* -- the symbol, for a player with no picture ------------------------------ */
+/* Eight hues from the id. The drawing paints eight of its own; the library has
+   no hue tokens (a token request on the twin pair), so the eight colours that
+   already carry a hue stand in, solid variants because a disc is a colour. */
+.gs-identity__avatar--hue-0 { background: var(--gs-color-player-solid); }
+.gs-identity__avatar--hue-1 { background: var(--gs-color-opponent-solid); }
+.gs-identity__avatar--hue-2 { background: var(--gs-color-positive-solid); }
+.gs-identity__avatar--hue-3 { background: var(--gs-color-warning-solid); }
+.gs-identity__avatar--hue-4 { background: var(--gs-color-negative-solid); }
+.gs-identity__avatar--hue-5 { background: var(--gs-color-reward-solid); }
+.gs-identity__avatar--hue-6 { background: var(--gs-color-interactive-solid); }
+.gs-identity__avatar--hue-7 { background: var(--gs-color-edge-high-solid); }
+
+/* The mark is drawn in the edge colour, the same dark as the ring, at the
+   control icon size on a default disc. Two of the six are filled with a colour
+   of their own in the drawing, and the fill comes from the token here so the
+   glyph itself stays colourless. */
+.gs-identity__symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--gs-size-icon-control);
+  color: var(--gs-color-edge);
+  line-height: 1;
+}
+
+.gs-identity__symbol .gs-glyph { stroke-width: var(--gs-stroke-glyph-small); }
+.gs-identity__symbol--diamond .gs-glyph { fill: var(--gs-color-player-solid); }
+.gs-identity__symbol--dot .gs-glyph { fill: var(--gs-color-warning-solid); }
+.gs-identity__symbol--triangle .gs-glyph,
+.gs-identity__symbol--bars .gs-glyph { fill: currentColor; }
+
+/* -- name ------------------------------------------------------------------ */
+.gs-identity__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-1);
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+/* A name is the player's own text, so it is arbitrarily long and may have no
+   spaces in it at all. It wraps rather than pushing the presence dot, the rank
+   or the score out of the row. */
+.gs-identity__name {
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-body-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  overflow-wrap: anywhere;
+}
+
+.gs-identity__detail {
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-2);
+  /* The small print under the name: caption size, secondary ink. It inherited
+     the page's body size, so in a leaderboard row "Away end" at 17px sat under
+     "Niamh" at 12px and the row read upside down. */
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  line-height: 1.3;
+  color: var(--gs-color-ink-secondary);
+}
+
+/* The drawing's sizes are 32, 48 and 64. The scale has 48 and 64; the small
+   step takes control.small (40) until a 32px size token exists, which is a
+   token request on the twin pair. */
+.gs-identity[data-gs-size='small'] .gs-identity__avatar {
+  inline-size: var(--gs-size-control-small);
+  block-size: var(--gs-size-control-small);
+}
+
+.gs-identity[data-gs-size='small'] .gs-identity__symbol {
+  font-size: var(--gs-size-icon-utility);
+}
+
+.gs-identity[data-gs-size='small'] .gs-identity__name {
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+}
+
+.gs-identity[data-gs-size='large'] .gs-identity__avatar {
+  inline-size: var(--gs-size-icon-hero);
+  block-size: var(--gs-size-icon-hero);
+}
+
+.gs-identity[data-gs-size='large'] .gs-identity__name {
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: var(--gs-type-title-line-height);
+}
+
+/* -- you ------------------------------------------------------------------- */
+/* Colour and weight together, never colour alone: the player's own row has to
+   be findable by someone who cannot tell the two colours apart, and the
+   accessible name carries the word as well. */
+.gs-identity[data-gs-you='true'] .gs-identity__name {
+  color: var(--gs-color-player);
+  font-weight: var(--gs-type-action-font-weight);
+}
+
+/* -- signed out ------------------------------------------------------------ */
+/* Quieter than a named player, and still fully legible: this is a real state a
+   host renders on purpose, not a broken one. */
+.gs-identity[data-gs-anonymous='true'] .gs-identity__name {
+  color: var(--gs-color-ink-secondary);
+}
+
+/* -- presence -------------------------------------------------------------- */
+/* On the avatar's bottom-right corner, overlapping the ring by the ring's own
+   width, as drawn: a dot ringed in the edge colour so it reads against any
+   picture. The colour transition survives reduced motion on purpose. */
+.gs-identity__presence {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gs-space-1);
+  /* The element that declares emphasis carries a transition of its own: the
+     word's colour, beside the dot's fill below. The feel stage checks that an
+     emphasis element has something to keep under reduced motion. */
+  transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-identity__avatar .gs-identity__presence {
+  position: absolute;
+  right: calc(-1 * var(--gs-stroke-ui));
+  bottom: calc(-1 * var(--gs-stroke-ui));
+}
+
+.gs-identity__presence-dot {
+  display: block;
+  box-sizing: border-box;
+  inline-size: var(--gs-size-icon-utility);
+  block-size: var(--gs-size-icon-utility);
+  border-radius: var(--gs-radius-full);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  background: var(--gs-color-muted);
+  transition: background var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis),
+              border-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-identity[data-gs-presence='online'] .gs-identity__presence-dot {
+  background: var(--gs-color-positive);
+}
+
+.gs-identity[data-gs-presence='away'] .gs-identity__presence-dot {
+  background: var(--gs-color-warning);
+}
+
+/* Hollow, not just grey. Filled against ring is a difference in shape, so
+   online and offline stay distinguishable without colour vision. */
+.gs-identity[data-gs-presence='offline'] .gs-identity__presence-dot {
+  background: none;
+  border-color: var(--gs-color-muted);
+}
+
+/* -- the row (specimen 3a) ------------------------------------------------- */
+/* A boxed line: the avatar at the medium control size, the name and its small
+   print, ringed at the UI stroke in the side's colour, on a shelf. The height
+   is the large action height; the drawing draws 64 and arcade's step is 68,
+   a token request on the twin pair. */
+.gs-identity[data-gs-presentation='row'] {
+  display: flex;
+  box-sizing: border-box;
+  inline-size: 100%;
+  block-size: var(--gs-size-action-large);
+  padding: 0 var(--gs-space-inset) 0 var(--gs-space-2);
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge-high);
+  border-radius: var(--gs-radius-lg);
+  box-shadow: var(--gs-depth-raised);
+}
+
+.gs-identity[data-gs-presentation='row'][data-gs-side='player'] {
+  border-color: var(--gs-color-player-solid);
+}
+
+.gs-identity[data-gs-presentation='row'][data-gs-side='opponent'] {
+  border-color: var(--gs-color-opponent-solid);
+}
+
+.gs-identity[data-gs-presentation='row'] .gs-identity__avatar {
+  inline-size: var(--gs-size-control-medium);
+  block-size: var(--gs-size-control-medium);
+}
+
+.gs-identity[data-gs-presentation='row'] .gs-identity__symbol {
+  font-size: var(--gs-size-icon-utility);
+}
+
+/* The name in the row is the body face at the action weight: bold on both
+   sides of the row, and in the player's colour only for `you`. The drawing
+   sets it at 15px/800, a size the type scale has no step for. */
+.gs-identity[data-gs-presentation='row'] .gs-identity__text {
+  gap: 0;
+}
+
+.gs-identity[data-gs-presentation='row'] .gs-identity__name {
+  font-weight: var(--gs-type-action-font-weight);
+  line-height: var(--gs-type-title-line-height);
+}
+
+/* In the row the ring carries `you`, in the player colour, and the word stays
+   ink, as drawn: the ring, the weight and the word in the accessible name are
+   three signals already. */
+.gs-identity[data-gs-presentation='row'][data-gs-you='true'] .gs-identity__name {
+  color: var(--gs-color-ink);
+}
+
+/* The small print: presence word, then whatever the host adds, at the label
+   size in capitals, as drawn. */
+.gs-identity[data-gs-presentation='row'] .gs-identity__detail {
+  margin-top: var(--gs-space-1);
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  letter-spacing: var(--gs-type-label-letter-spacing);
+  text-transform: uppercase;
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-identity[data-gs-presentation='row'] .gs-identity__presence-dot {
+  inline-size: var(--gs-space-2);
+  block-size: var(--gs-space-2);
+  border: 0;
+}

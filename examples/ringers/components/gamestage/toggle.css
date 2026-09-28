@@ -1,0 +1,144 @@
+/* Toggle. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 4b draws a 72x40 pill with a 3px edge, filled on the edge colour
+   when off and positive when on, and a 30px white thumb with the same edge
+   that sits 2px in at either end. 4d draws the same control at the end of the
+   "Sound and haptics" row. design/twins/4b.json measures ours against it. */
+
+.gs-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gs-space-3);
+  /* The words beside the pill are arbitrary length, so the row gives way
+     before the control does: the label wraps, the pill keeps its size. */
+  min-inline-size: 0;
+}
+
+/* The pill. 72px is the touch minimum plus space.6; there is no 72px token and
+   both halves of that sum are the drawing's own measurements elsewhere. 40px
+   is size.control.small exactly. */
+.gs-toggle__control {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  position: relative;
+
+  inline-size: calc(var(--gs-size-touch-min) + var(--gs-space-6));
+  block-size: var(--gs-size-control-small);
+  padding: calc(var(--gs-space-1) / 2);
+
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-edge);
+  cursor: pointer;
+}
+
+.gs-toggle[data-gs-active='true'] .gs-toggle__control {
+  background: var(--gs-color-positive);
+}
+
+/* The thumb. Its height is the pill's inner box and it is square, so it
+   follows the theme's stroke and the control size rather than restating the
+   drawing's 30px. `box-sizing: border-box` is what makes that true: without
+   it the 3px border is added outside the 100%, the thumb came out 36px in a
+   34px slot, and the 4b twin caught it.
+
+   The travel is the pill's width minus its height, which is the room left
+   over however thick the theme draws the stroke and whatever the padding is:
+   inner width minus thumb is (W - 2b - 2p) - (H - 2b - 2p), and the border
+   and padding cancel. 72 - 40 is the drawing's 32px, from 2px in at one end
+   to 2px in at the other.
+
+   `translate` rather than `left`, so a theme changing the direction of the
+   row does not need this rule rewritten, and so the move composes with the
+   press gesture instead of fighting it.
+
+   The fill is colour.ink, not white. The drawing is white, and there is no
+   always-white token: base colour.onAccent is white but arcade redefines it
+   to a dark navy, which drew a navy thumb on a navy pill. ink is the
+   foreground token, which is what the thumb is - the thing the state is read
+   from - so it stays legible against both of the pill's fills and in both
+   colour contexts. */
+.gs-toggle__thumb {
+  box-sizing: border-box;
+  block-size: 100%;
+  aspect-ratio: 1;
+  flex: none;
+
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-ink);
+
+  translate: 0;
+  transition: translate var(--gs-motion-emphasis) var(--gs-motion-ease-pop);
+}
+
+.gs-toggle[data-gs-active='true'] .gs-toggle__thumb {
+  translate: calc(
+    var(--gs-size-touch-min) + var(--gs-space-6) - var(--gs-size-control-small)
+  );
+}
+
+/* The thumb is the only thing that moves, so a player who has asked for
+   stillness gets the fill change and nothing else. The state is still
+   readable: the thumb is at one end or the other, and the fill says which. */
+@media (prefers-reduced-motion: reduce) {
+  .gs-toggle__thumb { transition: none; }
+}
+
+/* A locked setting keeps its shape and shows a padlock, over the pill rather
+   than in place of the thumb: the thumb is where the state is read from, and
+   replacing it would hide the one thing the mark is qualifying. */
+.gs-toggle__glyph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-toggle__glyph svg {
+  inline-size: var(--gs-size-icon-utility);
+  block-size: var(--gs-size-icon-utility);
+}
+
+/* Not available at all: flat, per BDS-013, against locked's keeps-its-shape. */
+.gs-toggle[data-gs-disabled='true'] .gs-toggle__control {
+  background: var(--gs-color-disabled);
+  border-color: var(--gs-color-disabled);
+  cursor: default;
+}
+
+.gs-toggle[data-gs-disabled='true'] .gs-toggle__thumb {
+  background: var(--gs-color-disabled-ink);
+}
+
+/* The words beside the pill. Specimen 4b sets them at DM Sans 700 15px; the
+   body token is the interface face at 17px, which is the floor this library
+   sets for anything a player reads as a sentence, so the label draws there
+   and the 15px difference is a token request rather than a literal. */
+.gs-toggle__label {
+  min-inline-size: 0;
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  line-height: var(--gs-type-title-line-height);
+  color: var(--gs-color-ink);
+  overflow-wrap: anywhere;
+}
+
+/* In the accessible name, not on screen: the label when the surface around it
+   already says the words, and the locked state either way. */
+.gs-toggle__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}

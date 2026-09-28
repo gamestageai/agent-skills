@@ -1,0 +1,303 @@
+/* The motion the design draws, once, under the design's own names.
+ *
+ * design/canvas.html defines eleven keyframes in its <helmet> style block and
+ * specimen 4a ("Motion, core capabilities, tap each to replay") shows each one
+ * in use with its duration and curve. Before this file the library carried
+ * seven per-component keyframes, none with the design's name and several with
+ * different steps: the feedback shake was four full swings of 6px where the
+ * drawing damps to 4px on the last two, and three components pulsed by opacity
+ * where the drawing pulses by scale. A theme could reach none of them.
+ *
+ * So the keyframes live here and a component points at one. Every step below is
+ * copied numerically from the drawing: the transforms, the opacities, the
+ * filter, the stop percentages. The only substitutions are the ones tokens
+ * demand: the drawing's `var(--edge)` is `var(--gs-color-edge)`, its literal
+ * reward glow `oklch(0.9 0.16 90 / a)` is the theme's reward colour at the same
+ * alpha, and its 6px press travel is `press.travel`. Durations and curves come
+ * from tokens.json's motion group, which now names both per capability.
+ *
+ * A component asks for a capability with one attribute:
+ *
+ *   <span data-gs-motion="pop">+100</span>
+ *
+ * and this file applies the keyframe, the duration and the curve. The attribute
+ * is public API (docs/attribute-contract.md, "`data-gs-motion` names the
+ * capability"). A capability plays on mount, so a component replays it by
+ * remounting the element (a `key` bump) when the state that earns it changes.
+ *
+ * Reduced motion. tokens.css zeroes every motion duration under
+ * prefers-reduced-motion and forces `[data-gs-animates="motion"]` to 0s, so
+ * everything here that moves stops dead without this file saying so. What this
+ * file adds is the emphasis half of that rule: the glow loop settles on a
+ * static halo rather than on nothing, and the rays stay drawn without turning,
+ * which is what specimen 4a does when its "motion off" tweak is on. Colour,
+ * glyph, glow and text still change; only movement goes.
+ *
+ * This ships with `@gamestage/tokens`, beside primitives.css, in the same
+ * layer: a component stylesheet is unlayered, so a component that needs to
+ * override a duration or a curve for one element can, and the default here
+ * still reaches everything that does not. */
+
+@layer gs.primitives {
+  /* -- the eleven keyframes, in the order the drawing declares them -------- */
+
+  @keyframes gs-reveal {
+    0%   { transform: scale(.4);  opacity: 0; filter: brightness(2); }
+    60%  { transform: scale(1.08); opacity: 1; }
+    100% { transform: scale(1);   filter: brightness(1); }
+  }
+
+  @keyframes gs-slam {
+    0%   { transform: scale(2.2) rotate(-6deg); opacity: 0; }
+    45%  { transform: scale(.94) rotate(1deg);  opacity: 1; }
+    70%  { transform: scale(1.06) rotate(-1deg); }
+    100% { transform: scale(1) rotate(-2deg); }
+  }
+
+  @keyframes gs-floatup {
+    0%   { transform: translateY(0) scale(.8);    opacity: 0; }
+    20%  { opacity: 1; transform: translateY(-8px) scale(1.1); }
+    100% { transform: translateY(-48px) scale(1); opacity: 0; }
+  }
+
+  @keyframes gs-rays {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Each piece falls to its own horizontal offset. The drawing sets `--dx` per
+     piece; here it is `--gs-dx`, so it cannot collide with a host's own. */
+  @keyframes gs-confetti {
+    0%   { transform: translate(0, 0) rotate(0); opacity: 1; }
+    100% { transform: translate(var(--gs-dx, 0px), 110px) rotate(540deg); opacity: 0; }
+  }
+
+  /* The press gesture playing itself, for a demonstration: down, held, up. The
+     drawing's shadow is an arcade face on an edge-coloured base; the library's
+     press is whichever style the theme chose, so the two depth tokens and the
+     press transform stand in for it, and the four stops are the drawing's. */
+  @keyframes gs-autopress {
+    0%, 100% { transform: translateY(0);          box-shadow: var(--gs-depth-pressable); }
+    40%, 60% { transform: var(--gs-press-transform); box-shadow: var(--gs-depth-pressable-pressed); }
+  }
+
+  @keyframes gs-squash {
+    0%   { transform: scale(1, 1); }
+    30%  { transform: scale(1.15, .8); }
+    60%  { transform: scale(.9, 1.12); }
+    100% { transform: scale(1, 1); }
+  }
+
+  /* The drawing's glow is oklch(0.9 0.16 90), which is the base theme's reward
+     colour to two decimal places, so the theme's own reward colour carries it at
+     the drawing's alphas: 0 at rest, .9 at the peak. */
+  @keyframes gs-glow {
+    0%, 100% {
+      box-shadow:
+        0 0 0 var(--gs-stroke-selected) var(--gs-color-edge),
+        0 0 0 color-mix(in oklab, var(--gs-color-reward-solid) 0%, transparent);
+    }
+    50% {
+      box-shadow:
+        0 0 0 var(--gs-stroke-selected) var(--gs-color-edge),
+        0 0 34px color-mix(in oklab, var(--gs-color-reward-solid) 90%, transparent);
+    }
+  }
+
+  @keyframes gs-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
+  }
+
+  @keyframes gs-shake {
+    0%, 100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+  }
+
+  @keyframes gs-pop {
+    0%   { transform: scale(.6);  opacity: 0; }
+    60%  { transform: scale(1.12); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  /* Round 5 added two to the drawing's eleven. The scrim behind a sheet or a
+     modal comes in from nothing, and the sheet itself rises from below its
+     container. Specimen 5c. */
+  @keyframes gs-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes gs-sheet {
+    from { transform: translateY(100%); }
+    to   { transform: none; }
+  }
+
+  /* -- one attribute value per capability ---------------------------------- */
+  /* Enter: pop, reveal, squash. Result: shake. Loops: pulse, glow, rays, and
+     the drawing's rule is at most two loops on screen at once. */
+
+  [data-gs-motion='pop'] {
+    animation: gs-pop var(--gs-motion-pop) var(--gs-motion-ease-pop);
+  }
+
+  [data-gs-motion='shake'] {
+    animation: gs-shake var(--gs-motion-shake) var(--gs-motion-ease-shake);
+  }
+
+  [data-gs-motion='squash'] {
+    animation: gs-squash var(--gs-motion-squash) var(--gs-motion-ease-squash);
+  }
+
+  [data-gs-motion='reveal'] {
+    animation: gs-reveal var(--gs-motion-reveal) var(--gs-motion-ease-reveal);
+  }
+  /* The sheet's rise. Movement, so it is zeroed under reduced motion and the
+     sheet lands on its final frame. */
+  [data-gs-motion='sheet'] {
+    animation: gs-sheet var(--gs-motion-sheet) var(--gs-motion-ease-sheet);
+  }
+  /* The scrim's fade. A colour change rather than a movement, so it is timed by
+     motion.emphasis, the one duration reduced motion keeps: with the sheet's
+     travel gone the fade is what is left, which is specimen 5c's "reduced:
+     fade only". The element carries data-gs-animates="emphasis" beside it so
+     the reduced-motion rule in tokens.css leaves it alone. */
+  [data-gs-motion='fade'] {
+    animation: gs-fade var(--gs-motion-emphasis) var(--gs-motion-ease-fade);
+  }
+
+  /* `celebrate` is the drawing's name for the compound: the slam-in, then the
+     burst. The element carries the slam; the burst is a set of `confetti`
+     children the host or the component adds behind it. Both names resolve to
+     the same keyframe so a component can say what it means. */
+  [data-gs-motion='slam'],
+  [data-gs-motion='celebrate'] {
+    animation: gs-slam var(--gs-motion-slam) var(--gs-motion-ease-slam);
+  }
+
+  /* Twelve pieces in the drawing, each with its own `--gs-dx` and a stagger of
+     up to 450ms on the duration and 100ms on the delay, set inline per piece.
+     The piece rests invisible so nothing shows once it has fallen. */
+  [data-gs-motion='confetti'] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    animation: gs-confetti var(--gs-motion-confetti) var(--gs-motion-ease-confetti);
+  }
+
+  /* Rises 48px and fades over the float-up token. The keyframe starts from
+     nothing and ends on nothing, and the default fill mode leaves the element
+     at its own style afterwards, so a label that should stay (a stat's change
+     beside the number) stays, and one that should go (a reaction) is styled
+     invisible by whoever mounted it. */
+  [data-gs-motion='floatup'] {
+    animation: gs-floatup var(--gs-motion-float-up) var(--gs-motion-ease-float-up);
+  }
+
+  /* The press replaying itself. The real press is `.gs-pressable` in
+     primitives.css, a transition on :active at `motion.press`; this is the
+     drawing's demonstration of it, which plays at four times that so the down,
+     the hold and the up each read. */
+  [data-gs-motion='press'] {
+    animation: gs-autopress calc(var(--gs-motion-press) * 4) var(--gs-motion-ease-press);
+  }
+
+  /* The rays behind a reveal. The drawing draws them as a repeating conic
+     gradient of the glow colour at a quarter alpha, bled 60% past the box on
+     every side so the turn never shows an edge. The parent clips. */
+  [data-gs-motion='rays'] {
+    position: absolute;
+    inset: -60%;
+    pointer-events: none;
+    background: repeating-conic-gradient(
+      color-mix(in oklab, var(--gs-color-reward-solid) 25%, transparent) 0 8deg,
+      transparent 8deg 24deg
+    );
+    animation: gs-rays var(--gs-motion-rays) var(--gs-motion-ease-rays) infinite;
+  }
+
+  [data-gs-motion='glow'] {
+    animation: gs-glow var(--gs-motion-glow) var(--gs-motion-ease-glow) infinite;
+  }
+
+  [data-gs-motion='pulse'] {
+    animation: gs-pulse var(--gs-motion-pulse) var(--gs-motion-ease-pulse) infinite;
+  }
+
+  /* -- the two capabilities that are transitions, not keyframes ------------ */
+  /* A row travelling to its new place and a bar filling both start from a value
+     already on screen, so they are transitions. The property is the
+     component's to name; the duration and the curve are the drawing's. */
+
+  [data-gs-motion='reorder'] {
+    transition: transform var(--gs-motion-reorder) var(--gs-motion-ease-reorder);
+  }
+
+  [data-gs-motion='fill'] {
+    transition:
+      width var(--gs-motion-fill) var(--gs-motion-ease-fill),
+      inline-size var(--gs-motion-fill) var(--gs-motion-ease-fill),
+      flex-grow var(--gs-motion-fill) var(--gs-motion-ease-fill),
+      stroke-dasharray var(--gs-motion-fill) var(--gs-motion-ease-fill);
+  }
+
+  /* -- juice: the same ladder the cues climb, applied to motion ------------ */
+  /* `data-gs-juice` is the host asking for less celebration, and no stylesheet
+     read it: a host set juice="none" and every flourish still played, which is
+     the opposite of what the contract says the word means. GSUI-92.
+
+     The ladder is not a second opinion. juice.ts scores the levels none 0,
+     reduced 1, standard 2, maximum 3 against the tiers essential 0, standard 1,
+     celebration 2, and the tier of each capability is MOTION_CATALOGUE in
+     packages/ui/src/runtime/feel/cue-catalogue.ts. motion.juice.test.mjs fails
+     if these rules and that table disagree, which is the only thing keeping a
+     sound and the movement it belongs to at the same level. `standard` and
+     `maximum` trim nothing and are identical here: maximum is the top of the
+     scale, not an extra helping.
+
+     Every rule below only takes movement away. Juice must never re-enable a
+     motion a player asked to be rid of, and a ladder written as subtraction
+     keeps that true without anyone having to check. */
+
+  /* celebration goes first, so `reduced` and below lose it. */
+  :root[data-gs-juice='none'] :is(
+      [data-gs-motion='reveal'], [data-gs-motion='rays'], [data-gs-motion='slam'],
+      [data-gs-motion='celebrate'], [data-gs-motion='confetti'],
+      [data-gs-motion='floatup'], [data-gs-motion='squash'],
+      [data-gs-motion='pulse'], [data-gs-motion='glow']),
+  :root[data-gs-juice='reduced'] :is(
+      [data-gs-motion='reveal'], [data-gs-motion='rays'], [data-gs-motion='slam'],
+      [data-gs-motion='celebrate'], [data-gs-motion='confetti']) {
+    animation: none;
+  }
+
+  /* The still the glow settles on when it may not run, at the 24px and .6
+     specimen 4a draws with its motion tweak off: a zero-length loop lands on
+     no glow at all, and an unclaimed reward with no halo has stopped saying
+     it is unclaimed. Calmer is the ask, not gone. */
+  :root[data-gs-juice='none'] [data-gs-motion='glow'] {
+    box-shadow:
+      0 0 0 var(--gs-stroke-selected) var(--gs-color-edge),
+      0 0 24px color-mix(in oklab, var(--gs-color-reward-solid) 60%, transparent);
+  }
+
+  /* -- reduced motion: the emphasis half of the rule ----------------------- */
+  /* Movement has already stopped: every duration above is 0ms here. These are
+     the stills the drawing keeps when its motion tweak is off. The glow settles
+     on the halo specimen 4a draws in that state, at 24px and .6, because a
+     zero-length loop lands on frame nought, which is no glow at all, and an
+     unclaimed reward with no glow is a reward that has stopped saying so. */
+  @media (prefers-reduced-motion: reduce) {
+    [data-gs-motion='glow'] {
+      animation: none;
+      box-shadow:
+        0 0 0 var(--gs-stroke-selected) var(--gs-color-edge),
+        0 0 24px color-mix(in oklab, var(--gs-color-reward-solid) 60%, transparent);
+    }
+
+    [data-gs-motion='rays'],
+    [data-gs-motion='pulse'] {
+      animation: none;
+    }
+  }
+}

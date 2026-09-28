@@ -1,0 +1,577 @@
+/* Choice. Every value comes from a token; nothing here is a literal colour.
+
+   Three specimens draw the option and design/twins/1e, 1h and 2b measure ours
+   against them: 1e is one control in every state in the base theme, 1h is the
+   2x2 quiz grid the `buttons` presentation is for, and 2b is the same states in
+   arcade. The paint of each state comes from 1e and 2b; the geometry of the
+   grid tile comes from 1h. */
+
+.gs-choice {
+  display: grid;
+  gap: var(--gs-space-3);
+}
+
+/* The two-column presentations read their own width, not the viewport's. A
+   choice is as wide as the layer that holds it, and on a 320px phone the
+   interaction layer hands it about 288 after the stage's insets, so a rule
+   written against the viewport measures the wrong box.
+
+   Only these two ask it, because only these two are two columns wide.
+   `container-type: inline-size` stops an element contributing to an
+   intrinsic width, which is how the HUD came to measure zero in a layer that
+   hugged its contents (GSUI-218), so it goes on the presentations whose width
+   is always given to them: the buttons grid in flow, and the overlay, which
+   takes its width from its own insets. */
+.gs-choice[data-gs-presentation='buttons'],
+.gs-choice[data-gs-presentation='overlay'] {
+  container-type: inline-size;
+}
+
+/* Below 378px the grid is one column, because that is the width two columns
+   need. Measured on the lab: "Verstappen" at the action size is a 149px run,
+   the option's inset and outline add 34, so a column has to be 183 wide and
+   two of them with the gap between are 378. A 320px phone's interaction layer
+   gives the choice about 288 and a 390px phone about 358, so below this the
+   second column was breaking the word in half and drawing "Verstapp/en". The
+   label stayed inside its option, which is all the boundary stage measures,
+   and it was not an answer anybody should have to reassemble.
+
+   One column rather than a smaller type. The drawing sets the tile's type at
+   16px where ours takes the 18px action size, and at 16px the word fits two
+   columns on a 390px phone; there is no 16px step in the action role to reach
+   for, and a component raises a token request rather than inventing one. Until
+   that token exists the presentation gives way instead, which is what the
+   drawing would rather have than half a driver's name.
+
+   The grid is on the root and an element cannot query itself, so the options
+   carry the rule and span both tracks. */
+@container (max-width: 377px) {
+  .gs-choice[data-gs-presentation='buttons'] .gs-choice__option,
+  .gs-choice[data-gs-presentation='overlay'] .gs-choice__option {
+    grid-column: 1 / -1;
+  }
+}
+
+/* minmax(0, 1fr), not 1fr. A grid track's default minimum is its content, so
+   a two-column grid of 1fr refuses to go narrower than the longest option and
+   the whole grid grows past the box that holds it. In the overlay
+   presentation, which is absolutely positioned over the host's scene and has
+   no room to grow into, that put the question 24px and "Russell" 5px outside
+   the component at 390. The option truncates and wraps below; this is what
+   lets it. */
+.gs-choice[data-gs-presentation='buttons'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* A wrapping row, not an auto-fit grid: the question spans every track, so
+   none collapsed, and four cards sat in seven 142px tracks cut to "Verst...".
+   192px holds "Verstappen" (183px, measured below). */
+.gs-choice[data-gs-presentation='cards'] {
+  display: flex;
+  flex-wrap: wrap;
+}
+.gs-choice[data-gs-presentation='cards'] > * { flex: 1 1 100%; }
+.gs-choice[data-gs-presentation='cards'] > .gs-choice__option {
+  flex: 1 1 calc(var(--gs-size-icon-hero) * 3);
+}
+/* minmax(0, 1fr) in the one-column presentations too. `1fr` is
+   `minmax(auto, 1fr)`, whose minimum is the track's content, and the label no
+   longer breaks inside a word (see .gs-choice__label), so its min-content is a
+   whole word rather than one character. Without this a name longer than the
+   phone is wide would widen the track and push the option out of the
+   component, which is the fault this grid was given minmax for in the first
+   place. */
+.gs-choice[data-gs-presentation='list']    { grid-template-columns: minmax(0, 1fr); }
+.gs-choice[data-gs-presentation='wheel']   { grid-template-columns: minmax(0, 1fr); place-items: center; }
+/* An overlay sits over the host's scene, so it is absolutely positioned and
+   needs a positioned ancestor. Give it one, or it resolves against the viewport
+   and lands across the whole page, over anything else on it. The library cannot
+   create that ancestor: the scene is the host's. */
+.gs-choice[data-gs-presentation='overlay'] {
+  position: absolute; inset: auto 0 0 0;
+  padding: var(--gs-space-4);
+  background: var(--gs-color-scrim);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* The question. It spans the grid because it is about the set rather than one
+   option. The part is `label`, the vocabulary's word for what a thing is
+   called; the class is its own so it does not collide with an option's label. */
+.gs-choice__question {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--gs-color-ink);
+  /* `title`, not `label`. A question is the heading of the set, and label is
+     the 13px uppercase caption that sits under a stat's number. */
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+/* The line under the question. `caption` is the drawing's own role for it: the
+   small explanatory line under a control or a card, its most used text style. */
+.gs-choice__subtitle {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--gs-color-ink-secondary);
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+}
+
+.gs-choice__option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--gs-space-1);
+  position: relative;
+
+  /* A grid item's automatic minimum is its content, which is how an option
+     widens its own column and pushes the grid past the component. What the
+     label does with the room it is left is on .gs-choice__label below: it
+     wraps between words and is cut with an ellipsis only where one word
+     cannot fit at all. */
+  min-inline-size: 0;
+
+  /* 48px is the smallest target a thumb reliably hits. */
+  min-height: var(--gs-size-touch-min);
+  /* The padding gives back whatever a state adds to the border, so picking an
+     option never changes its size. In base and stadium the selected stroke is
+     3px against a 1px control stroke, and a picked card grew by 4px and pushed
+     its row down under the player's thumb (GSUI-281, found in the Wage Bill
+     test game). --gs-choice-grow is the difference, set by the states below;
+     it is negative where a theme draws the selected stroke thinner. */
+  --gs-choice-pad-block: var(--gs-space-3);
+  --gs-choice-pad-inline: var(--gs-space-4);
+  padding: calc(var(--gs-choice-pad-block) - var(--gs-choice-grow, 0px))
+           calc(var(--gs-choice-pad-inline) - var(--gs-choice-grow, 0px));
+
+  text-align: left;
+
+  color: var(--gs-color-ink);
+  /* surface, not surfaceRaised: every drawn idle tile sits on the surface
+     colour (1e, 1h, 2b) and lifts to raised only under the pointer. */
+  background: var(--gs-color-surface);
+  /* The outline every control carries, in edge: 2b rings every tile at 3px. */
+  border: var(--gs-stroke-control, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-md);
+  box-shadow: var(--gs-depth-raised);
+  cursor: pointer;
+
+  /* Only the movement is timed here. Fill and glyph transitions live on the
+     emphasis elements so they survive reduced motion. */
+  transition: transform var(--gs-motion-press) var(--gs-motion-ease-press),
+              box-shadow var(--gs-motion-press) var(--gs-motion-ease-press);
+}
+
+/* The quiz grid tile, specimen 1h: 18px corners, the drawing's 14px inset, the
+   key in the top corner and the answer at the foot. The drawing fixes the tile
+   at 104px; no size token is that tall, so ours stands the key and the label
+   apart and takes its height from them until a size.tile token exists. */
+.gs-choice[data-gs-presentation='buttons'] .gs-choice__option {
+  justify-content: space-between;
+  gap: var(--gs-space-2);
+  --gs-choice-pad-block: var(--gs-space-inset);
+  --gs-choice-pad-inline: var(--gs-space-inset);
+  border-radius: var(--gs-radius-lg);
+}
+
+/* The option's picture. choice.tsx has always rendered this element and this
+   file never styled it, so `media` was a prop with nothing behind it and
+   whatever a host passed landed raw. A square well, so a grid of cards keeps
+   one baseline whatever they hold; reward.css and onboarding.css style theirs
+   the same way. */
+.gs-choice__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--gs-size-icon-hero);
+  block-size: var(--gs-size-icon-hero);
+  flex: none;
+  overflow: hidden;
+  border-radius: var(--gs-radius-sm);
+}
+
+/* Real media fills the well and crops rather than stretching. Without this an
+   image keeps its own dimensions and the card grows to hold it. */
+.gs-choice__media > img,
+.gs-choice__media > picture,
+.gs-choice__media > video {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gs-choice__option:focus-visible {
+  outline: var(--gs-stroke-focus) solid var(--gs-color-ink);
+  outline-offset: 3px;
+}
+
+/* 1e's "hover / raised": the tile lifts to the raised colour and the high edge.
+   Only where a pointer can hover, and never over a selection: a phone keeps
+   :hover on the last tile tapped, and this rule outranks the selected one, so
+   on an iPhone the chosen tile went back to the raised face and looked like
+   every other. Tom, 2026-09-27. */
+@media (hover: hover) {
+  .gs-choice__option:hover:not([aria-disabled='true']):not([data-gs-selected='true']):not([data-gs-committed='true']) {
+    background: var(--gs-color-surface-raised);
+    border-color: var(--gs-color-edge-high);
+  }
+}
+
+/* Pressable controls never fade or darken. A tile has no offset base to land
+   on, so its press is the squeeze the drawing draws (scale .96 on 1e, .95 on
+   1h) rather than the primary button's drop. */
+.gs-choice__option:active:not([aria-disabled='true']) {
+  transform: var(--gs-depth-styles-squeeze-transform);
+  box-shadow: var(--gs-depth-flat);
+}
+
+/* The state colours, one custom property each, so a theme or a game restyles
+   a state without restating its rule. Defaults are theme tokens.
+
+   Selected is a light face with a strong outline, dark words and a check.
+   Tom, 2026-09-27: the drawn state (2b), a stroke on the raised face, was
+   hard to tell from idle on a phone, and a filled accent tile read as the
+   primary action, or as "correct" before anybody had guessed. So selected is
+   none of those colours: the ink and the surface swapped, which is the one
+   pair every theme proves for contrast, plus a shape. Correct keeps the
+   positive fill and wrong the negative stroke, so the three never share a
+   colour.
+
+   | Property                       | Default                     |
+   | ---                            | ---                         |
+   | --gs-choice-selected-fill      | --gs-color-ink              |
+   | --gs-choice-selected-ink       | --gs-color-surface-solid    |
+   | --gs-choice-selected-edge      | --gs-color-selected         |
+   | --gs-choice-committed-fill     | selected fill, else --gs-color-interactive |
+   | --gs-choice-committed-ink      | selected ink, else --gs-color-on-accent    |
+   | --gs-choice-correct-fill       | --gs-color-positive         |
+   | --gs-choice-correct-ink        | --gs-color-on-bright        |
+   | --gs-choice-wrong-fill         | --gs-color-surface          |
+   | --gs-choice-wrong-ink          | --gs-color-negative-solid   |
+   | --gs-choice-wrong-edge         | --gs-color-negative-solid   |
+   | --gs-choice-disabled-fill      | --gs-color-disabled         |
+   | --gs-choice-disabled-ink       | --gs-color-disabled-ink     | */
+.gs-choice__option[data-gs-state='wrong'] {
+  --gs-choice-grow: calc(var(--gs-stroke-selected) - var(--gs-stroke-control, var(--gs-stroke-hairline)));
+}
+/* The selected outline is a ring outside the option, drawn with a shadow,
+   not a thicker border: a border takes its width from the label, and a 3px
+   stroke cut "Tyrick Mitchell" to "Tyrick..." the moment it was picked. The
+   ring changes nothing inside the option, so picking never re-fits a name. */
+.gs-choice__option[data-gs-selected='true'] {
+  background: var(--gs-choice-selected-fill, var(--gs-color-ink));
+  color: var(--gs-choice-selected-ink, var(--gs-color-surface-solid));
+  border-color: var(--gs-choice-selected-edge, var(--gs-color-selected));
+  box-shadow: 0 0 0 var(--gs-stroke-selected) var(--gs-choice-selected-edge, var(--gs-color-selected)), var(--gs-depth-raised, none);
+}
+/* The check has its own slot on every option, selected or not, so a long name
+   is fitted once and never runs under the mark. On a card the slot is the end
+   of the detail line, which every card keeps, so the name has the full width;
+   elsewhere the label gives up the corner's width. */
+.gs-choice__option {
+  padding-inline-end: calc(var(--gs-space-3) + 16px);
+}
+.gs-choice[data-gs-presentation='cards'] > .gs-choice__option {
+  padding-inline-end: var(--gs-space-3);
+}
+.gs-choice[data-gs-presentation='cards'] .gs-choice__detail {
+  padding-inline-end: 20px;
+}
+/* Drawn rather than a glyph from the set, so it needs no markup: a short and a
+   long stroke in the selected ink. Gone once committed, where the padlock
+   takes the corner. */
+.gs-choice__option[data-gs-selected='true']:not([data-gs-committed='true'])::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-end: var(--gs-space-3);
+  inline-size: 7px;
+  block-size: 13px;
+  margin-block-start: -9px;
+}
+/* On a card, at the end of the reserved detail line. */
+.gs-choice[data-gs-presentation='cards'] > .gs-choice__option[data-gs-selected='true']:not([data-gs-committed='true'])::after {
+  inset-block-start: auto;
+  inset-block-end: calc(var(--gs-space-3) + 4px);
+  margin-block-start: 0;
+}
+.gs-choice__option[data-gs-selected='true']:not([data-gs-committed='true'])::after {
+  border: solid var(--gs-choice-selected-ink, var(--gs-color-surface-solid));
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+/* Committed is drawn as a pressed primary: the interactive fill, the accent
+   ink, the padlock, and the tile sitting down on its collapsed base (1h, 2b).
+   The outline stays in edge, as every filled arcade face is. */
+/* Committed follows selected when a game has restyled selected, and each
+   pair comes from one level, never a fill from one and an ink from another:
+   Stat Attack set a white selected card with purple words, and once a guess
+   committed the card turned the theme's interactive teal while keeping a
+   purple from the game, which nobody could read (Tom, 2026-09-27). A game
+   that sets neither keeps the drawn committed face. */
+.gs-choice__option[data-gs-committed='true'] {
+  background: var(--gs-choice-committed-fill, var(--gs-choice-selected-fill, var(--gs-color-interactive)));
+  color: var(--gs-choice-committed-ink, var(--gs-choice-selected-ink, var(--gs-color-on-accent)));
+  transform: var(--gs-press-transform);
+  box-shadow: var(--gs-depth-flat);
+}
+
+/* Result states change three things at once: fill or stroke, a glyph, and the
+   text. A player who cannot see colour still gets the answer. */
+.gs-choice__option[data-gs-state='correct'] {
+  background: var(--gs-choice-correct-fill, var(--gs-color-positive));
+  color: var(--gs-choice-correct-ink, var(--gs-color-on-bright));
+}
+
+/* Wrong: a dashed stroke at the selected width, the negative ink, the word
+   struck through at the ui stroke. No shelf under it in any of the three
+   drawings. */
+.gs-choice__option[data-gs-state='wrong'] {
+  background: var(--gs-choice-wrong-fill, var(--gs-color-surface));
+  border-style: dashed;
+  border-width: var(--gs-stroke-selected);
+  border-color: var(--gs-choice-wrong-edge, var(--gs-color-negative-solid));
+  color: var(--gs-choice-wrong-ink, var(--gs-color-negative-solid));
+  box-shadow: var(--gs-depth-flat);
+}
+.gs-choice__option[data-gs-state='wrong'] .gs-choice__label {
+  text-decoration: line-through;
+  text-decoration-thickness: var(--gs-stroke-ui);
+}
+
+/* A wrong answer shakes (specimen 4b: "motion.shake 400ms, ±6px, 3 cycles ·
+   reduced-motion: dashed only"). The option already carries
+   data-gs-animates="motion", so reduced motion zeroes this duration and the
+   shake does not happen; the dashed stroke, the cross and the strikethrough are
+   what is left, which is what the design asks for. The keyframe ends where it
+   started and takes the default fill-mode, so an instant run leaves the option
+   sitting exactly where it belongs. */
+.gs-choice__option[data-gs-state='wrong'] {
+  animation: gs-choice-shake var(--gs-motion-shake) var(--gs-motion-ease-shake);
+}
+
+@keyframes gs-choice-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
+/* Rewarded is a ring and a glow around the control, never a fill (BDS-012).
+   `depth.reward` is both in one token: a gap ring in the background colour, the
+   gold ring, then the glow.
+
+   This used to fill the control with `color.reward` and switch the ink, which
+   made it the same drawing as `correct` with a different hue. A reward then read
+   as a second kind of right answer rather than as something won, and the fill
+   also took the option's own colour away, which is what the design keeps: a
+   normal control, ringed. The text is unchanged for the same reason BDS-012
+   says so: the row already changes stroke and glyph, and a third change to the
+   words would be the only result state that alters what it says. The outline
+   stays in edge: 1e draws it gold in base and 2b draws it edge in arcade, and
+   the control has one outline token. */
+.gs-choice__option[data-gs-state='rewarded'] {
+  box-shadow: var(--gs-depth-reward);
+  /* The ring, the glow and the badge all extend past the control's own box, and
+     the options are siblings in a grid, so without this the neighbour painted
+     after it covers them. Lifting the option rather than the badge lifts all
+     three together. */
+  z-index: 1;
+}
+
+/* Outside the corner, not inside it: 12px up and 8px out, as 1e draws it.
+   Inside, the amount is another line of text competing with the label;
+   outside, it reads as something that arrived. The option is the positioned
+   ancestor and `.gs-choice` sets no overflow, so nothing clips it. A figure,
+   because it is a number in the display face. */
+.gs-choice__reward {
+  position: absolute;
+  top: calc(-1 * var(--gs-space-3));
+  right: calc(-1 * var(--gs-space-2));
+  padding: var(--gs-space-1) var(--gs-space-2);
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  line-height: 1;
+  color: var(--gs-color-on-bright);
+  background: var(--gs-color-reward);
+  border-radius: var(--gs-radius-full);
+  /* Emphasis, not motion: this duration survives reduced motion on purpose, and
+     the badge is the only place the amount is drawn. */
+  transition: opacity var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-choice__option[data-gs-locked='true'] { cursor: not-allowed; }
+
+/* Locked keeps its shape and shows a padlock. Only disabled goes flat: the
+   disabled fill, the disabled ink, and an outline that keeps the geometry
+   without drawing (1e draws it transparent). */
+.gs-choice__option[data-gs-disabled='true'] {
+  background: var(--gs-choice-disabled-fill, var(--gs-color-disabled));
+  color: var(--gs-choice-disabled-ink, var(--gs-color-disabled-ink));
+  border-color: transparent;
+  box-shadow: var(--gs-depth-flat);
+  cursor: not-allowed;
+}
+
+.gs-choice__label  {
+  font: inherit;
+  /* The option is a flex column, so its label is a flex item and stops
+     shrinking at its longest word. A driver's name is one word. */
+  min-inline-size: 0;
+  max-inline-size: 100%;
+
+  /* A word is never broken in half (GSUI-235). This was
+     `overflow-wrap: anywhere`, and in the `cards` presentation at 390 it drew
+     the demo's first answer as "Verstap / pen": the card is a 148px column,
+     the label's content box 110, and "Verstappen" a 149px run. The buttons
+     grid escapes that only because the container query above drops it to one
+     column first, and cards is auto-fit with no such rule behind it.
+
+     `normal` keeps the break between words and cuts a word that cannot fit
+     with an ellipsis. The text itself is untouched, so the option's accessible
+     name still carries the whole word. Half a name with nothing to say it is
+     half is an answer to be guessed at; "Versta…" says there is more. A
+     smaller type step would beat both and has no token, which is GSUI-227. */
+  overflow-wrap: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  /* Label fit, GSUI-281. The label fills its option's width, because that is
+     the box it is fitted to; as a flex item it would otherwise be only as wide
+     as its own text and every label would appear to fit. The group decides the
+     size (--gs-label-scale) and the line count (--gs-label-lines) once it has
+     measured; past the line count the text ends in an ellipsis. Under
+     `uniform`, --gs-label-block reserves that many lines on every label, so a
+     one-line name and a two-line name start at the same height. */
+  align-self: stretch;
+  /* The clamp below needs display: -webkit-box, and a -webkit-box sizes itself
+     for its whole text on one line: a long name then widened its card past the
+     phone (517px at 390). Its width comes from the option, never its text. */
+  contain: inline-size;
+  font-size: calc(1em * var(--gs-label-scale, 1));
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--gs-label-lines, 2);
+  line-clamp: var(--gs-label-lines, 2);
+  min-block-size: calc(var(--gs-label-block, 0) * 1lh);
+}
+/* One line, cut with an ellipsis. */
+.gs-choice[data-gs-label-fit='truncate'] .gs-choice__label {
+  display: block;
+  white-space: nowrap;
+}
+.gs-choice__detail {
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  letter-spacing: var(--gs-type-label-letter-spacing);
+  color: var(--gs-color-ink-secondary);
+  text-transform: none;
+}
+
+/* The key in the tile's corner, specimen 1h: A, B, C, D on a raised square in
+   the display face, and the place the tick or the cross lands once the option
+   settles. The drawing draws it at 28px with 9px corners; the nearest tokens
+   are the 24px control icon and the 12px small radius, and design/twins/1h
+   carries both gaps as a token request. */
+.gs-choice__key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--gs-size-icon-control);
+  height: var(--gs-size-icon-control);
+  border-radius: var(--gs-radius-sm);
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  line-height: 1;
+  color: inherit;
+  background: var(--gs-color-surface-raised);
+  /* Emphasis, not motion: the key's fill is how a colour-blind player reads the
+     result, so it survives reduced motion. */
+  transition: background-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* Under the interactive fill the key is a lighter square of the same ink. */
+.gs-choice__option[data-gs-committed='true'] .gs-choice__key {
+  background: color-mix(in oklch, currentColor 25%, transparent);
+}
+
+/* The tick sits on a bright disc in the positive ink; the cross on a negative
+   disc in the accent ink. Fill and glyph together, so neither is the only
+   signal. */
+.gs-choice__option[data-gs-state='correct'] .gs-choice__key {
+  background: var(--gs-color-on-bright);
+  color: var(--gs-color-positive-solid);
+}
+.gs-choice__option[data-gs-state='wrong'] .gs-choice__key {
+  background: var(--gs-color-negative-solid);
+  color: var(--gs-color-on-accent);
+}
+
+/* An option carrying a mark in its corner has to stop its text short of it.
+   The mark is absolutely positioned so that arriving at settlement does not
+   reflow the label, which means the label does not know it is there and a long
+   one runs underneath: measured on the lab, "Verstappen" overlapped the tick by
+   15px.
+
+   It was always this way and the text glyphs hid it, because a character inks
+   about seven tenths of its em box and leaves the rest as sidebearing, while a
+   drawn mark fills the box it is given. Reserving the mark's own size plus the
+   offset it sits at is the fix either way. :has rather than a state selector, so
+   this cannot drift out of step with which states carry a mark. A mark inside
+   the key takes no corner, so only a direct child counts. */
+.gs-choice__option:has(> .gs-choice__glyph) {
+  padding-inline-end: calc(var(--gs-size-icon-control) + var(--gs-space-2) * 2);
+}
+
+.gs-choice__glyph {
+  position: absolute;
+  top: var(--gs-space-2);
+  right: var(--gs-space-2);
+  font-size: var(--gs-size-icon-control);
+  line-height: 1;
+  /* Emphasis, not motion: this duration survives reduced motion on purpose. */
+  transition: opacity var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* Inside the key the mark is the key's own size and sits where the letter did. */
+.gs-choice__key .gs-choice__glyph {
+  position: static;
+  display: inline-flex;
+  font-size: inherit;
+}
+
+/* Where the commit control goes, whoever renders it: across the grid, under
+   the options. This is the only rule a host's own control inherits, because
+   placement is Choice's business and paint is not. */
+.gs-choice__commit {
+  grid-column: 1 / -1;
+}
+
+/* What Choice's own control looks like. A host that takes the control over
+   brings its own face, usually the library's Button, and two sets of paint on
+   one element is how a control ends up with two backgrounds and two shelves. */
+.gs-choice__commit--default {
+  min-height: var(--gs-size-action);
+  color: var(--gs-color-on-accent);
+  background: var(--gs-color-interactive);
+  border: var(--gs-stroke-control, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+  box-shadow: var(--gs-depth-pressable);
+  cursor: pointer;
+  transition: transform var(--gs-motion-press) var(--gs-motion-ease-press), box-shadow var(--gs-motion-press) var(--gs-motion-ease-press);
+}
+
+/* The offset base collapses and the control travels down by the same amount, so
+   the face lands where the base was. */
+.gs-choice__commit--default:active { transform: var(--gs-press-transform); box-shadow: var(--gs-depth-pressable-pressed); }
+.gs-choice__commit--default:focus-visible { outline: var(--gs-stroke-focus) solid var(--gs-color-ink); outline-offset: 3px; }

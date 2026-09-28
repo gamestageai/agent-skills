@@ -1,0 +1,122 @@
+/* Streak. Every value comes from a token; nothing here is a literal colour.
+   The number, its label and its change are stat's; this file lays out the pill
+   and the rising mark, and nothing else. */
+
+/* The mark belongs inside the pill.
+
+   It is a sibling of the stat in the DOM, deliberately: stat renders a glyph of
+   its own when a value turns critical, and keeping the mark outside is what
+   stops a test reaching for one and finding the other. Left to itself, though,
+   that DOM drew the mark floating beside the pill with nothing around it, and
+   in the game's HUD it read as an icon that had come loose.
+
+   So the streak root carries the pill and the stat inside it gives its own up.
+   One shape, both things in it, and the parts stay where the contract says.
+
+   Only when the stat is actually a pill: in the plain presentation there is no
+   shape to be inside, and drawing one here would invent a chip the host did not
+   ask for.
+
+   Specimen 3b draws the pill and design/twins/3b.json measures ours against
+   it: 52px tall (size.chip), padded at space.4, round, filled with the reward
+   colour and outlined in colour.edge at the 3px stroke, the mark and the number
+   8px apart, both in on-bright. The number is the title size, Unbounded 20/900
+   in arcade, not the stat size the other HUD numbers use. */
+.gs-streak {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gs-space-2);
+}
+
+.gs-streak:has(.gs-stat[data-gs-presentation='pill']) {
+  position: relative;
+  box-sizing: border-box;
+  min-block-size: var(--gs-size-chip);
+  padding: 0 var(--gs-space-4);
+  border: var(--gs-stroke-ui, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-reward);
+  color: var(--gs-color-on-bright);
+  /* Emphasis: the pill changes fill and size when the streak breaks, and a
+     break a player only sees if they can see animation is not a break. */
+  transition:
+    background-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis),
+    border-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* The stat inside gives up its own box: the streak root is the pill. Its ink
+   too: a critical pill paints itself in colour.ink for the timer's red fill,
+   and a critical streak is still on the reward fill, so the root's on-bright
+   is the colour that reaches the number. */
+.gs-streak:has(.gs-stat[data-gs-presentation='pill']) .gs-stat[data-gs-presentation='pill'] {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+}
+
+.gs-streak:has(.gs-stat[data-gs-presentation='pill']) .gs-stat__value {
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: normal;
+  /* The ink comes from the fill, not the page: on-bright on the reward colour,
+     muted once the streak is broken, from the root either way. */
+  color: inherit;
+}
+
+/* A broken streak is a smaller, dimmer pill: 40px tall (size.controlSmall),
+   padded at space.3, on the plain surface, the number at figure size in muted,
+   and no mark. Four differences before any colour, so it reads in greyscale. */
+.gs-streak:has(.gs-stat[data-gs-presentation='pill'][data-gs-value='0']) {
+  min-block-size: var(--gs-size-control-small);
+  padding: 0 var(--gs-space-3);
+  background: var(--gs-color-surface);
+  color: var(--gs-color-muted);
+}
+
+.gs-streak:has(.gs-stat[data-gs-presentation='pill'][data-gs-value='0']) .gs-stat__value {
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+}
+
+/* Growing pops (specimen 3d: "grow: motion.pop · sfx.streak(n)"), on the
+   token's own curve and travel: 400ms, (.2,1.4,.4,1), scale .6 → 1.12 → 1.
+   The attribute is on the root only while the pop is running, so reduced motion
+   zeroes this duration and the streak simply arrives at its new number, which
+   is the change a player who cannot see movement still reads. */
+.gs-streak[data-gs-animates='motion'] {
+  animation: gs-streak-pop var(--gs-motion-pop) var(--gs-motion-ease-pop);
+}
+
+@keyframes gs-streak-pop {
+  0% { transform: scale(0.6); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+.gs-streak__glyph {
+  display: inline-flex;
+  align-items: center;
+  /* Emphasis: colour only, no movement, so it still reads under reduced
+     motion. */
+  transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* The rising mark: the drawing builds a 16 by 14 triangle out of borders; ours
+   is the same triangle on the 16px utility icon box. */
+.gs-streak__rise {
+  display: block;
+  width: var(--gs-size-icon-utility);
+  height: var(--gs-size-icon-utility);
+}
+
+/* The delta reads in the pill's own ink. Stat colours a rising delta positive
+   green, which on the reward fill is green on yellow and does not pass;
+   the pill is already the colour of good news, so the number is on-bright. */
+.gs-streak .gs-stat__delta,
+.gs-streak .gs-stat[data-gs-delta] .gs-stat__delta {
+  color: var(--gs-color-on-bright);
+}

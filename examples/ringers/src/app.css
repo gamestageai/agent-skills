@@ -1,0 +1,390 @@
+/*
+ * Ringers over Gamestage UI's paper theme, in a monochrome demo register.
+ *
+ * Near-black on off-white, hairline edges and room around everything. The one
+ * accent is the palette's tertiary colour (Studio's "Tertiary main colour",
+ * which the client bridges to --gs-color-reward): the logo's full stop, the
+ * found counter and a found name's mark. Every colour below is a token, so a
+ * producer recolours the demo in Studio; the literals are only what shows in
+ * the moment before the palette arrives.
+ */
+
+:root {
+  --ringers-accent: var(--gs-color-reward, #E2483A);
+  --ringers-line: var(--gs-color-edge, #DCDCD8);
+}
+
+html, body, #root { height: 100%; margin: 0; }
+html, body { overscroll-behavior: none; overflow: hidden; background: var(--gs-color-background, #F7F7F5); }
+body { font-family: var(--gs-type-font-family-interface); color: var(--gs-color-ink, #111); -webkit-tap-highlight-color: transparent; }
+
+.ringers {
+  position: relative;
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-top: env(safe-area-inset-top);
+  background: var(--gs-color-background, #F7F7F5);
+  touch-action: manipulation;
+}
+.ringers-centre { display: grid; place-items: center; }
+
+/* The title and the round on one line, over a hairline. */
+.ringers-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 12px;
+  padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--ringers-line);
+}
+.ringers-title {
+  margin: 0;
+  min-width: 0;
+  font-family: var(--gs-title-font, 'IBM Plex Sans', system-ui, sans-serif);
+  font-weight: var(--gs-title-weight, 700);
+  letter-spacing: var(--gs-title-tracking, -0.03em);
+  text-transform: var(--gs-title-case, uppercase);
+  color: var(--gs-title-colour, var(--gs-color-ink));
+  font-size: 28px;
+  line-height: 1;
+}
+.ringers-round {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gs-color-ink-secondary);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Room at the foot for the floating nav and the safe area. */
+.ringers-main {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 20px 20px calc(96px + env(safe-area-inset-bottom));
+}
+
+.ringers-play { display: grid; gap: 18px; align-content: start; }
+.ringers-prompt-card {
+  padding: 18px 18px 20px;
+  background: var(--gs-color-surface, #fff);
+  border: 1px solid var(--ringers-line);
+  border-radius: var(--gs-radius-lg, 4px);
+}
+.ringers-prompt { margin: 0; font-size: 21px; line-height: 1.3; font-weight: 600; text-wrap: balance; }
+
+.ringers-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.ringers-counts { display: flex; gap: 16px; margin: 0; font-size: 15px; color: var(--gs-color-ink-secondary); font-variant-numeric: tabular-nums; }
+
+/* The found counter: four open squares that fill with the accent. */
+.ringers-found { display: flex; align-items: center; gap: 6px; margin: 0; }
+.ringers-found-word { margin-inline-end: 4px; font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.ringers-found-dot {
+  inline-size: 14px; block-size: 14px; border-radius: 2px;
+  border: 1px solid var(--gs-color-ink);
+}
+.ringers-found-dot[data-on='true'] { background: var(--ringers-accent); border-color: var(--ringers-accent); }
+
+.ringers-picked { margin: -6px 0 0; font-size: 15px; color: var(--gs-color-ink-secondary); text-align: center; font-variant-numeric: tabular-nums; }
+.ringers-resume { margin: 0; font-size: 15px; font-weight: 600; }
+
+/* Sixteen names, four by four, every card the same height whatever it holds:
+   the name on up to two lines and one short line under it. */
+.ringers {
+  --gs-choice-selected-fill: var(--gs-color-ink);
+  --gs-choice-selected-ink: var(--gs-color-surface-solid, #fff);
+  --gs-choice-selected-edge: var(--gs-color-ink);
+  --gs-choice-correct-fill: var(--gs-color-ink);
+  --gs-choice-correct-ink: var(--gs-color-surface-solid, #fff);
+  --gs-choice-wrong-fill: transparent;
+  --gs-choice-wrong-ink: var(--gs-color-muted);
+  --gs-choice-wrong-edge: var(--ringers-line);
+  --gs-choice-disabled-fill: transparent;
+  --gs-choice-disabled-ink: var(--gs-color-muted);
+}
+.ringers .gs-choice[data-gs-presentation='cards'] {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.ringers .gs-choice[data-gs-presentation='cards'] > :not(.gs-choice__option) { grid-column: 1 / -1; }
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option {
+  min-block-size: 72px;
+  padding: 10px 8px;
+  align-content: center;
+  text-align: center;
+  justify-items: center;
+}
+.ringers .gs-choice__label { font-size: 15px; line-height: 1.2; hyphens: manual; overflow-wrap: normal; }
+.ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__detail {
+  font-size: 12px; line-height: 16px; block-size: 16px; letter-spacing: .08em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* The question is the prompt card's; Choice's own is for a screen reader. */
+.ringers .gs-choice__question { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+/* A selected card is ink with a check; no card grows when it is picked. */
+.ringers .gs-choice__option[data-gs-selected='true'] { --gs-choice-grow: 0px; box-shadow: 0 0 0 2px var(--gs-color-ink); }
+
+/* The marker a found or missed card carries: a found name is outlined in ink
+   with the accent square; a missed one steps back to a dashed hairline. */
+.ringers .gs-choice__media:has(.ringers-mark) { position: absolute; inset-block-start: 6px; inset-inline-start: 6px; }
+.ringers-mark { display: block; inline-size: 8px; block-size: 8px; border-radius: 1px; }
+.ringers-mark[data-mark='found'] { background: var(--ringers-accent); }
+.ringers .gs-choice__option:has(.ringers-mark[data-mark='found']) {
+  opacity: 1; border: 1px solid var(--gs-color-ink); color: var(--gs-color-ink); background: var(--gs-color-surface, #fff);
+}
+.ringers .gs-choice__option:has(.ringers-mark[data-mark='found']) .gs-choice__label,
+.ringers .gs-choice__option:has(.ringers-mark[data-mark='found']) .gs-choice__detail { color: var(--gs-color-ink); opacity: 1; }
+.ringers .gs-choice__option:has(.ringers-mark[data-mark='found']) .gs-choice__detail { color: var(--ringers-accent); font-weight: 700; }
+.ringers .gs-choice__option:has(.ringers-mark[data-mark='missed']) { border: 1px dashed var(--ringers-line); opacity: 1; }
+.ringers .gs-choice__option:has(.ringers-mark[data-mark='missed']) .gs-choice__label { color: var(--gs-color-muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+
+/* The finished board: found names in ink with the accent tick, missed ones struck. */
+.ringers .ringers-result .gs-choice__option[data-gs-state='correct'] .gs-choice__glyph { color: var(--ringers-accent); }
+.ringers .ringers-result .gs-choice__option[data-gs-state='wrong'] .gs-choice__label { text-decoration: line-through; text-decoration-thickness: 1px; }
+.ringers .ringers-result .gs-choice__option:not([data-gs-state]) .gs-choice__glyph { display: none; }
+
+/* Lock in, full width under the board. */
+.ringers .ringers-play .gs-choice [data-gs-part='commit'] { inline-size: 100%; }
+
+.ringers-result {
+  display: grid; gap: 14px; padding: 20px;
+  background: var(--gs-color-surface, #fff);
+  border: 1px solid var(--ringers-line);
+  border-radius: var(--gs-radius-lg, 4px);
+}
+.ringers-result p { margin: 0; font-size: 17px; }
+.ringers-heading { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+.ringers-points {
+  font-family: var(--gs-type-font-family-display); font-size: 48px !important; line-height: 1; font-variant-numeric: tabular-nums;
+}
+/* Play next is the intro screen's own Play button (.gs-play), written by the
+   deploy with the splash, so the two are one button. */
+.ringers-next { position: sticky; bottom: 8px; z-index: 2; padding-top: 4px; }
+.ringers-next .gs-play { inline-size: 100%; }
+.ringers-actions { display: grid; }
+
+/* Leaderboard and Profile. */
+.ringers-panel { display: grid; gap: 16px; align-content: start; }
+.ringers-me { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ringers-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.ringers-stats div { border: 1px solid var(--ringers-line); border-radius: var(--gs-radius-lg, 4px); padding: 12px 14px; background: var(--gs-color-surface, #fff); }
+.ringers-stats dt { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--gs-color-ink-secondary); }
+.ringers-stats dd { margin: 6px 0 0; font-family: var(--gs-type-font-family-display); font-size: 34px; line-height: 1; }
+.ringers-card { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--ringers-line); border-radius: var(--gs-radius-lg, 4px); background: var(--gs-color-surface, #fff); }
+.ringers-card h3 { margin: 0; font-size: 18px; }
+.ringers-card p { margin: 0; font-size: 17px; line-height: 1.45; }
+.ringers-code { font-family: var(--gs-type-font-family-display); font-size: 30px !important; letter-spacing: .06em; word-break: break-word; }
+.ringers-note { font-size: 15px !important; color: var(--gs-color-ink-secondary); }
+.ringers-field { display: grid; gap: 6px; font-size: 15px; }
+.ringers-field input, .ringers-field select {
+  font: inherit; font-size: 17px; padding: 12px; border-radius: var(--gs-radius-md, 3px);
+  border: 1px solid var(--gs-color-edge-high, #aaa); background: var(--gs-color-surface, #fff); color: var(--gs-color-ink);
+}
+.ringers-field-label { margin: 4px 0 0; font-size: 15px; }
+.ringers-you { display: grid; gap: 12px; }
+.ringers-you-preview { display: flex; align-items: center; gap: 12px; }
+.ringers-you-preview img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 1px solid var(--ringers-line); }
+.ringers-you-preview strong { font-size: 20px; }
+.ringers-you-names { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ringers-avatars { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 8px; }
+.ringers-avatar { aspect-ratio: 1; width: 100%; padding: 0; border-radius: 50%; overflow: hidden; border: 2px solid transparent; background: var(--gs-color-surface, #fff); cursor: pointer; }
+.ringers-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ringers-avatar[aria-checked='true'] { border-color: var(--gs-color-ink); }
+.ringers .ringers-you-sheet .gs-sheet__panel { max-height: 92%; }
+
+/* How to play, as a full-screen story on paper. */
+.ringers-stories { position: fixed; inset: 0; z-index: 30; background: var(--gs-color-background, #F7F7F5); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.ringers-stories .gs-story { height: 100%; max-width: 480px; margin: 0 auto; border-radius: 0; }
+.ringers-stories .gs-media-frame { aspect-ratio: auto; height: 100%; border: 0; border-radius: 0; }
+.ringers-stories .gs-story__steps { position: absolute; inline-size: 1px; block-size: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.ringers-stories .gs-story__steps:focus-within {
+  inset-inline: 0; inset-block-end: 16px; inline-size: auto; block-size: auto; overflow: visible; clip-path: none;
+  display: flex; justify-content: space-between; padding-inline: 16px; z-index: 3;
+}
+.ringers-frame {
+  height: 100%; display: grid; align-content: center; gap: 14px; padding: 96px 28px 72px;
+  background: var(--gs-color-background, #F7F7F5); color: var(--gs-color-ink);
+}
+.ringers-frame-count { margin: 0; font-family: var(--gs-type-font-family-display); font-size: 64px; line-height: 1; color: var(--ringers-accent); }
+.ringers-frame-title { margin: 0; font-size: 34px; line-height: 1.05; letter-spacing: -0.02em; }
+.ringers-frame-body { margin: 0; font-size: 20px; line-height: 1.4; color: var(--gs-color-ink-secondary); }
+.ringers-frame-actions { position: relative; z-index: 3; display: grid; margin-top: 8px; }
+
+.ringers-spinner {
+  width: 32px; height: 32px; border-radius: 50%; margin: 24px auto; display: block;
+  border: 3px solid var(--ringers-line); border-top-color: var(--gs-color-ink);
+  animation: ringers-spin .8s linear infinite;
+}
+@keyframes ringers-spin { to { transform: rotate(360deg) } }
+@media (prefers-reduced-motion: reduce) { .ringers-spinner { animation: none; } }
+.ringers-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+
+/* A short phone: tighter, so the board and Lock in fit without scrolling far. */
+@media (max-height: 700px) {
+  .ringers-top { padding: 12px 16px 10px; }
+  .ringers-title { font-size: 24px; }
+  .ringers-main { padding-inline: 16px; padding-top: 14px; }
+  .ringers-play { gap: 12px; }
+  .ringers-prompt { font-size: 18px; }
+  .ringers-prompt-card { padding: 14px; }
+  .ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option { min-block-size: 60px; padding: 8px 4px; }
+}
+@media (max-width: 380px) {
+  .ringers .gs-choice[data-gs-presentation='cards'] { gap: 6px; }
+  .ringers .gs-choice__label { font-size: 14px; }
+}
+
+@media (min-width: 720px) {
+  body { background: var(--gs-color-background, #F7F7F5); }
+  .ringers { box-shadow: 0 0 0 1px var(--ringers-line); }
+}
+
+/* The prompt card's first line is the game's strapline, quieter than the question
+   under it: sentence case, regular weight, secondary ink. */
+.ringers-strapline { margin: 0 0 10px; font-size: 17px; font-weight: 400; line-height: 1.4; letter-spacing: normal; text-transform: none; color: var(--gs-color-ink-secondary); }
+
+/* Offline: one line under the header, in ink, until the connection is back. */
+.ringers-offline {
+  position: absolute; inset-inline: 0; top: calc(env(safe-area-inset-top) + 62px); z-index: 5;
+  margin: 0; padding: 10px 20px; font-size: 15px; background: var(--gs-color-ink); color: var(--gs-color-surface-solid, #fff);
+}
+
+/* Lock in is a real disabled button until a name is picked: an outline, not ink. */
+.ringers .ringers-play .gs-button[disabled],
+.ringers .ringers-play .gs-button[disabled]:hover {
+  background: transparent;
+  color: var(--gs-color-muted);
+  box-shadow: inset 0 0 0 1px var(--ringers-line);
+  filter: none;
+}
+
+/* Names get the card's whole width: the check sits in the top corner, above
+   the name, rather than taking a column beside it. 16 names at 14px or more,
+   whole, at 360 and 390. */
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option,
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option:has(> .gs-choice__glyph) {
+  padding: 16px 5px 8px;
+}
+.ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__glyph { top: 3px; right: 3px; font-size: 14px; }
+
+/* The finished round lists what was found, in ink, instead of redrawing the board. */
+.ringers-found-list { font-weight: 600; font-size: 17px !important; line-height: 1.4; }
+
+
+/* Your own row on the leaderboard in ink, not the theme's player blue. */
+.ringers { --gs-color-player: var(--gs-color-ink); --gs-color-player-solid: var(--gs-color-ink); }
+
+/* Four across is tight for a long surname: 14px, a hair of negative tracking,
+   3px side insets and a 6px gap, so "Ferdinand" and "Fernandes" fit whole at 360. */
+.ringers .gs-choice[data-gs-presentation='cards'] { gap: 6px; }
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option,
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option:has(> .gs-choice__glyph) { padding: 16px 3px 8px; }
+.ringers .gs-choice__label { font-size: 14px; letter-spacing: -0.01em; }
+
+/* Every tile one height, whatever it holds: up to two lines of name and one
+   tag, the tag short, in its own tile and never over the next. Tom, 2026-09-28:
+   "PLAYED FOR THEM" ran across four tiles and past the board. */
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option {
+  block-size: 76px; min-block-size: 76px; max-block-size: 76px;
+  overflow: hidden; min-inline-size: 0;
+}
+.ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__detail {
+  max-inline-size: 100%; font-size: 14px; line-height: 18px; block-size: 18px;
+  letter-spacing: .02em; text-transform: none; font-weight: 600;
+}
+@media (max-height: 700px) {
+  .ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option { block-size: 68px; min-block-size: 68px; max-block-size: 68px; }
+}
+/* The mark's holder is only as big as the mark, so it never reaches past a short tile. */
+.ringers .gs-choice__media:has(.ringers-mark) { inline-size: 8px; block-size: 8px; aspect-ratio: auto; margin: 0; padding: 0; overflow: visible; }
+
+/* The layer the toast places itself in: just under the header, no height of
+   its own, above the board. */
+.ringers-toast-layer { position: absolute; inset-inline: 0; top: calc(env(safe-area-inset-top) + 64px); block-size: 0; z-index: 6; }
+
+/* The fan's own clock, in the counts row; the accent when 30 seconds are left. */
+.ringers-clock b { color: var(--gs-color-ink); font-variant-numeric: tabular-nums; }
+.ringers-clock[data-low='true'] b { color: var(--ringers-accent); }
+
+/* Room for two lines of name and the tag, laid from the top so nothing is
+   clipped at either edge: 14 + 2 x 17 + 6 + 18 + 8. */
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option,
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option:has(> .gs-choice__glyph) {
+  block-size: 84px; min-block-size: 84px; max-block-size: 84px;
+  padding: 14px 3px 8px; align-content: start; row-gap: 6px;
+}
+.ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__detail { text-align: center; justify-self: center; }
+@media (max-height: 700px) {
+  .ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option { block-size: 84px; min-block-size: 84px; max-block-size: 84px; }
+}
+
+/* The four slots: what the round wants found, four across. A found name in ink
+   with the accent tick, a missed one greyed and crossed once the round is
+   over, an open one a quiet figure. */
+.ringers-meta { display: grid; gap: 12px; }
+.ringers-slots { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin: 0; }
+.ringers-slot {
+  display: grid; justify-items: center; align-content: center; gap: 4px;
+  min-block-size: 56px; padding: 8px 4px; text-align: center;
+  border: 1px solid var(--ringers-line); border-radius: var(--gs-radius-lg, 4px);
+  background: var(--gs-color-surface, #fff);
+}
+.ringers-slot-mark { display: grid; place-items: center; inline-size: 20px; block-size: 20px; font-size: 14px; font-weight: 700; color: var(--gs-color-muted); }
+.ringers-slot-mark svg { inline-size: 18px; block-size: 18px; }
+.ringers-slot-name { font-size: 14px; line-height: 17px; font-weight: 600; overflow-wrap: normal; hyphens: manual; }
+.ringers-slot[data-kind='found'] { border-color: var(--gs-color-ink); }
+.ringers-slot[data-kind='found'] .ringers-slot-mark { color: var(--ringers-accent); }
+.ringers-slot[data-kind='missed'] { border-style: dashed; }
+.ringers-slot[data-kind='missed'] .ringers-slot-name { color: var(--gs-color-muted); }
+.ringers-slot[data-kind='open'] { border-style: dashed; background: transparent; }
+
+/* The end card on one rhythm: 24px inside, 24px between each part, 32px
+   before the two buttons, which share one shape and one height. */
+.ringers-result { padding: 24px; gap: 24px; }
+.ringers-result > p { margin: 0; }
+.ringers-result .ringers-heading { line-height: 1.15; }
+.ringers-end-actions { display: grid; gap: 12px; margin-top: 8px; }
+.ringers-end-actions .gs-button { inline-size: 100%; }
+
+/* Every tile on one axis, in every state: the marker, the name, the tag,
+   stacked and centred, the tag a fixed 4px under the name. Tom, 2026-09-28. */
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option,
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option:has(> .gs-choice__glyph) {
+  display: grid; grid-template-columns: minmax(0, 1fr); justify-items: stretch; align-content: center; row-gap: 4px; padding: 10px 3px;
+}
+.ringers .gs-choice__media:has(.ringers-mark) { position: static; inset: auto; justify-self: center; }
+.ringers .gs-choice__label, .ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__detail { justify-self: stretch; inline-size: 100%; text-align: center; }
+.ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__detail[data-gs-empty] { display: none; }
+
+/* The podium in the monochrome theme: round avatars, one border for every
+   block, and rank and score in one family, the score readable. You are
+   marked by your name, as the list marks you, not by a different block. */
+.ringers .gs-podium, .ringers .gs-leaderboard { --gs-radius-full: 999px; }
+.ringers .gs-podium__row .gs-podium__block,
+.ringers .gs-podium__row[data-gs-you='true'] .gs-podium__block { border: 1px solid var(--ringers-line); box-shadow: none; }
+.ringers .gs-podium__rank,
+.ringers .gs-podium [data-gs-component='stat'][data-gs-stat='score'] .gs-stat__value {
+  font-family: var(--gs-type-font-family-interface); font-variant-numeric: tabular-nums;
+}
+.ringers .gs-podium__rank { font-size: 15px; font-weight: 600; color: var(--gs-color-ink-secondary); }
+.ringers .gs-podium__row[data-gs-place='1'] .gs-podium__rank,
+.ringers .gs-podium__row[data-gs-place='3'] .gs-podium__rank { color: var(--gs-color-ink-secondary); }
+.ringers .gs-podium [data-gs-component='stat'][data-gs-stat='score'] .gs-stat__value { font-size: 22px; font-weight: 700; color: var(--gs-color-ink); }
+/* The library leaves room on the right of a card's line for its check; here the
+   check sits in the corner, so the tag and the name are centred on the tile. */
+.ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__detail,
+.ringers .gs-choice[data-gs-presentation='cards'] .gs-choice__label { padding-inline: 0; }
+/* Room for the marker, two lines of name and the tag inside the padding:
+   8 + 4 + 34 + 4 + 18 + 20 + 2. */
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option,
+.ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option:has(> .gs-choice__glyph) { block-size: 92px; min-block-size: 92px; max-block-size: 92px; }
+@media (max-height: 700px) {
+  .ringers .gs-choice[data-gs-presentation='cards'] > .gs-choice__option { block-size: 92px; min-block-size: 92px; max-block-size: 92px; }
+}

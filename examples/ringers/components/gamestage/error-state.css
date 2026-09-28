@@ -1,0 +1,218 @@
+/* Error state. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 4e draws three failures and design/twins/4e.json measures ours
+   against them: "Offline" and "Game over" as centred cards on the surface,
+   and "Couldn't submit" as a row where the submit happened, dashed in the
+   negative colour the way a wrong answer is. */
+
+.gs-error-state {
+  color: var(--gs-color-ink);
+  background: var(--gs-color-surface);
+}
+
+/* The failed surface, as a card. Centred, because nothing else on the surface
+   worked and there is nothing for it to sit beside. */
+.gs-error-state--panel {
+  display: block;
+  padding: var(--gs-space-inset);
+  text-align: center;
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+}
+
+.gs-error-state--panel .gs-error-state__body { margin-inline: auto; }
+.gs-error-state--panel .gs-error-state__actions { justify-content: center; }
+
+/* The drawing draws no mark on the cards: the heading is the mark. */
+.gs-error-state--panel .gs-error-state__glyph {
+  display: none;
+}
+
+/* The failure that happened here, as a row. Dashed edge rather than a fill, the
+   same language a wrong answer uses, and never a modal: a modal takes the game
+   away to report that part of it is unavailable. The drawing draws the row
+   52px tall; nothing here sets a height, the 44px control inside it does. */
+.gs-error-state--inline {
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-gap);
+  padding: 0 var(--gs-space-3);
+  border: var(--gs-stroke-ui) dashed var(--gs-color-negative-solid);
+  border-radius: var(--gs-radius-md);
+  /* The drawing's row is one line and a 320px phone is not the drawing. A
+     glyph, "That code has expired" and a button reading "Enter another code"
+     need 389px, so on a narrow screen the row was 69px wider than the box it
+     is drawn in and the way out of the error was the part hanging off the
+     edge. Wrapping keeps the control reachable; the row is still one line
+     wherever there is room for one. */
+  flex-wrap: wrap;
+  padding-block: var(--gs-space-1);
+}
+
+.gs-error-state--inline .gs-error-state__words { flex: 1 1 auto; min-width: 0; }
+
+/* A filled disc with the cross knocked out of it, rather than a coloured
+   outline. `--gs-color-negative` is a gradient in the arcade theme, so a rule
+   that puts it in `color` or `border-color` is dropped by the browser and the
+   mark silently turns the colour of the text around it. As a background it is
+   valid in every theme, and the cross takes the on-accent ink.
+
+   The cause is a glyph and a word before it is a colour either way: a player
+   who cannot tell this disc from the surface still reads "Could not submit". */
+.gs-error-state__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+
+  width: var(--gs-size-icon-control);
+  height: var(--gs-size-icon-control);
+
+  color: var(--gs-color-on-accent);
+  background: var(--gs-color-negative);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+}
+
+.gs-error-state__glyph svg {
+  width: var(--gs-size-icon-utility);
+  height: var(--gs-size-icon-utility);
+}
+
+/* The heading of a card: the display face, heavy, in capitals. The drawing
+   sets it at 15px; type.title is the heading token and is 20. */
+.gs-error-state__label {
+  margin: 0;
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: var(--gs-type-title-line-height);
+  text-transform: uppercase;
+  color: var(--gs-color-ink);
+}
+
+/* A game that has ended is not shouting: the drawing dims its heading to the
+   secondary ink, because the news is old. */
+.gs-error-state[data-gs-error='expired'] .gs-error-state__label {
+  color: var(--gs-color-ink-secondary);
+}
+
+/* In the row the words are one line in the caption size, sentence case. */
+.gs-error-state--inline .gs-error-state__label {
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  text-transform: none;
+}
+
+/* What was lost and what was not, in the caption size and the secondary ink,
+   with the drawing's 6 above and 10 below. */
+.gs-error-state__body {
+  margin: var(--gs-space-1) 0 var(--gs-space-2);
+  max-width: 34ch;
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-error-state__actions {
+  display: flex;
+  /* Not `flex: none`. A control that refuses to shrink is right until the
+     control is wider than the screen: "Enter another code" is 260px and an
+     inline error on a 320px phone is 238px wide, so the button that clears
+     the error hung 37px off the end of it. It shrinks to the room there is
+     and its label wraps inside it. */
+  flex: 0 1 auto;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  gap: var(--gs-space-2);
+}
+
+.gs-error-state__actions > * {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  white-space: normal;
+}
+
+/* In the accessible name, not on screen. The cause is a word rather than a red
+   edge, which is the rule a colour-blind player depends on. */
+.gs-error-state__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}
+
+/* -- banner: the strip over a game that is still running -------------------
+
+   Specimen 4e's first card. A 44px strip at radius 12, filled warning with
+   the on-bright ink and the same 3px edge as everything else, led by a small
+   disc that pulses while the socket is down. It is the only one of the three
+   that is not reporting a finished failure: the game is still on screen
+   behind it, and the words say what is being done and what is safe. */
+.gs-error-state--banner {
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-gap);
+  min-block-size: var(--gs-size-control-medium);
+  padding: var(--gs-space-1) var(--gs-space-3);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-sm);
+  background: var(--gs-color-warning);
+  color: var(--gs-color-on-bright);
+  /* The drawing's strip is one line and a 320px phone is not the drawing.
+     Same answer as the inline row: the words wrap inside the strip rather
+     than the strip growing past the screen it is pinned across. */
+  flex-wrap: wrap;
+}
+
+/* The words take the ink the strip sets rather than the ink token, because
+   the fill is a bright one and the label rule above paints in colour.ink.
+
+   type.label rather than the inline row's type.caption. The drawing sets the
+   strip at DM Sans 800 13px, and arcade's label is 12px at 800 against the
+   caption's 11px at 600: nearer on both size and weight. It is also the right
+   reading of what this is. The inline row reports a failure that has already
+   happened and can wait to be read; the banner is the loudest thing on screen
+   while the game is still running behind it, and 11px at 600 is the quietest
+   type the library has.
+
+   The face and weight only: arcade's label token also carries uppercase and
+   0.06em of tracking, and the drawing sets this sentence in sentence case. */
+.gs-error-state--banner .gs-error-state__label {
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  letter-spacing: normal;
+  text-transform: none;
+  color: inherit;
+}
+
+.gs-error-state--banner .gs-error-state__body {
+  color: inherit;
+}
+
+.gs-error-state--banner .gs-error-state__words {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+/* The beat. A disc in the strip's own ink, at space.2: the drawing's 10px has
+   no token, and 8px is the nearest one that is not the 16px icon size. */
+.gs-error-state__pulse {
+  flex: none;
+  inline-size: var(--gs-space-2);
+  block-size: var(--gs-space-2);
+  border-radius: var(--gs-radius-full);
+  background: currentColor;
+}

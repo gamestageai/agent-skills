@@ -98,5 +98,9 @@
   "display_name": "Full Time Bingo",
   "play_button_label": "Lock this board",
   "how_to_play": "You are dealt a few boards from a bigger pool. Look through them and lock in the one you fancy. Nothing is right or wrong yet: as the results come in, the cards on your board fill and every line scores.",
-  "primary_colour": "#E2483A"
+  "primary_colour": "#E2483A",
+  "consent_detail": "{brand} would like to record analytics on how you play, so we can improve the game. We only do this if you agree. Data needed to run the game, such as your scores, is processed on the basis of legitimate interests.",
+  "consent_accept_label": "Accept",
+  "consent_reject_label": "Reject",
+  "consent_choose_label": "Manage preferences"
 }

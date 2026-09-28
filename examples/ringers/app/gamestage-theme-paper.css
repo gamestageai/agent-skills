@@ -1,0 +1,112 @@
+/* Generated from themes/paper.json. Do not edit; run pnpm tokens:build.
+   The paper theme on its own, for a consumer installing @gamestage/theme-paper.
+   Needs gamestage-tokens.css for the values it does not override, and its own
+   font item for the families it names. */
+
+@layer gs.base, gs.context, gs.theme;
+
+@layer gs.theme {
+  [data-gs-theme="paper"] {
+  --gs-type-font-family-interface: 'IBM Plex Sans', system-ui, sans-serif;
+  --gs-type-font-family-display: 'Instrument Serif', Georgia, serif;
+  --gs-type-action-font-family: var(--gs-type-font-family-interface);
+  --gs-type-action-font-size: 17px;
+  --gs-type-action-font-weight: 600;
+  --gs-type-action-letter-spacing: 0.02em;
+  --gs-type-display-font-family: var(--gs-type-font-family-display);
+  --gs-type-display-font-size: 60px;
+  --gs-type-display-font-weight: 400;
+  --gs-type-display-letter-spacing: 0em;
+  --gs-type-score-font-family: var(--gs-type-font-family-display);
+  --gs-type-score-font-size: 40px;
+  --gs-type-score-font-weight: 400;
+  --gs-type-score-font-variant-numeric: tabular-nums;
+  --gs-type-label-font-family: var(--gs-type-font-family-interface);
+  --gs-type-label-font-size: 13px;
+  --gs-type-label-font-weight: 600;
+  --gs-type-label-letter-spacing: 0.10em;
+  --gs-radius-sm: 2px;
+  --gs-radius-md: 3px;
+  --gs-radius-lg: 4px;
+  --gs-radius-full: 4px;
+  --gs-press-transform: scale(0.97);
+  --gs-stroke-selected: 2px;
+  --gs-stroke-focus: 2px;
+  --gs-depth-style: squeeze;
+  --gs-depth-flat: none;
+  --gs-depth-raised: 0 0 0 var(--gs-stroke-hairline) var(--gs-color-edge);
+  --gs-depth-floating: 0 0 0 var(--gs-stroke-hairline) var(--gs-color-edge), 0 10px 28px rgba(18,18,22,0.10);
+  --gs-depth-reward: 0 0 0 var(--gs-stroke-selected) var(--gs-color-reward-solid);
+  --gs-color-background: oklch(0.97 0.004 85);
+  --gs-color-background-solid: oklch(0.97 0.004 85);
+  --gs-color-surface: oklch(0.995 0.002 85);
+  --gs-color-surface-solid: oklch(0.995 0.002 85);
+  --gs-color-surface-raised: oklch(0.99 0.003 85);
+  --gs-color-surface-raised-solid: oklch(0.99 0.003 85);
+  --gs-color-edge: oklch(0.86 0.006 85);
+  --gs-color-edge-solid: oklch(0.86 0.006 85);
+  --gs-color-edge-high: oklch(0.72 0.008 85);
+  --gs-color-edge-high-solid: oklch(0.72 0.008 85);
+  --gs-color-ink: oklch(0.21 0.008 85);
+  --gs-color-ink-solid: oklch(0.21 0.008 85);
+  --gs-color-ink-secondary: oklch(0.44 0.008 85);
+  --gs-color-ink-secondary-solid: oklch(0.44 0.008 85);
+  --gs-color-muted: oklch(0.60 0.006 85);
+  --gs-color-muted-solid: oklch(0.60 0.006 85);
+  --gs-color-interactive: oklch(0.34 0.10 265);
+  --gs-color-interactive-solid: oklch(0.34 0.10 265);
+  --gs-color-interactive-hover: oklch(0.28 0.10 265);
+  --gs-color-interactive-hover-solid: oklch(0.28 0.10 265);
+  --gs-color-interactive-base: oklch(0.34 0.10 265);
+  --gs-color-interactive-base-solid: oklch(0.34 0.10 265);
+  --gs-color-selected: oklch(0.34 0.10 265);
+  --gs-color-selected-solid: oklch(0.34 0.10 265);
+  --gs-color-selected-base: oklch(0.34 0.10 265);
+  --gs-color-selected-base-solid: oklch(0.34 0.10 265);
+  --gs-color-positive: oklch(0.48 0.12 155);
+  --gs-color-positive-solid: oklch(0.48 0.12 155);
+  --gs-color-positive-base: oklch(0.48 0.12 155);
+  --gs-color-positive-base-solid: oklch(0.48 0.12 155);
+  --gs-color-negative: oklch(0.50 0.18 27);
+  --gs-color-negative-solid: oklch(0.50 0.18 27);
+  --gs-color-negative-base: oklch(0.50 0.18 27);
+  --gs-color-negative-base-solid: oklch(0.50 0.18 27);
+  --gs-color-warning: oklch(0.58 0.14 68);
+  --gs-color-warning-solid: oklch(0.58 0.14 68);
+  --gs-color-reward: oklch(0.56 0.12 80);
+  --gs-color-reward-solid: oklch(0.56 0.12 80);
+  --gs-color-reward-base: oklch(0.56 0.12 80);
+  --gs-color-reward-base-solid: oklch(0.56 0.12 80);
+  --gs-color-player: oklch(0.40 0.11 250);
+  --gs-color-player-solid: oklch(0.40 0.11 250);
+  --gs-color-opponent: oklch(0.46 0.14 20);
+  --gs-color-opponent-solid: oklch(0.46 0.14 20);
+  --gs-color-disabled: oklch(0.93 0.004 85);
+  --gs-color-disabled-solid: oklch(0.93 0.004 85);
+  --gs-color-disabled-ink: oklch(0.66 0.006 85);
+  --gs-color-disabled-ink-solid: oklch(0.66 0.006 85);
+  --gs-color-on-accent: oklch(0.98 0.003 85);
+  --gs-color-on-accent-solid: oklch(0.98 0.003 85);
+  --gs-color-on-bright: oklch(0.98 0.003 85);
+  --gs-color-on-bright-solid: oklch(0.98 0.003 85);
+  --gs-color-scrim: rgba(24,24,28,0.35);
+  --gs-color-scrim-solid: rgba(24,24,28,0.35);
+  --gs-depth-styles-offset-pressable: inset 0 1px 0 rgba(255,255,255,.3), 0 var(--gs-press-travel) 0 var(--gs-color-interactive-base);
+  --gs-depth-styles-squeeze-pressable: 0 0 0 var(--gs-stroke-control) var(--gs-color-edge);
+  --gs-depth-styles-squeeze-pressed: 0 0 0 var(--gs-stroke-selected) var(--gs-color-interactive-solid);
+  --gs-depth-styles-glow-pressable: 0 0 0 var(--gs-stroke-control) var(--gs-color-edge-high);
+  --gs-depth-styles-glow-pressed: 0 0 0 var(--gs-stroke-selected) var(--gs-color-interactive-solid);
+  --gs-depth-pressable: inset 0 1px 0 rgba(255,255,255,.3), 0 var(--gs-press-travel) 0 var(--gs-color-interactive-base);
+  --gs-depth-pressable-positive: inset 0 1px 0 rgba(255,255,255,.35), 0 var(--gs-press-travel) 0 var(--gs-color-positive-base);
+  --gs-type-body-font-family: var(--gs-type-font-family-interface);
+  --gs-type-label-font-family: var(--gs-type-font-family-interface);
+  --gs-type-caption-font-family: var(--gs-type-font-family-interface);
+  --gs-type-eyebrow-font-family: var(--gs-type-font-family-interface);
+  --gs-type-title-font-family: var(--gs-type-font-family-interface);
+  --gs-type-action-font-family: var(--gs-type-font-family-interface);
+  --gs-type-stat-font-family: var(--gs-type-font-family-display);
+  --gs-type-figure-font-family: var(--gs-type-font-family-display);
+  --gs-type-score-font-family: var(--gs-type-font-family-display);
+  --gs-type-display-font-family: var(--gs-type-font-family-display);
+  }
+}

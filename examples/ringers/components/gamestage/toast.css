@@ -1,0 +1,52 @@
+/* Toast. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 5c draws no toast; its notes say what one is: at the top of its
+   container, 44 tall, a pill, at the floating depth, for three seconds, one
+   at a time. Those are the numbers here, each from the token that carries it.
+   There is no twin pair for it because there is nothing drawn to pair. */
+
+/* Centred at the top of the nearest positioned ancestor. A transform is safe
+   for centring here because the entrance is a fade, which touches opacity and
+   nothing else. Above a sheet and a modal: a "reconnecting" has to be readable
+   over whatever is open. */
+.gs-toast {
+  position: absolute;
+  top: var(--gs-space-4);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gs-space-2);
+  height: var(--gs-size-control-medium);
+  max-width: calc(100% - 2 * var(--gs-space-4));
+  padding: 0 var(--gs-space-4);
+  white-space: nowrap;
+
+  /* Body type, not the label role. A toast is read as a sentence ("Saved. You
+     are Keen Salmon."), and the label role is 12 to 13px chrome, uppercase in
+     some themes: GS-566, Wages' font review, found toasts at 13px. */
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  color: var(--gs-color-ink);
+
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-ui, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+  box-shadow: var(--gs-depth-floating);
+}
+
+.gs-toast__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A mark from the glyph set, at the utility size, in the positive colour: a
+   tick beside Saved or Copied is the one colour a toast carries. */
+.gs-toast__glyph {
+  display: inline-flex;
+  flex: none;
+  font-size: var(--gs-size-icon-utility);
+  color: var(--gs-color-positive-solid);
+}

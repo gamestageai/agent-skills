@@ -1,0 +1,6 @@
+/* One rule, and it earns its place: the wrapper must not change the layout the
+   stat inside it already has. A block-level wrapper would stretch a score that
+   is inline-grid to the width of whatever contains it. */
+.gs-score {
+  display: inline-grid;
+}

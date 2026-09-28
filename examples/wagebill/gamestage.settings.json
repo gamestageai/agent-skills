@@ -87,5 +87,9 @@
   "display_name": "Wage Bill",
   "play_button_label": "Sign the player",
   "how_to_play": "Every pick adds a number you cannot see to your total. Get as close to the target as you dare: the closer you finish, the better you place. Go over and the round ends there.",
-  "primary_colour": "#E2483A"
+  "primary_colour": "#E2483A",
+  "consent_detail": "{brand} would like to record analytics on how you play, so we can improve the game. We only do this if you agree. Data needed to run the game, such as your scores, is processed on the basis of legitimate interests.",
+  "consent_accept_label": "Accept",
+  "consent_reject_label": "Reject",
+  "consent_choose_label": "Manage preferences"
 }

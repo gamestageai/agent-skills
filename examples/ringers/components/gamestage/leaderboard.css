@@ -1,0 +1,467 @@
+/* Leaderboard. Every value comes from a token; nothing here is a literal colour.
+
+   The numbers are specimen 3e's (the phone board) and 3f's (the broadcast
+   board), measured by design/twins/3e.json and 3f.json against the drawing
+   with scripts/twin. Where the drawing uses a value no token carries, the
+   twins file says which token stands in and why. */
+
+.gs-leaderboard {
+  display: grid;
+  /* The list is the row that gives, so a host bounding the board bounds the
+     list rather than the board overflowing its box. `minmax(0, 1fr)` rather
+     than `1fr`: a grid track's default minimum is its content, so `1fr` alone
+     refuses to shrink and the bound is ignored. That is why a board asked to
+     fit 208px rendered at 1080 and the pinned row, which only exists when the
+     list scrolls, could never appear. */
+  grid-template-rows: minmax(0, 1fr);
+  grid-auto-rows: auto;
+  min-block-size: 0;
+  /* The drawing runs one 8px gap down the whole column: row to row, row to
+     the ellipsis, ellipsis to the held row. */
+  gap: var(--gs-space-2);
+  position: relative;
+  font-family: var(--gs-type-body-font-family);
+  color: var(--gs-color-ink);
+}
+
+/* The announcement and each row's sentence are for a screen reader only. They
+   are clipped rather than hidden, because display:none is not announced. */
+.gs-leaderboard__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* The list scrolls when the host bounds it, and not otherwise.
+
+   A pinned row exists for exactly this case: the board is taller than the space
+   the host gave it and the player's own row has scrolled away. Without these two
+   lines nothing could ever scroll, so the pinned row was unreachable and the
+   demo claimed a state it could not show. min-block-size: 0 is the part people
+   miss: a grid or flex child refuses to shrink below its content without it, so
+   the bound is ignored. */
+.gs-leaderboard__list {
+  overflow-y: auto;
+  min-block-size: 0;
+}
+
+.gs-leaderboard__list,
+.gs-leaderboard__pinned {
+  display: grid;
+  gap: var(--gs-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* The held copy sits under the list and stays put while the list scrolls. */
+.gs-leaderboard__pinned {
+  position: sticky;
+  bottom: 0;
+  background: var(--gs-color-background);
+}
+
+/* -- a row ----------------------------------------------------------------- */
+/* Specimen 3e: a 52px pill-cornered box, the chip height, with a 3px outline,
+   10px between the things inside it and the score flush against a 12px right
+   inset. A flex row rather than a grid: the score is the last item, so it sits
+   at the one x every row shares, and the movement slot is always rendered so
+   the avatars line up too. */
+.gs-leaderboard__row {
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-gap);
+  box-sizing: border-box;
+  block-size: var(--gs-size-chip);
+  padding: 0 var(--gs-space-3) 0 var(--gs-space-gap);
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-md);
+  box-shadow: var(--gs-depth-flat);
+
+  /* The travel is motion.css's: the row carries data-gs-motion="reorder" and
+     the shared rule transitions its transform over the reorder token on the
+     drawing's curve, ease-in-out ("rows translate, never fade", 4a). It used
+     to be ease-out here. The movement badge's colour transition lives on the
+     badge, so it survives reduced motion. Under reduced motion the token is
+     0ms and the row lands in its new place with no travel at all. */
+}
+
+/* A rank is a number in a row, which is the figure role: the display face at
+   14px, weight 900, not the 22px stat that stands on a chip. The drawing draws
+   it that size in every row and gives it a fixed slot so ranks 9 and 10 do not
+   shift the row. */
+.gs-leaderboard__rank {
+  flex: none;
+  inline-size: var(--gs-size-icon-control);
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  line-height: 1;
+  /* Tabular, or a row shifts sideways the moment the rank goes from 9 to 10. */
+  font-variant-numeric: var(--gs-type-score-font-variant-numeric);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* Movement is the sign of data-gs-delta and nothing else. The arrow carries it
+   without colour, the colour carries it without the arrow, and both survive
+   reduced motion. The drawing sets it in the display face beside the rank, a
+   step smaller; the figure token is the one size that face has in a row. */
+.gs-leaderboard__delta {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-1);
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  line-height: 1;
+  color: var(--gs-color-positive-solid);
+  transition: color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-leaderboard__row[data-gs-delta^='-'] .gs-leaderboard__delta {
+  color: var(--gs-color-negative-solid);
+}
+
+/* A row that did not move: the drawn dash, 20 by 3, in the muted ink. */
+.gs-leaderboard__still {
+  display: block;
+  inline-size: calc(var(--gs-space-gap) * 2);
+  block-size: var(--gs-stroke-ui);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-muted);
+}
+
+/* The player: identity's avatar disc and name. The row owns the sizes, because
+   identity's small step (a 24px avatar) is for a presence list and the drawing
+   draws the board's disc at 30px with the row's own 3px ring. */
+.gs-leaderboard__row > [data-gs-component='identity'] {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  gap: var(--gs-space-gap);
+}
+
+.gs-leaderboard__row > [data-gs-component='identity'][data-gs-size] [data-gs-part='avatar'] {
+  /* The drawing's discs are border-box: a 30px disc is 30px with its ring. */
+  box-sizing: border-box;
+  inline-size: var(--gs-space-8);
+  block-size: var(--gs-space-8);
+  border-width: var(--gs-stroke-ui);
+}
+
+/* A player-supplied name is arbitrary length, and a row that grows to fit one
+   pushes every score out of line. The detail under it is the host's and just
+   as arbitrary: "Mercedes" ran 6px past the row at 320 while the name above
+   it truncated properly, because only the name was told to. */
+/* A name is what a player reads down the board, so it is body type whatever
+   identity step the row uses: the small step's label role set it at 13px.
+   GS-566. The detail beside it stays chrome. */
+.gs-leaderboard__row [data-gs-component='identity'] [data-gs-part='label'] {
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-body-font-weight);
+}
+
+.gs-leaderboard__row [data-gs-component='identity'] [data-gs-part='label'],
+.gs-leaderboard__row [data-gs-component='identity'] [data-gs-part='detail'] {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* The row already says the word "score" in its sentence, so the stat's own
+   label would be the third time a screen reader hears it and the first time a
+   player sees it repeated down every row. Found by attribute, not by class, so
+   a theme renaming stat's classes does not bring it back. */
+.gs-leaderboard__score[data-gs-component='stat'] [data-gs-part='label'] {
+  display: none;
+}
+
+/* A leaderboard score is a figure, not a score.
+
+   The row is rank, name and score on one line, and the drawing sets the number
+   at 14px in the display face, the same size as the rank across from it. At the
+   score size, 34px, it was two and a half times the rank beside it and took the
+   width the name needed. The size follows the room the number has, not the word
+   "score". And no shadow: the display shadow belongs to a number standing on
+   its own, and the drawing draws none in a row. */
+.gs-leaderboard [data-gs-component='stat'][data-gs-stat='score'] .gs-stat__value {
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  text-shadow: none;
+}
+
+/* -- the player's own row -------------------------------------------------- */
+/* Specimen 3e draws it as a different object, not a marked row: the action
+   height rather than the chip height, the control radius, the player colour as
+   its fill with the dark ink on it, and a shelf beneath it so it stands off
+   the board. Every part inside inherits that ink, including the movement badge,
+   which is why the arrow keeps its shape and loses its colour here. */
+.gs-leaderboard__row[data-gs-you='true'] {
+  block-size: var(--gs-size-action);
+  border-radius: var(--gs-radius-control);
+  background: var(--gs-color-player);
+  color: var(--gs-color-on-bright);
+  box-shadow: var(--gs-depth-raised), var(--gs-depth-floating);
+}
+
+/* Named rather than inherited, because identity and stat each set their own
+   ink on their root and a plain `inherit` picks that up, not the row's. */
+.gs-leaderboard__row[data-gs-you='true'] .gs-leaderboard__rank,
+.gs-leaderboard__row[data-gs-you='true'] .gs-leaderboard__delta,
+.gs-leaderboard__row[data-gs-you='true'] [data-gs-component='identity'],
+.gs-leaderboard__row[data-gs-you='true'] [data-gs-component='identity'] [data-gs-part='label'],
+.gs-leaderboard__row[data-gs-you='true'] [data-gs-component='stat'] .gs-stat__value {
+  color: var(--gs-color-on-bright);
+}
+
+/* The drawing sets the player's own name one weight heavier than the others;
+   the action weight is that step, borrowed as identity borrows it. */
+.gs-leaderboard__row[data-gs-you='true'] [data-gs-component='identity'] [data-gs-part='label'] {
+  font-weight: var(--gs-type-action-font-weight);
+}
+
+/* -- the break in the list ------------------------------------------------- */
+/* The gap between the visible rows and the held one. It is the whole difference
+   between "your row is pinned" and "this list has rendered you twice": without
+   something saying the list was cut, the held row reads as the next row and its
+   rank looks wrong. The design draws three middle dots in the figure face. */
+.gs-leaderboard__gap {
+  margin: 0;
+  text-align: center;
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  line-height: 1;
+  color: var(--gs-color-muted);
+  user-select: none;
+}
+
+/* -- broadcast ------------------------------------------------------------- */
+/* Specimen 3f: the same rows on a big screen. Two columns, the hero height,
+   the control radius, 14px between the parts, the rank in a 40px disc coloured
+   by place, the name in the title face and the score at the stat size. */
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--gs-space-3);
+}
+
+/* The score is the last thing in the row and the one that must not move.
+   Without this it is an ordinary flex item, so it shrinks to its min-content
+   and then stops, and what it cannot give it takes: a 40px rank disc, a 40px
+   avatar, a name and a 22px score do not fit a 148px tile, and the score was
+   drawn 19px past the tile's right edge on the board and 23px on the versus
+   page that composes it. `flex: none` with the digits reserved keeps the
+   number whole and hands the shortfall to the name, which is the one thing
+   here that can truncate and still be read. */
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__score {
+  flex: none;
+}
+
+/* The board is the container the narrow rules below query, because an element
+   cannot query itself and the list is what has to change.
+
+   Only the broadcast board asks the question, so only the broadcast board
+   contains its inline size. `container-type: inline-size` stops an element
+   contributing to an intrinsic width, and the phone board is routinely put
+   somewhere that derives a width from its contents: the catalogue card centres
+   its preview in a grid, so a contained board measured 0 by 176 there and
+   painted its 168px rows outside a box of no width. Choice and the HUD carry
+   the same restriction for the same reason.
+
+   `inline-size: 100%` beside it, because containment is still fatal on the
+   broadcast board wherever nothing else sets a width: a contained box that
+   states its own width cannot collapse. The root has no padding or border, so
+   100% is the room it was given and nothing overflows. */
+.gs-leaderboard[data-gs-presentation='broadcast'] {
+  container-type: inline-size;
+  inline-size: 100%;
+}
+
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row {
+  gap: var(--gs-space-inset);
+  block-size: var(--gs-size-icon-hero);
+  padding: 0 var(--gs-space-4) 0 var(--gs-space-3);
+  border-radius: var(--gs-radius-control);
+}
+
+/* The leader's row carries the raised highlight along its top. The drawing
+   draws the highlight alone; the raised token brings the theme's shelf with it,
+   and a highlight-only token is on the request list. */
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row[data-gs-rank='1'] {
+  box-shadow: var(--gs-depth-raised);
+}
+
+/* The rank disc. Gold, silver and bronze for the podium places, the edge fill
+   with a bright ring for everyone else. There is no silver or bronze token:
+   ink-secondary and the reward base stand in, and both are on the request
+   list. The numeral is the stat size, the nearest token to the drawing's 18. */
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__rank {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  inline-size: var(--gs-size-control-small);
+  block-size: var(--gs-size-control-small);
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-color-edge);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge-high);
+  font-size: var(--gs-type-stat-font-size);
+  font-weight: var(--gs-type-stat-font-weight);
+  color: var(--gs-color-ink);
+}
+
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row:is([data-gs-rank='1'], [data-gs-rank='2'], [data-gs-rank='3']) .gs-leaderboard__rank {
+  border-color: var(--gs-color-edge);
+  color: var(--gs-color-on-bright);
+}
+
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row[data-gs-rank='1'] .gs-leaderboard__rank {
+  background: var(--gs-color-reward);
+}
+
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row[data-gs-rank='2'] .gs-leaderboard__rank {
+  background: var(--gs-color-ink-secondary);
+}
+
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row[data-gs-rank='3'] .gs-leaderboard__rank {
+  background: var(--gs-color-reward-base);
+}
+
+/* The avatar sits beside the disc at the same size, so the two read as a pair;
+   the drawing's 36px has no token and 40 is the nearest. */
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row > [data-gs-component='identity'] {
+  gap: var(--gs-space-inset);
+}
+
+.gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row > [data-gs-component='identity'][data-gs-size] [data-gs-part='avatar'] {
+  inline-size: var(--gs-size-control-small);
+  block-size: var(--gs-size-control-small);
+}
+
+.gs-leaderboard[data-gs-presentation='broadcast'] [data-gs-component='stat'][data-gs-stat='score'] .gs-stat__value {
+  font-size: var(--gs-type-stat-font-size);
+  font-weight: var(--gs-type-stat-font-weight);
+}
+
+/* -- broadcast, at a phone width ------------------------------------------- */
+/* A broadcast board is specimen 3f's big screen, two up. The same board on a
+   390px phone gives each tile 148px, which is not a row: it is a disc, a disc
+   and an ellipsis. Below the width where the parts fit, the board is one
+   column and every row is a row again. These rules come after the broadcast
+   block above rather than before it, because they have the same specificity
+   and the later rule wins: written earlier in the file, every one of them
+   loses and the query does nothing. */
+@container (max-width: 479px) {
+  .gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* One column was not enough on its own (GSUI-166). Measured at 320, where
+     the gallery gives the board 238px: a 40px rank disc, a 19px movement
+     badge, a 40px avatar, a 22px score, four 14px gaps and 28px of padding
+     come to 242. The name is the only part that can give, so it gave
+     everything, and the board drew four rows of rank, arrow, disc and number
+     with no player in them at all.
+
+     So below this width a broadcast row is the phone row (3e) with the rank
+     in a disc: the 32px disc and avatar, the 10px gap and 12px inset the
+     phone board uses, and the number back at the figure size the rank across
+     from it is drawn at. That returns 63px to the name at 238, which
+     truncates "StarNovaX" rather than deleting it. Over 480, which is the big
+     screen the drawing is for, nothing changes. */
+  .gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row {
+    gap: var(--gs-space-gap);
+    padding: 0 var(--gs-space-3) 0 var(--gs-space-gap);
+  }
+
+  .gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__rank {
+    inline-size: var(--gs-space-8);
+    block-size: var(--gs-space-8);
+    font-size: var(--gs-type-figure-font-size);
+    font-weight: var(--gs-type-figure-font-weight);
+  }
+
+  .gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row > [data-gs-component='identity'] {
+    gap: var(--gs-space-gap);
+  }
+
+  .gs-leaderboard[data-gs-presentation='broadcast'] .gs-leaderboard__row > [data-gs-component='identity'][data-gs-size] [data-gs-part='avatar'] {
+    inline-size: var(--gs-space-8);
+    block-size: var(--gs-space-8);
+  }
+
+  .gs-leaderboard[data-gs-presentation='broadcast'] [data-gs-component='stat'][data-gs-stat='score'] .gs-stat__value {
+    font-size: var(--gs-type-figure-font-size);
+    font-weight: var(--gs-type-figure-font-weight);
+  }
+}
+
+/* -- empty ----------------------------------------------------------------- */
+/* An empty leaderboard is a designed state, never a blank rectangle. */
+.gs-leaderboard__empty {
+  display: grid;
+  justify-items: center;
+  gap: var(--gs-space-2);
+  padding: var(--gs-space-8) var(--gs-space-4);
+  text-align: center;
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-hairline) dashed var(--gs-color-edge);
+  border-radius: var(--gs-radius-lg);
+}
+
+.gs-leaderboard__empty-glyph {
+  display: inline-flex;
+  font-size: var(--gs-size-icon-hero);
+  line-height: 1;
+  color: var(--gs-color-muted);
+}
+
+.gs-leaderboard__empty-heading {
+  margin: 0;
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  color: var(--gs-color-ink);
+}
+
+.gs-leaderboard__empty-body {
+  margin: 0;
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  line-height: var(--gs-type-body-line-height);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* "See all" under a limited board (GSUI-282). A quiet full-width control on
+   tokens; the sheet it opens carries the full list. */
+.gs-leaderboard__see-all {
+  display: block;
+  inline-size: 100%;
+  min-block-size: var(--gs-size-touch-min);
+  margin-block-start: var(--gs-space-2);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+  background: transparent;
+  color: var(--gs-color-ink);
+  font-family: var(--gs-type-body-font-family);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* The zero rows, folded into one line: "and 7 more on 0 points". */
+.gs-leaderboard__rest {
+  list-style: none;
+  padding: var(--gs-space-3) var(--gs-space-4);
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  color: var(--gs-color-ink-secondary);
+  text-align: center;
+}

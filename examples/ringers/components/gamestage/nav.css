@@ -1,0 +1,709 @@
+/* Nav, as specimen 5a draws it. Every value comes from a token; nothing here
+   is a literal colour, size, radius, duration or typeface. The one number is
+   the note's opacity, which has no token and is a request (see the report on
+   GSUI-201).
+
+   The press gesture comes from `.gs-pressable` in packages/tokens/primitives.css,
+   which every destination carries. The action type does not: 5a draws every nav
+   label in the interface face at the label weight (12/800 in the bar, 14 to
+   16/800 in the pills, tabs and drawer), never in the action face, so the
+   destination reads the label tokens directly and tests/lib/check-theme-axes.mjs
+   carries the exemption with that reason.
+
+   Two private properties carry the idle face, because it differs by
+   presentation: a bar or a tab destination at rest is bare, a pill or a drawer
+   row at rest is a surface plate with an edge. The state rules below then only
+   have to say what changes. */
+
+.gs-nav {
+  --gs-nav-idle-fill: var(--gs-color-surface);
+  --gs-nav-idle-edge: var(--gs-color-edge);
+
+  display: flex;
+  align-items: stretch;
+  gap: var(--gs-space-2);
+  box-sizing: border-box;
+  padding: var(--gs-space-2);
+  color: var(--gs-color-ink);
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-xl);
+}
+
+/* The list is the group a screen reader hears and the handle a test finds. It
+   is not a box: the drawing lays destinations straight into the container, so
+   the container is the flex parent and the list contributes no box of its own. */
+.gs-nav__list {
+  display: contents;
+}
+
+.gs-nav__destination {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gs-space-2);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 var(--gs-space-3);
+
+  /* The label tokens, and only their face, size and weight. The drawing types
+     every destination in sentence case with no tracking, so the label's
+     uppercase and letter-spacing are deliberately not read. */
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  line-height: normal;
+
+  color: var(--gs-color-ink-secondary);
+  background: var(--gs-nav-idle-fill);
+  border: var(--gs-stroke-ui) solid var(--gs-nav-idle-edge);
+  border-radius: var(--gs-radius-md);
+  cursor: pointer;
+}
+
+/* At rest a destination squeezes on press and casts nothing. Only the current
+   one rides on the theme's offset base, and it keeps the gesture the primitives
+   hand every pressable. Restated under reduced motion below, because a value
+   set here beats the primitives' own reduced-motion rule. */
+.gs-nav__destination:not([data-gs-active='true']) {
+  --gs-press-transform: var(--gs-depth-styles-squeeze-transform);
+  --gs-depth-pressable-pressed: none;
+}
+
+.gs-nav__icon,
+.gs-nav__lock,
+.gs-nav__note {
+  display: flex;
+  line-height: 1;
+}
+
+.gs-nav__icon {
+  font-size: var(--gs-size-icon-control);
+}
+
+/* The padlock is the mark that carries a state, so it is emphasis and keeps
+   its transition under reduced motion. It draws at the label size, 1em, which
+   is the 12px the bar draws; below 14px a mark needs the small stroke or it
+   greys out into its own antialiasing (glyphs.css). */
+.gs-nav__lock {
+  transition: opacity var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-nav__lock .gs-glyph {
+  stroke-width: var(--gs-stroke-glyph-small);
+}
+
+.gs-nav__label {
+  white-space: nowrap;
+}
+
+/* Why a destination refuses, in words, beside the label and never in it. Same
+   ink as the row, stepped back. */
+.gs-nav__note {
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+.gs-nav__destination:focus-visible {
+  outline: var(--gs-stroke-focus) solid var(--gs-color-selected);
+  outline-offset: var(--gs-space-1);
+}
+
+/* -- bar: the foot of the screen ------------------------------------------ */
+/* A surface with an edge along its top and nothing else: no radius, no side
+   or bottom stroke. Destinations share the width, icon over word. */
+.gs-nav[data-gs-presentation='bar'] {
+  --gs-nav-idle-fill: transparent;
+  --gs-nav-idle-edge: transparent;
+
+  width: 100%;
+  border-width: 0;
+  border-top-width: var(--gs-stroke-ui);
+  border-radius: 0;
+}
+
+.gs-nav[data-gs-presentation='bar'] .gs-nav__destination {
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--gs-space-1);
+  min-width: 0;
+  height: var(--gs-size-action-large);
+  padding: 0;
+}
+
+.gs-nav[data-gs-presentation='bar'] .gs-nav__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A bar never ellipsises a word. Four destinations of six characters fit at
+   390px; a fifth does not, so from five the bar drops its words and shows the
+   marks alone. The accessible name is on the control and is unaffected. */
+.gs-nav[data-gs-presentation='bar'] .gs-nav__list:has(> :nth-child(5)) .gs-nav__label {
+  display: none;
+}
+
+.gs-nav[data-gs-presentation='bar'] .gs-nav__lock {
+  position: absolute;
+  top: var(--gs-space-2);
+  right: var(--gs-space-2);
+}
+
+/* -- tabs: a rule under the current one ----------------------------------- */
+/* No fill and no radius. The strip carries a rule along its foot; the current
+   tab carries a thicker one that sits on it. Every tab squeezes on press. */
+.gs-nav[data-gs-presentation='tabs'] {
+  --gs-nav-idle-fill: transparent;
+  --gs-nav-idle-edge: transparent;
+
+  gap: var(--gs-space-1);
+  padding: 0;
+  background: none;
+  border-width: 0;
+  border-bottom-width: var(--gs-stroke-ui);
+  border-radius: 0;
+}
+
+.gs-nav[data-gs-presentation='tabs'] .gs-nav__destination {
+  --gs-press-transform: var(--gs-depth-styles-squeeze-transform);
+  --gs-depth-pressable-pressed: none;
+
+  /* Never narrower than its words: equal tabs sized from the widest left the
+     others a few pixels short, and "Board" became "Boa...". If the row then
+     outgrows its container the nav overflows, which is visible and fixable. */
+  min-width: max-content;
+  height: var(--gs-size-touch-min);
+  padding: 0 var(--gs-space-3);
+  margin-bottom: calc(-1 * var(--gs-stroke-ui));
+  border-width: 0;
+  border-bottom-width: var(--gs-stroke-selected);
+  border-radius: 0;
+}
+
+.gs-nav[data-gs-presentation='tabs'] .gs-nav__icon,
+.gs-nav[data-gs-presentation='pills'] .gs-nav__icon {
+  font-size: var(--gs-size-icon-utility);
+}
+
+/* -- pills: a tray of rounded controls ------------------------------------ */
+/* The tray is a pill itself, sized to its contents and scrolling sideways when
+   they outgrow the screen. A pill at rest is a surface plate with an edge. */
+.gs-nav[data-gs-presentation='pills'] {
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: var(--gs-radius-full);
+}
+
+.gs-nav[data-gs-presentation='pills'] .gs-nav__destination {
+  flex: none;
+  height: var(--gs-size-control-small);
+  padding: 0 var(--gs-space-3);
+  border-radius: var(--gs-radius-full);
+}
+
+/* -- drawer: a vertical list ---------------------------------------------- */
+.gs-nav[data-gs-presentation='drawer'] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.gs-nav[data-gs-presentation='drawer'] .gs-nav__destination {
+  flex: none;
+  /* The row does not centre: the label takes the room and pushes the note and
+     the padlock to the right, as the drawing lays it out. */
+  justify-content: normal;
+  gap: var(--gs-space-3);
+  width: 100%;
+  height: var(--gs-size-action);
+  padding: 0 var(--gs-space-3);
+}
+
+.gs-nav[data-gs-presentation='drawer'] .gs-nav__label {
+  flex: 1;
+  text-align: left;
+}
+
+/* -- where the player is -------------------------------------------------- */
+/* Quiet, since 2026-09-27 (Tom): the current place was a filled interactive
+   plate on the theme's base, which shouted louder than the game above it. It
+   is now the selection colour on a light tint of itself. Colour is never the
+   only signal: the tint is a shape a player can see without seeing the hue,
+   the label keeps its weight, and the name says "current" to a screen reader.
+   design/twins/5a.json records the departure from the drawing.
+
+   Bar: a tinted capsule behind the mark, the word in the selection colour.
+   Pills and drawer: the whole plate tinted, its edge in the selection colour.
+   Tabs keep their rule, which was already quiet. Written after the
+   presentations at the same specificity so the state wins. */
+.gs-nav {
+  --gs-nav-accent: var(--gs-color-selected);
+  --gs-nav-tint: color-mix(in oklch, var(--gs-nav-accent) 18%, transparent);
+}
+
+.gs-nav .gs-nav__destination[data-gs-active='true'] {
+  /* The words stay in the ink, which every theme contrasts against its
+     surface; the selection colour went on the word at first and read 3.3:1 on
+     arcade's blue. The tint and the mark carry the colour instead. */
+  color: var(--gs-color-ink);
+  background: var(--gs-nav-tint);
+  border-color: color-mix(in oklch, var(--gs-nav-accent) 45%, transparent);
+  box-shadow: none;
+}
+
+/* The bar tints the mark, not the whole column, as a tab bar does. */
+.gs-nav[data-gs-presentation='bar'] .gs-nav__destination[data-gs-active='true'] {
+  background: transparent;
+  border-color: transparent;
+}
+
+.gs-nav[data-gs-presentation='bar'] .gs-nav__icon {
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--gs-size-icon-control) * 2.25);
+  height: calc(var(--gs-size-icon-control) * 1.3);
+  border-radius: var(--gs-radius-full);
+  transition: background-color var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+.gs-nav[data-gs-presentation='bar'] .gs-nav__destination[data-gs-active='true'] .gs-nav__icon {
+  color: var(--gs-nav-accent);
+  background: var(--gs-nav-tint);
+}
+
+/* -- glass: the bar as a floating capsule --------------------------------- */
+/* After the iOS tab bar: inset from the edges, a capsule of frosted glass over
+   whatever the game draws, a bright rim where light catches the edge, and a
+   lens that slides to the current place with a little overshoot. Built from
+   backdrop-filter, layered gradients and shadows; no Apple assets. Colours
+   are the theme's background, white and black mixed to a transparency, never
+   a literal, so the qa colour scan holds.
+
+   Dark glass by default, because games run on dark scenes; a host on a light
+   scene sets data-gs-tone="light". The host positions it (fixed, above the
+   home indicator); the capsule only draws itself. */
+.gs-nav[data-gs-presentation='glass'] {
+  --gs-nav-idle-fill: transparent;
+  --gs-nav-idle-edge: transparent;
+  --gs-glass-fill: color-mix(in oklch, var(--gs-color-background) 52%, transparent);
+  --gs-glass-rim: color-mix(in srgb, white 22%, transparent);
+  --gs-glass-sheen: color-mix(in srgb, white 10%, transparent);
+  --gs-glass-lens: color-mix(in srgb, white 14%, transparent);
+  --gs-glass-lens-rim: color-mix(in srgb, white 28%, transparent);
+  --gs-glass-shadow: 0 10px 30px color-mix(in srgb, black 35%, transparent), 0 2px 6px color-mix(in srgb, black 20%, transparent);
+  --gs-glass-ink: color-mix(in srgb, white 62%, transparent);
+  /* Always a capsule, whatever the theme's corners: paper squares its
+     radius.full, and a squared glass bar stops reading as the iOS one. */
+  --gs-glass-radius: 999px;
+
+  position: relative;
+  isolation: isolate;
+  gap: 0;
+  /* Sized to its tabs and centred, as iOS draws it, never wider than the
+     screen less its gutters. */
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--gs-space-4));
+  margin-inline: auto;
+  padding: 4px;
+  color: var(--gs-glass-ink);
+  background:
+    linear-gradient(180deg, var(--gs-glass-sheen), transparent 55%),
+    var(--gs-glass-fill);
+  border: 0.5px solid var(--gs-glass-rim);
+  border-radius: var(--gs-glass-radius, 999px);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 18%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, black 10%, transparent),
+    var(--gs-glass-shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8);
+  backdrop-filter: blur(22px) saturate(1.8);
+}
+
+.gs-nav[data-gs-presentation='glass'][data-gs-tone='light'] {
+  --gs-glass-fill: color-mix(in srgb, white 62%, transparent);
+  --gs-glass-rim: color-mix(in srgb, white 65%, transparent);
+  --gs-glass-sheen: color-mix(in srgb, white 55%, transparent);
+  --gs-glass-lens: color-mix(in srgb, black 6%, transparent);
+  --gs-glass-lens-rim: color-mix(in srgb, white 90%, transparent);
+  --gs-glass-shadow: 0 10px 30px color-mix(in srgb, black 12%, transparent), 0 2px 6px color-mix(in srgb, black 8%, transparent);
+  --gs-glass-ink: color-mix(in srgb, black 78%, transparent);
+}
+
+.gs-nav[data-gs-presentation='glass'] .gs-nav__destination {
+  z-index: 1;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  width: 88px;
+  height: 54px;
+  padding: 0;
+  color: inherit;
+  border-width: 0;
+  border-radius: var(--gs-glass-radius, 999px);
+  /* iOS sets tab labels at 10pt semibold with no tracking. The face stays the
+     theme's interface face; the size and weight follow the tab bar. */
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.gs-nav[data-gs-presentation='glass'] .gs-nav__icon {
+  font-size: 24px;
+}
+
+.gs-nav[data-gs-presentation='glass'] .gs-nav__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gs-nav[data-gs-presentation='glass'] .gs-nav__destination[data-gs-active='true'] {
+  /* Glass has its own fixed backdrops, dark and light, so the accent is
+     checked against those rather than the theme's surface. */
+  color: var(--gs-nav-accent);
+  background: transparent;
+  border-color: transparent;
+}
+
+/* The lens: a smaller capsule of brighter glass behind the current place,
+   sliding between places with a spring. Its position comes from the two
+   custom properties the component sets on the nav. */
+.gs-nav__lens {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc((100% - 8px) / var(--gs-nav-count, 1));
+  border-radius: var(--gs-glass-radius, 999px);
+  background:
+    radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, white 16%, transparent), transparent 60%),
+    var(--gs-glass-lens);
+  box-shadow:
+    inset 0 0 0 0.5px var(--gs-glass-lens-rim),
+    inset 0 1px 1px color-mix(in srgb, white 25%, transparent),
+    0 1px 4px color-mix(in srgb, black 15%, transparent);
+  transform: translateX(calc(100% * var(--gs-nav-index, 0)));
+  /* The pop curve overshoots and settles, which is the spring a tab bar lens
+     has; the reorder duration is what a sliding element takes here. */
+  transition: transform var(--gs-motion-reorder) var(--gs-motion-ease-pop);
+  pointer-events: none;
+}
+
+.gs-nav[data-gs-presentation='glass'] .gs-nav__destination:not([data-gs-active='true']):active {
+  --gs-press-transform: scale(0.94);
+}
+
+/* Where the browser cannot blur what is behind, or the player asks for less
+   transparency, the capsule goes solid rather than showing the scene through a
+   clear pane. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .gs-nav[data-gs-presentation='glass'] {
+    background: var(--gs-color-surface-raised, var(--gs-color-surface));
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .gs-nav[data-gs-presentation='glass'] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--gs-color-surface-raised, var(--gs-color-surface));
+    color: var(--gs-color-ink-secondary);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-nav__lens {
+    transition: none;
+  }
+}
+
+/* -- floating: a dark capsule held above the bottom edge ------------------- */
+/* After the Ringers taster (Tom, 2026-09-27). The capsule is inset from the
+   sides and sits above the safe area; the current place is a lighter pill with
+   its mark and its word, every other place is its mark alone. So the current
+   place is told by shape and a word as well as by a lighter fill.
+
+   It carries its own dark pair, as glass does, rather than reading the theme's
+   surface: a dark capsule is the drawing on light and dark scenes alike, and a
+   fixed pair is one that can be proved for contrast once. data-gs-tone="light"
+   flips it for a host that wants a pale capsule. */
+.gs-nav[data-gs-presentation='floating'] {
+  --gs-floating-fill: oklch(0.2 0.012 275);
+  --gs-floating-ink: oklch(0.985 0 0);
+  --gs-floating-ink-idle: color-mix(in oklch, oklch(0.985 0 0) 72%, transparent);
+  --gs-floating-pill: color-mix(in oklch, oklch(0.985 0 0) 16%, transparent);
+  --gs-floating-shadow: 0 12px 32px color-mix(in srgb, black 30%, transparent), 0 2px 8px color-mix(in srgb, black 18%, transparent);
+  --gs-floating-height: 64px;
+  --gs-floating-gap: var(--gs-space-3, 12px);
+
+  position: fixed;
+  z-index: 50;
+  inset-inline: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--gs-floating-gap));
+  gap: 2px;
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--gs-space-4, 16px));
+  height: var(--gs-floating-height);
+  margin-inline: auto;
+  padding: 6px;
+  color: var(--gs-floating-ink-idle);
+  background: var(--gs-floating-fill);
+  border: 0;
+  border-radius: 999px;
+  box-shadow: var(--gs-floating-shadow);
+}
+
+.gs-nav[data-gs-presentation='floating'][data-gs-tone='light'] {
+  --gs-floating-fill: oklch(0.985 0 0);
+  --gs-floating-ink: oklch(0.2 0.012 275);
+  --gs-floating-ink-idle: color-mix(in oklch, oklch(0.2 0.012 275) 72%, transparent);
+  --gs-floating-pill: color-mix(in oklch, oklch(0.2 0.012 275) 9%, transparent);
+  --gs-floating-shadow: 0 12px 32px color-mix(in srgb, black 14%, transparent), 0 2px 8px color-mix(in srgb, black 8%, transparent);
+}
+
+/* The page keeps the capsule's height free at its foot, so a page's last line
+   scrolls clear of it. */
+.gs-nav__spacer {
+  display: block;
+  height: calc(var(--gs-floating-height, 64px) + 2 * var(--gs-space-3, 12px) + env(safe-area-inset-bottom, 0px));
+}
+
+.gs-nav[data-gs-presentation='floating'] .gs-nav__destination {
+  flex: 0 0 auto;
+  gap: 0;
+  /* 48px is the smallest tap target the library allows; four marks and a
+     worded pill then fit a 360px phone inside its 16px gutters. */
+  min-width: 48px;
+  height: 100%;
+  padding-inline: 12px;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  font-size: 17px;
+  font-weight: var(--gs-nav-label-weight);
+  white-space: nowrap;
+  transition:
+    background-color var(--gs-motion-reorder) var(--gs-motion-ease-pop),
+    color var(--gs-motion-reorder) var(--gs-motion-ease-pop),
+    gap var(--gs-motion-reorder) var(--gs-motion-ease-pop),
+    transform var(--gs-motion-press) var(--gs-motion-ease-press);
+}
+
+.gs-nav[data-gs-presentation='floating'] .gs-nav__icon {
+  font-size: 24px;
+}
+
+/* Every place but the current one is its mark alone. The word folds away
+   rather than vanishing, so the pill reads as moving to the place pressed. */
+.gs-nav[data-gs-presentation='floating'] .gs-nav__label {
+  display: inline-block;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-width var(--gs-motion-reorder) var(--gs-motion-ease-pop),
+    opacity var(--gs-motion-reorder) var(--gs-motion-ease-pop);
+}
+
+.gs-nav[data-gs-presentation='floating'] .gs-nav__destination[data-gs-active='true'] {
+  /* The worded pill is the one place that may give: a long word truncates
+     rather than pushing the capsule off the screen. */
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 8px;
+  color: var(--gs-floating-ink);
+  background: var(--gs-floating-pill);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.gs-nav[data-gs-presentation='floating'] .gs-nav__destination[data-gs-active='true'] .gs-nav__label {
+  max-width: 12em;
+  min-width: 0;
+  text-overflow: ellipsis;
+  opacity: 1;
+}
+
+/* The floating capsule is already the only thing drawn; a press squeezes the
+   mark, it does not drop a shelf that is not there. */
+.gs-nav[data-gs-presentation='floating'] .gs-nav__destination:active,
+.gs-nav[data-gs-presentation='floating'] .gs-nav__destination[data-gs-pressed='true'] {
+  --gs-press-transform: scale(0.94);
+  box-shadow: none;
+}
+
+.gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__destination[data-gs-active='true'] .gs-nav__label {
+  display: none;
+}
+
+/* Frosted, over the scene. Solid again where the browser cannot blur or the
+   player asks for less transparency. */
+.gs-nav[data-gs-presentation='floating'][data-gs-material='glass'] {
+  --gs-floating-fill: color-mix(in oklch, oklch(0.2 0.012 275) 58%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8);
+  backdrop-filter: blur(22px) saturate(1.8);
+  box-shadow:
+    inset 0 0 0 0.5px color-mix(in srgb, white 22%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 18%, transparent),
+    var(--gs-floating-shadow);
+}
+
+.gs-nav[data-gs-presentation='floating'][data-gs-material='glass'][data-gs-tone='light'] {
+  --gs-floating-fill: color-mix(in oklch, oklch(0.985 0 0) 66%, transparent);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .gs-nav[data-gs-presentation='floating'][data-gs-material='glass'] {
+    --gs-floating-fill: oklch(0.2 0.012 275);
+  }
+  .gs-nav[data-gs-presentation='floating'][data-gs-material='glass'][data-gs-tone='light'] {
+    --gs-floating-fill: oklch(0.985 0 0);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .gs-nav[data-gs-presentation='floating'][data-gs-material='glass'] {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    --gs-floating-fill: oklch(0.2 0.012 275);
+  }
+  .gs-nav[data-gs-presentation='floating'][data-gs-material='glass'][data-gs-tone='light'] {
+    --gs-floating-fill: oklch(0.985 0 0);
+  }
+}
+
+/* The pill arrives, it does not travel: under reduced motion the word and the
+   fill change at once, and the shape and the word still say which place. */
+@media (prefers-reduced-motion: reduce) {
+  .gs-nav[data-gs-presentation='floating'] .gs-nav__destination,
+  .gs-nav[data-gs-presentation='floating'] .gs-nav__label {
+    transition: none;
+  }
+}
+
+/* -- available later, not now --------------------------------------------- */
+/* Keeps its shape and shows a padlock: "not yet" against "not ever". */
+.gs-nav .gs-nav__destination[data-gs-locked='true'] {
+  color: var(--gs-color-ink-secondary);
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--gs-color-edge-high);
+  cursor: default;
+}
+
+/* -- not available at all ------------------------------------------------- */
+/* Flat, per the depth rule, and it does not travel on press. */
+.gs-nav .gs-nav__destination[data-gs-disabled='true'] {
+  color: var(--gs-color-disabled-ink);
+  background: var(--gs-color-disabled);
+  border-color: transparent;
+  box-shadow: var(--gs-depth-flat);
+  cursor: default;
+}
+
+/* The current tab. The drawing writes its rule in `reward`, which in arcade is
+   a gradient and so an invalid border colour that the browser discards; the
+   canvas paints the rule in the ink. The note under the drawing says reward,
+   and reward.solid is the token a stroke reads. design/twins/5a.json carries
+   the allowance. */
+.gs-nav[data-gs-presentation='tabs'] .gs-nav__destination[data-gs-active='true'] {
+  color: var(--gs-color-ink);
+  background: transparent;
+  border-color: var(--gs-color-reward-solid);
+  box-shadow: none;
+}
+
+/* -- placement ------------------------------------------------------------ */
+/* The edge the nav hugs. The host owns the container; a nav on a side runs
+   its destinations down rather than across. */
+.gs-nav[data-gs-placement='left'],
+.gs-nav[data-gs-placement='right'] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Restated on the element and deliberately last: the squeeze set above beats
+   the primitives' own reduced-motion rule, so it has to be zeroed here too. */
+/* A destination's press, for a player who has asked for stillness.
+ *
+ * Every other pressable answers through the shared rule at the bottom of
+ * primitives.css, which remaps the edge and the depth tokens. A destination
+ * reads neither: it draws from `--gs-nav-idle-fill` and `--gs-nav-idle-edge`,
+ * which the bar and the tabs presentations both set to `transparent`, and it
+ * casts nothing at all, so with the squeeze gone it answered with nothing.
+ * Measured on 20 September. GSUI-164.
+ *
+ * Specificity is deliberate: `.gs-nav[data-gs-presentation='bar']
+ * .gs-nav__destination` is where the transparent values are set, so a rule
+ * that only says `.gs-nav__destination:active` would lose to it. */
+@media (prefers-reduced-motion: reduce) {
+  .gs-nav .gs-nav__destination:active:not([data-gs-disabled='true']):not([data-gs-locked='true']) {
+    --gs-nav-idle-fill: var(--gs-color-surface-raised);
+    --gs-nav-idle-edge: var(--gs-color-edge-high);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Matched to the two rules that set the squeeze above, not written at the
+     bare class. `.gs-nav__destination:not([data-gs-active='true'])` carries an
+     attribute selector and outranks `.gs-nav__destination`, so this rule was
+     losing and a destination still squeezed under reduced motion. Measured on
+     20 September. GSUI-164. */
+  .gs-nav__destination:not([data-gs-active='true']),
+  .gs-nav[data-gs-presentation='tabs'] .gs-nav__destination {
+    --gs-press-transform: none;
+  }
+}
+
+/* -- labels hidden: the marks alone ----------------------------------------- */
+/* Every destination is at least 48px square to a thumb. The current one says
+   so without a word three ways: its mark is filled (a change of shape), it is
+   drawn in the accent on a tint, and a short bar sits under it. The mark is
+   in the ink, so an idle destination holds the ink's contrast. */
+.gs-nav[data-gs-labels='hidden'] .gs-nav__label { display: none; }
+.gs-nav[data-gs-labels='hidden'] .gs-nav__destination {
+  min-inline-size: 48px;
+  min-block-size: 48px;
+  touch-action: manipulation;
+}
+.gs-nav[data-gs-labels='hidden'] .gs-nav__icon { font-size: 24px; }
+.gs-nav[data-gs-labels='hidden'] .gs-nav__destination[data-gs-active='true']::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 4px;
+  inset-inline-start: 50%;
+  inline-size: 16px;
+  block-size: 3px;
+  margin-inline-start: -8px;
+  border-radius: var(--gs-radius-full);
+  background: var(--gs-nav-accent);
+}
+
+/* -- light marks and words ------------------------------------------------ */
+/* Tom, 2026-09-28: "make these light thin icons and fonts". Every nav draws
+   its marks as thin outlines and its words at a regular weight; the current
+   place is told by its plate or pill and by full-strength colour. Two
+   properties, so a theme or a game that wants a heavier nav sets them. */
+.gs-nav {
+  --gs-nav-stroke: 1.5px;
+  --gs-nav-label-weight: 500;
+}
+
+.gs-nav .gs-nav__icon .gs-glyph {
+  stroke-width: var(--gs-nav-stroke);
+}
+
+.gs-nav .gs-nav__label,
+.gs-nav[data-gs-presentation='floating'] .gs-nav__destination {
+  font-weight: var(--gs-nav-label-weight);
+}

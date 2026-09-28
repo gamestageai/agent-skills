@@ -1,0 +1,151 @@
+/* Empty state. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 4e draws two empty surfaces and design/twins/4e.json measures ours
+   against both. "No rewards yet" is a row on a surface card: a dashed disc
+   where the badge will go, the heading and the line beside it. "No scores yet"
+   is two ghost rows showing the shape of what is coming, and one quiet line
+   under them, with no card at all. Neither draws the next-step control; the
+   library requires one (BDS-042), so it sits under the words in both. */
+
+/* The row: disc, then words, on the surface, outlined. */
+.gs-empty-state {
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-3);
+
+  padding: var(--gs-space-3);
+  text-align: start;
+
+  color: var(--gs-color-ink);
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+}
+
+/* Where the thing that is missing will appear: a dashed disc in the edge
+   colour, the mark inside it in the muted ink. Dashed, so nobody reads it as
+   a badge that failed to load. */
+.gs-empty-state__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+  width: var(--gs-size-icon-object);
+  height: var(--gs-size-icon-object);
+
+  color: var(--gs-color-muted);
+  background: var(--gs-color-edge);
+  border: var(--gs-stroke-ui) dashed var(--gs-color-muted);
+  border-radius: var(--gs-radius-full);
+}
+
+.gs-empty-state__glyph svg {
+  width: var(--gs-size-icon-control);
+  height: var(--gs-size-icon-control);
+}
+
+.gs-empty-state__words {
+  display: grid;
+  gap: var(--gs-space-1);
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+/* The heading, at the label size: the drawing sets it at 800 13px in the
+   interface face, in sentence case. */
+.gs-empty-state__label {
+  margin: 0;
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  color: var(--gs-color-ink);
+}
+
+/* The line saying what fills the surface, at the caption size, which is the
+   drawing's 600 11px exactly. */
+.gs-empty-state__body {
+  margin: 0;
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-empty-state__actions {
+  display: flex;
+  gap: var(--gs-space-2);
+  margin-top: var(--gs-space-1);
+}
+
+/* -- ghosts: the shape of what is coming ---------------------------------- */
+/* No card. The rows and the line sit directly on whatever the host put this
+   in, as drawn, and the mark is not shown: the rows are the picture. */
+.gs-empty-state--ghosts {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--gs-space-2);
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+
+.gs-empty-state--ghosts .gs-empty-state__glyph {
+  display: none;
+}
+
+.gs-empty-state__ghosts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-2);
+  width: 100%;
+}
+
+/* Dashed rather than filled, so nobody reads a ghost row as a row that failed
+   to load, and fading down the list, because the second row is further off
+   than the first. */
+.gs-empty-state__ghost {
+  display: block;
+  box-sizing: border-box;
+  height: var(--gs-size-control-small);
+  border: var(--gs-stroke-ui) dashed var(--gs-color-edge-high);
+  border-radius: var(--gs-radius-sm);
+  opacity: 0.6;
+}
+
+.gs-empty-state__ghost:nth-child(n + 2) { opacity: 0.4; }
+
+/* Under the ghost rows, the words are one centred line in the caption size
+   and the secondary ink, with the control beneath. */
+.gs-empty-state--ghosts .gs-empty-state__words {
+  justify-items: center;
+  padding: var(--gs-space-1) 0;
+  text-align: center;
+}
+
+.gs-empty-state--ghosts .gs-empty-state__label {
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-empty-state--ghosts .gs-empty-state__actions {
+  justify-content: center;
+}
+
+/* In the accessible name, not on screen. The state is a word rather than a
+   shade of grey, which is the rule a colour-blind player depends on. */
+.gs-empty-state__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}

@@ -1,0 +1,194 @@
+/* MediaFrame. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 5f draws the three states side by side and design/twins/5f.json
+   measures ours against it, declaration by declaration. Where a rule below
+   names a value, the drawing draws that value; where it names a token, the
+   token was derived from the drawing.
+
+   The one thing this file must get right is that the frame is the same size
+   whether the media arrived, has not arrived yet or failed. Everything else is
+   secondary to that, because a media surface that collapses to zero and then
+   springs open shifts every control under it at the moment a player is reaching
+   for one. */
+
+.gs-media-frame {
+  position: relative;
+
+  /* The shape, from the ratio the host named. A custom property rather than an
+     attribute for the reason `--gs-progress` is one: a ratio is geometry, and
+     nothing selects on geometry. The fallback is the portrait the design draws,
+     so a frame still holds a shape if the property never arrives. */
+  aspect-ratio: var(--gs-media-frame-aspect, 9 / 16);
+
+  /* The floor. aspect-ratio gives a height from a width, and a container that
+     has not laid out yet has no width to give one from, which is the case where
+     a frame briefly measures zero and the layout jumps.
+
+     The drawing says 120px. No token is near it (space.12 is 48, the largest
+     space there is) and it is a token request in the report; until one lands
+     the frame keeps the largest space token as its floor. */
+  min-height: var(--gs-space-12);
+
+  /* Every child in the same cell: the host's media, the busy layer and the
+     empty state over the space it will occupy. The frame never positions the
+     media beyond this, and never sizes it. */
+  display: grid;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  /* The drawing's frame: the surface inside a control stroke of colour.edge,
+     3px in arcade, at radius.control (16). The stroke belongs to the frame in
+     every state; only the empty state changes its style and colour. */
+  background: var(--gs-color-surface);
+  border: var(--gs-stroke-control) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+}
+
+/* A dashed edge in edgeHigh, so the empty state is readable as "space
+   reserved" rather than "surface that failed to paint", without any hue
+   carrying the difference. The drawing draws it dashed only while nothing is
+   in the frame and nothing is on its way; a busy frame goes back to the solid
+   edge. */
+.gs-media-frame[data-gs-empty='true']:not([data-gs-busy='true']) {
+  border-style: dashed;
+  border-color: var(--gs-color-edge-high);
+}
+
+/* The host's media and the frame's own layers share the one cell, so none is
+   in another's flow and the frame's height comes from the ratio rather than
+   from whatever the host passed. */
+.gs-media-frame > * {
+  grid-area: 1 / 1;
+}
+
+/* The media fills the frame it was given. `object-fit` is the one opinion this
+   file has about the host's node, and it is the opinion that stops a 16:9 video
+   in a 9:16 frame from stretching faces. A host that wants letterboxing instead
+   sets `object-fit: contain` on its own element, which wins: this rule is on
+   the descendant and theirs is on the element. */
+.gs-media-frame > video,
+.gs-media-frame > img,
+.gs-media-frame > canvas,
+.gs-media-frame > iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+}
+
+/* ----------------------------------------------------------- the empty -- */
+
+/* What a frame with nothing in it looks like. Centred, quiet, and made of a
+   glyph and words: it names what belongs here and the shape it is holding,
+   which is exactly what the design writes into the middle of the frame. The
+   drawing pads it 12px (space.3) and stacks the three at 8px (space.2). */
+.gs-media-frame__empty {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--gs-space-2);
+  padding: var(--gs-space-3);
+  text-align: center;
+  color: var(--gs-color-ink-secondary);
+}
+
+/* The film-frame glyph in muted. The drawing draws it at 28px, which no size
+   token carries (iconControl is 24, iconObject 48); a token request in the
+   report, and iconControl until one lands. */
+.gs-media-frame__glyph {
+  font-size: var(--gs-size-icon-control);
+  line-height: 1;
+  color: var(--gs-color-muted);
+}
+
+/* What belongs here, in the label role. The drawing sets it at 11px/800;
+   arcade's label is 12px/800, and 12 is the floor for a phone. The same span
+   carries "Loading <label>" in the busy layer. */
+.gs-media-frame__label {
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  letter-spacing: var(--gs-type-label-letter-spacing);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* The shape, "9:16", in the caption role and in muted: the quietest line in
+   the frame, because the label is the one a player needs. The drawing sets it
+   at 10px/600; caption is 11px/600. */
+.gs-media-frame__detail {
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  font-variant-numeric: tabular-nums;
+  color: var(--gs-color-muted);
+}
+
+/* ------------------------------------------------------------ the busy -- */
+
+/* Waiting changes what is drawn on the surface, never the size and never the
+   layout: the frame is already the right shape, so there is nothing for a
+   skeleton to reserve.
+
+   The drawing lays a faint diagonal stripe over the surface: 8px bands
+   (space.2) at 6% white. Ours mixes the ink at the same 6%, so a theme whose
+   ink is not white still gets a stripe that reads against its own surface.
+   The ring and the words sit centred on it, 10px apart (space.gap). */
+.gs-media-frame__busy {
+  position: relative;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: var(--gs-space-gap);
+  padding: var(--gs-space-3);
+  text-align: center;
+  background-image: repeating-linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--gs-color-ink) 6%, transparent) 0 var(--gs-space-2),
+    transparent var(--gs-space-2) calc(var(--gs-space-2) * 2)
+  );
+}
+
+/* The ring: a circle stroked in colour.edge with its top quarter in reward,
+   turning once a second. The drawing draws it 36px with a 4px stroke. 36 has no
+   token (space.8 is 32, controlSmall 40) and is the same request specimen 3h
+   makes for its 36px controls; the 4px stroke has no token either (stroke.control
+   is 3 in arcade), and both are requests in the report. Ours is space.8 at
+   stroke.control until they land.
+
+   One turn a second is the drawing's `1s linear infinite`. There is no spin
+   duration token; motion.pulse is the library's one-second loop and carries
+   the duration until a `motion.spin` lands, which is also a request. Linear,
+   because a spinner with an ease reads as sticking. */
+.gs-media-frame__ring {
+  display: block;
+  box-sizing: border-box;
+  width: var(--gs-space-8);
+  height: var(--gs-space-8);
+  border: var(--gs-stroke-control) solid var(--gs-color-edge);
+  /* The solid companion, because a theme may set reward to a gradient and a
+     gradient in a colour slot is dropped by the browser. */
+  border-top-color: var(--gs-color-reward-solid);
+  border-radius: var(--gs-radius-full);
+  animation: gs-media-frame-spin var(--gs-motion-pulse) linear infinite;
+}
+
+@keyframes gs-media-frame-spin {
+  to { transform: rotate(1turn); }
+}
+
+/* The emphasis half of the reduced-motion rule: the ring stops and stays
+   drawn, and the words under it still say what is happening. A player who
+   has asked for no movement reads the waiting state exactly as everyone else
+   does. */
+@media (prefers-reduced-motion: reduce) {
+  .gs-media-frame__ring {
+    animation: none;
+  }
+}
+
+/* There is deliberately no rule for `data-gs-playing`. Playback is the host's,
+   the frame only repeats what it was told, and a frame that restyled itself
+   while a video played would be the first step towards owning the video. The
+   attribute is there for a theme and a test to read. The LIVE pill and the
+   progress bar the drawing lays over a playing frame are the host's overlays,
+   placed by stage's hud layer, and no part of this file. */

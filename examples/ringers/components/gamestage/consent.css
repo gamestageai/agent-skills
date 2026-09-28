@@ -1,0 +1,57 @@
+/* Consent. Every value comes from a token; nothing here is a literal colour. */
+
+.gs-consent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-3);
+  padding: var(--gs-space-4);
+  border-radius: var(--gs-radius-lg);
+  background: var(--gs-color-surface);
+  color: var(--gs-color-ink);
+  font-family: var(--gs-type-body-font-family);
+  box-shadow: var(--gs-depth-floating);
+}
+
+.gs-consent__title {
+  margin: 0;
+  font-family: var(--gs-type-title-font-family);
+  font-size: var(--gs-type-title-font-size);
+  font-weight: var(--gs-type-title-font-weight);
+  line-height: var(--gs-type-title-line-height);
+}
+
+.gs-consent__detail,
+.gs-consent__note {
+  margin: 0;
+  font-size: var(--gs-type-body-font-size);
+  line-height: var(--gs-type-body-line-height);
+}
+
+.gs-consent__note {
+  color: var(--gs-color-ink-secondary);
+}
+
+.gs-consent__policy {
+  padding: 0;
+  font: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.gs-consent__detail .gs-consent__policy {
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+.gs-consent__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gs-space-2);
+}
+
+/* Two answers side by side at the same width, so neither is the easy one. */
+.gs-consent__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gs-space-2);
+}

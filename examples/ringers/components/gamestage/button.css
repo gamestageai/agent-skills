@@ -1,0 +1,359 @@
+/* Button. Every value comes from a token; nothing here is a literal colour. */
+
+.gs-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gs-space-2);
+  position: relative;
+
+  /* 48px is the smallest target a thumb reliably hits; the action sizes are
+     above it, and this is the floor if a host shrinks one. */
+  min-height: var(--gs-size-action);
+  min-width: var(--gs-size-touch-min);
+  padding: 0 var(--gs-space-6);
+
+  text-align: center;
+
+  /* Every control carries the outline token in edge: arcade draws a 3px edge
+     ring on every face in specimen 2b, base a 1px hairline. The base drawing
+     (1f) outlines none of its filled faces, which is a 1px gap design/twins/1f
+     tolerates and names as a token request (stroke.face). */
+  border: var(--gs-stroke-control, var(--gs-stroke-hairline)) solid var(--gs-color-edge);
+  /* 16px: the radius the drawing gives every 56 to 60px control (1f, 2b). */
+  border-radius: var(--gs-radius-control);
+  cursor: pointer;
+
+  /* Only the movement is timed here. The padlock's transition lives on the
+     emphasis element so it survives reduced motion. */
+  transition: transform var(--gs-motion-press) var(--gs-motion-ease-press),
+              box-shadow var(--gs-motion-press) var(--gs-motion-ease-press);
+}
+
+.gs-button[data-gs-size='large'] {
+  min-height: var(--gs-size-action-large);
+  padding: 0 var(--gs-space-8);
+  /* 18px on the 64 and 68px faces, 1f and 2b: the step above radius.control. */
+  border-radius: var(--gs-radius-lg);
+}
+
+/* The drawing spaces only the primary action's letters: 1f sets .01em on Play
+   and nothing on Skip round, Not now, Quit game or Level 8, and 2b does the
+   same with .02em on Start. The action token carries one letter-spacing, so
+   the others give it back. */
+.gs-button:not([data-gs-variant='primary']),
+.gs-button[data-gs-locked='true'],
+.gs-button[data-gs-disabled='true'] {
+  letter-spacing: normal;
+}
+
+/* The small step of the scale, which had no rule and rendered at the default:
+   specimen 4e's state cards carry 44px controls, 12px round, padded 18, and
+   `size="small"` is what the contract names for them. The ghost keeps its own
+   height rule below, which is why it is repeated for it here. */
+.gs-button[data-gs-size='small'],
+.gs-button[data-gs-variant='tertiary'][data-gs-size='small'] {
+  min-height: var(--gs-size-control-medium);
+  padding: 0 var(--gs-space-4);
+  border-radius: var(--gs-radius-sm);
+}
+
+/* The small ghost keeps half the padding, as the large one does. */
+.gs-button[data-gs-variant='tertiary'][data-gs-size='small'] {
+  padding: 0 var(--gs-space-3);
+}
+
+.gs-button:focus-visible {
+  outline: var(--gs-stroke-focus) solid var(--gs-color-ink);
+  outline-offset: 3px;
+}
+
+/* -- primary -------------------------------------------------------------- */
+/* An offset base, not a shadow. The base collapses and the face performs
+   press.transform, whose default travels the same press.travel the base was
+   offset by, so the face lands where the base was. A theme may swap the
+   gesture for a scale or for no movement at all. */
+.gs-button[data-gs-variant='primary'] {
+  color: var(--gs-color-on-accent);
+  background: var(--gs-color-interactive);
+  box-shadow: var(--gs-depth-pressable);
+}
+
+.gs-button[data-gs-variant='primary']:hover:not([aria-disabled='true']) {
+  background: var(--gs-color-interactive-hover);
+}
+
+/* Pressable controls never fade or darken. They perform the theme's press
+   gesture: a 6px drop by default, `none` under reduced motion. */
+.gs-button[data-gs-variant='primary']:active:not([aria-disabled='true']),
+.gs-button[data-gs-variant='primary'][data-gs-pressed='true']:not([aria-disabled='true']) {
+  transform: var(--gs-press-transform);
+  box-shadow: var(--gs-depth-pressable-pressed);
+}
+
+/* The large primary is the game action, and the drawing paints it positive:
+   green GO and PLAY on 1f, 1g and 2b, where the ordinary primary is the
+   interactive colour. Its shelf is depth.pressablePositive so the base under
+   it matches the face. Set directly rather than through the pressable bundle,
+   which carries one shadow per depth style. GSUI-179. */
+.gs-button[data-gs-variant='primary'][data-gs-size='large'] {
+  color: var(--gs-color-on-bright);
+  background: var(--gs-color-positive);
+  box-shadow: var(--gs-depth-pressable-positive);
+}
+
+.gs-button[data-gs-variant='primary'][data-gs-size='large']:hover:not([aria-disabled='true']) {
+  background: var(--gs-color-positive);
+}
+
+/* The large primary always stands on its positive shelf, press.travel deep,
+   whatever the theme's depth style. So its press always travels that far and
+   the face lands where the shelf was: under a style whose own gesture is
+   `none` (glow), the shelf used to vanish while the face stayed put, which
+   reads as the button shrinking upward rather than going down. Tom,
+   2026-09-27: "check that 3d buttons depress on tap". */
+.gs-button[data-gs-variant='primary'][data-gs-size='large']:active:not([aria-disabled='true']),
+.gs-button[data-gs-variant='primary'][data-gs-size='large'][data-gs-pressed='true']:not([aria-disabled='true']) {
+  transform: translateY(var(--gs-press-travel, 6px));
+  box-shadow: var(--gs-depth-pressable-positive-pressed);
+}
+/* Reduced motion keeps the pressed shelf and drops the travel. */
+@media (prefers-reduced-motion: reduce) {
+  .gs-button[data-gs-variant='primary'][data-gs-size='large']:active:not([aria-disabled='true']),
+  .gs-button[data-gs-variant='primary'][data-gs-size='large'][data-gs-pressed='true']:not([aria-disabled='true']) {
+    transform: none;
+  }
+}
+
+/* -- secondary ------------------------------------------------------------ */
+/* Raised rather than offset, so it reads as the lesser action without being
+   dimmer: a dim control reads as disabled. It travels the depth it has. */
+.gs-button[data-gs-variant='secondary'] {
+  color: var(--gs-color-ink);
+  background: var(--gs-color-surface-raised);
+  box-shadow: var(--gs-depth-raised);
+}
+
+.gs-button[data-gs-variant='secondary']:hover:not([aria-disabled='true']) {
+  border-color: var(--gs-color-edge-high);
+}
+
+.gs-button[data-gs-variant='secondary']:active:not([aria-disabled='true']),
+.gs-button[data-gs-variant='secondary'][data-gs-pressed='true']:not([aria-disabled='true']) {
+  transform: var(--gs-press-transform);
+  box-shadow: var(--gs-depth-flat);
+}
+
+/* -- tertiary ------------------------------------------------------------- */
+/* The ghost. Text, no box, no stroke, and the smallest of the three heights,
+   because the design draws it at 48 while primary and secondary sit at 56.
+   A dismissal has to be reachable without weighing as much as the thing it
+   declines, so it gives up its shape rather than its contrast: it keeps a
+   readable ink and grows a face only under the finger. */
+.gs-button[data-gs-variant='tertiary'] {
+  min-height: var(--gs-size-touch-min);
+  /* Half the padding the boxed treatments carry. The base rule's 24px is there
+     to give a filled face room around its words; a ghost has no face to give
+     room in, and at 24px a two-word dismissal measured wider than the drawing's
+     does. The 48px min-width from the base rule stays: it is the touch floor,
+     and a ghost is still something a thumb has to hit. */
+  padding: 0 var(--gs-space-4);
+  color: var(--gs-color-ink-secondary);
+  background: transparent;
+  border: 0;
+  /* 14px, the compact radius: the drawing rounds the 48px ghost tighter than
+     the 56px faces beside it. */
+  border-radius: var(--gs-radius-md);
+  box-shadow: var(--gs-depth-flat);
+}
+
+/* A ghost keeps its shape by having none. The shared locked and disabled rules
+   below hand every control a face and a depth, which is right for a treatment
+   that had one and wrong here: it would grow a box at the moment the file's own
+   comment says the control keeps its shape. So tertiary opts out of the face
+   and keeps only the ink change, which is the whole of its vocabulary. */
+.gs-button[data-gs-variant='tertiary'][data-gs-locked='true'],
+.gs-button[data-gs-variant='tertiary'][data-gs-disabled='true'] {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: var(--gs-depth-flat);
+}
+
+.gs-button[data-gs-variant='tertiary']:hover:not([aria-disabled='true']) {
+  color: var(--gs-color-ink);
+  background: var(--gs-color-surface);
+}
+
+/* No base to collapse, so the press is a squeeze rather than a drop. */
+.gs-button[data-gs-variant='tertiary']:active:not([aria-disabled='true']),
+.gs-button[data-gs-variant='tertiary'][data-gs-pressed='true']:not([aria-disabled='true']) {
+  background: var(--gs-color-surface-raised);
+  /* The squeeze token, not the number it holds, and zeroed under reduced
+     motion just below: a literal here meant a player who asked for stillness
+     still got the squeeze, because this selector outranks the primitives'
+     own reduced-motion rule (GSUI-164). */
+  transform: var(--gs-depth-styles-squeeze-transform);
+}
+
+/* -- destructive ---------------------------------------------------------- */
+/* A red outline on a bare face. It is the only control that warns rather than
+   invites, so it is drawn in the negative colour and left hollow: a filled red
+   button at rest reads as the thing to press, which is the opposite of what
+   "Quit game" wants. It fills on press, at the moment the player has committed.
+
+   `--gs-color-negative-solid` rather than `--gs-color-negative` in `color` and
+   `border-color`, because the arcade theme sets negative to a gradient and a
+   gradient substituted into a colour property drops the whole declaration. */
+.gs-button[data-gs-variant='destructive'] {
+  color: var(--gs-color-negative-solid);
+  background: transparent;
+  border: var(--gs-stroke-ui) solid var(--gs-color-negative-solid);
+  box-shadow: var(--gs-depth-flat);
+}
+
+/* The drawing tints the face 12% on hover. Mixed from the token rather than
+   written as a colour, so a theme changing negative reaches this too. */
+.gs-button[data-gs-variant='destructive']:hover:not([aria-disabled='true']) {
+  background: color-mix(in oklch, var(--gs-color-negative-solid) 12%, transparent);
+}
+
+.gs-button[data-gs-variant='destructive']:active:not([aria-disabled='true']),
+.gs-button[data-gs-variant='destructive'][data-gs-pressed='true']:not([aria-disabled='true']) {
+  color: var(--gs-color-on-accent);
+  background: var(--gs-color-negative);
+  /* The squeeze token, not the number it holds, and zeroed under reduced
+     motion just below: a literal here meant a player who asked for stillness
+     still got the squeeze, because this selector outranks the primitives'
+     own reduced-motion rule (GSUI-164). */
+  transform: var(--gs-depth-styles-squeeze-transform);
+}
+
+/* Reduced motion, restated at the two selectors above rather than left to
+   primitives.css. A `.gs-button[data-gs-variant='...']:active` declaration
+   outranks `.gs-pressable` whatever the layer, so the shared rule that zeroes
+   the press gesture could not reach either of these and both still squeezed
+   for a player who had asked for stillness. Same selector, same specificity,
+   later in the file: source order decides. The fill and the ink still change,
+   which is how the press still answers (GSUI-164). */
+@media (prefers-reduced-motion: reduce) {
+  .gs-button[data-gs-variant='tertiary']:active:not([aria-disabled='true']),
+  .gs-button[data-gs-variant='destructive']:active:not([aria-disabled='true']),
+  .gs-button[data-gs-variant='tertiary'][data-gs-pressed='true']:not([aria-disabled='true']),
+  .gs-button[data-gs-variant='destructive'][data-gs-pressed='true']:not([aria-disabled='true']) {
+    transform: none;
+  }
+}
+
+/* A locked or disabled destructive loses its red, because the shared rules below
+   set the border colour and the ink, and that is correct rather than incidental:
+   a control the player cannot press is not warning them about anything. What it
+   keeps is the outline's shape, which is what says it is still a button. */
+
+/* -- icon ----------------------------------------------------------------- */
+/* A square face holding one glyph: pause, mute, help. Square rather than the
+   label shape, so `width` is pinned to the same token `min-height` reads and
+   the padding that makes room for words is taken away.
+
+   It takes the secondary paint on purpose. These are utility controls beside
+   the action rather than the action itself, and the drawing gives the pause
+   control the same raised face, high edge and collapsing base that secondary
+   has. The drawing also draws the same shape twice more, filled and bare, at
+   two other emphases; one variant value can only be one of them, and widening
+   it is GSUI-178. */
+.gs-button[data-gs-variant='icon'] {
+  width: var(--gs-size-action);
+  min-width: var(--gs-size-action);
+  padding: 0;
+  border-radius: var(--gs-radius-full);
+  color: var(--gs-color-ink);
+  background: var(--gs-color-surface-raised);
+  box-shadow: var(--gs-depth-raised);
+}
+
+.gs-button[data-gs-variant='icon'][data-gs-size='large'] {
+  width: var(--gs-size-action-large);
+  min-width: var(--gs-size-action-large);
+  padding: 0;
+}
+
+.gs-button[data-gs-variant='icon']:hover:not([aria-disabled='true']) {
+  background: var(--gs-color-surface);
+}
+
+.gs-button[data-gs-variant='icon']:active:not([aria-disabled='true']),
+.gs-button[data-gs-variant='icon'][data-gs-pressed='true']:not([aria-disabled='true']) {
+  transform: var(--gs-press-transform);
+  box-shadow: var(--gs-depth-flat);
+}
+
+/* -- locked and disabled -------------------------------------------------- */
+/* Locked keeps its shape and shows a padlock: available later, not now.
+
+   The shape is the geometry: the same height, radius and outline as the face
+   it was. The paint is the disabled paint. That is what the drawing draws, in
+   1f, 1g and 2b alike: "Level 8" and "Lv 8" sit on color.disabled in
+   disabledInk with no base under them and a padlock before the word, and the
+   design's note beside them says "locked buttons keep their shape and show a
+   padlock; only disabled goes flat". design/twins/1f measures ours against it.
+
+   An earlier reading gave locked the raised secondary face, which made a locked
+   control look pressable with a padlock on it. The padlock, not the fill, is
+   what separates locked from disabled: "not yet" against "not ever". */
+.gs-button[data-gs-locked='true'],
+.gs-button[data-gs-disabled='true'] {
+  cursor: not-allowed;
+  color: var(--gs-color-disabled-ink);
+  background: var(--gs-color-disabled);
+  box-shadow: var(--gs-depth-flat);
+}
+
+.gs-button__label {
+  font: inherit;
+  /* Label fit, GSUI-281: the size and line count the button resolved, and an
+     ellipsis past them. Only a plain-text label carries these; see button.tsx. */
+  min-inline-size: 0;
+  font-size: calc(1em * var(--gs-label-scale, 1));
+  overflow: hidden;
+  overflow-wrap: normal;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--gs-label-lines, 2);
+  line-clamp: var(--gs-label-lines, 2);
+  min-block-size: calc(var(--gs-label-block, 0) * 1lh);
+}
+.gs-button[data-gs-label-fit='truncate'] .gs-button__label {
+  display: block;
+  white-space: nowrap;
+}
+
+.gs-button__glyph {
+  /* inline-flex, so the span is exactly the 1em square the glyph draws: as an
+     inline box it carried the line's descender space and measured 26px for a
+     24px mark. */
+  display: inline-flex;
+  font-size: var(--gs-size-icon-control);
+  line-height: 1;
+  /* Emphasis, not motion: this duration survives reduced motion on purpose. */
+  transition: opacity var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis);
+}
+
+/* A padlock beside a word is a utility mark, drawn at 14px in 1f and 2b; the
+   24px control size is for the one glyph an icon control is built around. */
+.gs-button:not([data-gs-variant='icon']) .gs-button__glyph {
+  font-size: var(--gs-size-icon-utility);
+}
+
+/* Read by a screen reader, never seen. `display: none` would drop it from the
+   accessible name, which is the one thing this element is for. */
+.gs-button__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}

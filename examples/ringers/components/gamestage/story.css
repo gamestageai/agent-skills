@@ -1,0 +1,387 @@
+/* Story. Every value comes from a token; nothing here is a literal colour.
+
+   Specimen 3h draws the vertical story and design/twins/3h.json measures ours
+   against it. The drawing writes four translucent darks and lights over the
+   media as literal rgba values; each is mixed here from the edge or the ink at
+   the drawing's opacity rather than written as a colour.
+
+   Every rule is scoped through `.gs-story`, and that is the composition rule
+   rather than a style preference. A bare `.gs-media-frame { … }` here would tie
+   with the one in media-frame.css at 0,1,0, and a tie is decided by whichever
+   stylesheet the bundler put last. Import order happens to favour story today,
+   because story imports its children before its own CSS, but that holds only
+   while one component depends on the other. */
+
+.gs-story {
+  position: relative;
+  /* The media frame and the overlay share one cell, so the story is exactly as
+     tall as the frame and the overlay never adds height of its own. */
+  display: grid;
+  isolation: isolate;
+  border-radius: var(--gs-radius-lg);
+  overflow: hidden;
+}
+
+.gs-story > * {
+  grid-area: 1 / 1;
+}
+
+/* ---------------------------------------------------------- the gestures -- */
+
+/* A story that takes gestures owns every touch on it. Without `touch-action`
+   the browser would scroll the page or pull to refresh on the same swipe that
+   closes the story, and a drag with a mouse would select the caption. The
+   controls inside still take their taps: a tap is not a pan. GSUI-290. */
+.gs-story[data-gs-interaction='swipe'] {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* While a finger drags it, the story follows exactly, so nothing may ease it.
+   The values themselves are written inline by the drag, which is what keeps
+   it at the frame rate. */
+.gs-story[data-gs-swipe='down'] {
+  transition: none;
+  will-change: transform;
+}
+
+/* Lifted over whatever follows it on the page while it moves, so a story
+   dragged down slides over the next thing rather than under it. */
+.gs-story[data-gs-swipe='down'],
+.gs-story.gs-story--settling {
+  z-index: 2;
+}
+
+/* Letting go: the story goes home or goes away on the sheet's own curve, the
+   same one a sheet uses to rise, so the two read as one family of motion. */
+.gs-story.gs-story--settling {
+  transition:
+    transform var(--gs-motion-sheet) var(--gs-motion-ease-sheet),
+    border-radius var(--gs-motion-sheet) var(--gs-motion-ease-sheet),
+    opacity var(--gs-motion-emphasis) var(--gs-motion-ease-fade);
+}
+
+/* ------------------------------------------------------ the full screen -- */
+
+/* A fullscreen story opens as a modal dialog in the browser's top layer, above
+   every stacking context the page has, so nothing the host draws can sit over
+   it. The dialog is the whole viewport; its cover is the edge colour, faded by
+   the drag through --gs-story-screen-fade so the page shows through behind a
+   story on its way out. GSUI-290. */
+.gs-story-screen {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  inline-size: 100%;
+  block-size: 100%;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  color: inherit;
+  background: transparent;
+  overscroll-behavior: none;
+}
+
+.gs-story-screen::backdrop {
+  background: transparent;
+}
+
+.gs-story-screen::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--gs-color-edge);
+  opacity: var(--gs-story-screen-fade, 1);
+}
+
+.gs-story-screen.gs-story-screen--settling::before {
+  transition: opacity var(--gs-motion-sheet) var(--gs-motion-ease-sheet);
+}
+
+/* The story fills the screen's height, in a phone-width column on anything
+   wider, square-cornered at rest the way a phone's stories are. */
+.gs-story[data-gs-presentation='fullscreen'] {
+  block-size: 100%;
+  inline-size: min(100%, 480px);
+  margin-inline: auto;
+  border-radius: 0;
+}
+
+.gs-story[data-gs-presentation='fullscreen'] > .gs-media-frame {
+  aspect-ratio: auto;
+  block-size: 100%;
+  border: 0;
+  border-radius: 0;
+}
+
+/* Clear of the notch, the status bar and the home bar. --gs-story-safe-top and
+   --gs-story-safe-bottom exist so a test, or a host that already paid the
+   inset, can say what it is; the browser's own inset is the default. */
+.gs-story[data-gs-presentation='fullscreen'] .gs-story__overlay {
+  padding-block-start: calc(var(--gs-space-inset) + var(--gs-story-safe-top, env(safe-area-inset-top, 0px)));
+  padding-block-end: calc(var(--gs-space-inset) + var(--gs-story-safe-bottom, env(safe-area-inset-bottom, 0px)));
+  padding-inline-start: calc(var(--gs-space-inset) + env(safe-area-inset-left, 0px));
+  padding-inline-end: calc(var(--gs-space-inset) + env(safe-area-inset-right, 0px));
+}
+
+/* ---------------------------------------------------------- the overlay -- */
+
+/* The layer the library owns, over the media the host owns. It takes no presses
+   itself: a tap on the media belongs to the host, and this layer covers all of
+   it. Each control inside takes its own, which is safe because each is only as
+   big as itself.
+
+   This is the same rule `stage` declares on its layers through
+   `data-gs-pointer-events`. It is written here rather than borrowed, because
+   that attribute is scoped to a stage layer and a story is not a stage.
+
+   The scrim is the drawing's: dark at the top and the bottom so the words read
+   over any picture, clear across the middle where the picture is the point. */
+.gs-story__overlay {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  padding: var(--gs-space-inset);
+  gap: var(--gs-space-3);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklch, var(--gs-color-edge) 60%, transparent),
+    transparent 22%,
+    transparent 60%,
+    color-mix(in oklch, var(--gs-color-edge) 85%, transparent)
+  );
+}
+
+.gs-story__overlay button {
+  pointer-events: auto;
+}
+
+.gs-story__top {
+  display: grid;
+  /* Room between the bars and the header row, so the title does not sit on
+     the bars. Tom, 2026-09-28. */
+  gap: var(--gs-space-3);
+  align-content: start;
+}
+
+/* ------------------------------------------------------------ the pager -- */
+
+/* PLACEHOLDER, paired with StoryPager in story.tsx. The shared segmented track
+   is GSUI-115, shipping as `segments` with `presentation="pager"`; folding this
+   into it is GSUI-126. Kept to the smallest thing that renders so nobody grows
+   a third track here by accident. */
+.gs-story__pager {
+  display: flex;
+  gap: var(--gs-space-1);
+  /* The bars and the header row share one inset, so the title starts under
+     the first bar and the close mark ends under the last. */
+  padding-inline: var(--gs-space-1);
+}
+
+/* A thin bar: hollow in a quarter of the ink where the player has not been,
+   filled with reward where they have. The drawing draws them 6px and space.1
+   is the nearest token. */
+.gs-story__segment {
+  position: relative;
+  flex: 1 1 0;
+  height: var(--gs-space-1);
+  overflow: hidden;
+  border-radius: var(--gs-radius-full);
+  background: color-mix(in oklch, var(--gs-color-ink) 25%, transparent);
+}
+
+.gs-story__segment[data-gs-complete='true'] {
+  background: var(--gs-color-reward);
+}
+
+/* Where the sequence is now: the hollow bar filling with reward as far as the
+   host says playback has got. Without the host's number it stays hollow, and
+   the cell's own name says "current" either way. */
+.gs-story__segment[data-gs-active='true']::after {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: var(--gs-story-progress, 0%);
+  background: var(--gs-color-reward);
+}
+
+/* ----------------------------------------------------------- the header -- */
+
+.gs-story__header {
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-gap);
+  min-height: var(--gs-size-control-medium);
+  padding-inline: var(--gs-space-1);
+}
+
+.gs-story__title {
+  flex: 1 1 auto;
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  color: var(--gs-color-ink);
+}
+
+/* The bars already say where the fan is, so the count is not drawn: it
+   crowded the title and said the same thing twice. It stays in the tree for
+   anything reading the part, and the group's name carries it for a screen
+   reader. Tom, 2026-09-28. */
+.gs-story__count {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Close is a round mark at the medium control size, 44px: the quiet way out,
+   never the emphasis the one thing to do from here carries. It was a worded
+   pill that crowded the header. Its focus ring shows for a keyboard only. */
+.gs-story__skip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-inline-start: auto;
+  box-sizing: border-box;
+  inline-size: var(--gs-size-control-medium);
+  block-size: var(--gs-size-control-medium);
+  padding: 0;
+  font-size: var(--gs-size-icon-utility);
+  color: var(--gs-color-ink);
+  background: color-mix(in oklch, var(--gs-color-edge) 40%, transparent);
+  border: 0;
+  border-radius: var(--gs-radius-full);
+  cursor: pointer;
+}
+
+.gs-story__skip:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ----------------------------------------------------- the step controls -- */
+
+.gs-story__steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* A translucent disc either side, the medium control size, a chevron in it. */
+.gs-story__step-control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  inline-size: var(--gs-size-control-medium);
+  block-size: var(--gs-size-control-medium);
+  padding: 0;
+  font-size: var(--gs-size-icon-utility);
+  color: var(--gs-color-ink);
+  background: color-mix(in oklch, var(--gs-color-edge) 45%, transparent);
+  border: var(--gs-stroke-ui) solid color-mix(in oklch, var(--gs-color-ink) 30%, transparent);
+  border-radius: var(--gs-radius-full);
+  cursor: pointer;
+}
+
+/* The chevron at the small-glyph weight, which is what a 16px mark needs to
+   stay a stroke rather than a smear. */
+.gs-story__step-control svg {
+  stroke-width: var(--gs-stroke-glyph-small);
+}
+
+/* At the end of the sequence the control stays where it is and goes flat, so
+   nothing reflows under a thumb already reaching for it. Flat plus the button's
+   own `disabled` is how "not available" reads, and the browser stops it taking
+   focus, so it is never a control a keyboard lands on with nothing to do. */
+.gs-story__step-control[data-gs-disabled='true'] {
+  color: var(--gs-color-disabled-ink);
+  background: var(--gs-color-disabled);
+  border-color: var(--gs-color-disabled);
+  cursor: default;
+}
+
+.gs-story__skip:focus-visible,
+.gs-story__step-control:focus-visible,
+.gs-story__action:focus-visible {
+  outline: var(--gs-stroke-focus) solid var(--gs-color-ink);
+  outline-offset: 3px;
+}
+
+/* ----------------------------------------------- the caption and the act -- */
+
+.gs-story__bottom {
+  display: grid;
+  gap: var(--gs-space-4);
+  align-content: end;
+}
+
+/* The caption plate: a surface behind the words, as wide as the words, centred.
+   The body face at the body size; the drawing sets it bold, and the body token
+   carries 400, which is on the token request list.
+
+   The plate sits on the bottom of the scrim, which is the edge at 85%, and the
+   plate is the edge at 70%: over a dark picture the two are the same colour and
+   the words read as bare text over the video, which is what happened with the
+   demo's second and third clips. The ink ring at low alpha is what separates
+   the plate from the scrim on any picture; it is the same ring the skip pill
+   and the step discs carry, and the drawing's background is kept as it is. */
+.gs-story__caption {
+  margin: 0;
+  justify-self: center;
+  box-sizing: border-box;
+  padding: var(--gs-space-3) var(--gs-space-4);
+  border: var(--gs-stroke-ui) solid color-mix(in oklch, var(--gs-color-ink) 30%, transparent);
+  font-family: var(--gs-type-body-font-family);
+  font-size: var(--gs-type-body-font-size);
+  font-weight: var(--gs-type-body-font-weight);
+  line-height: var(--gs-type-body-line-height);
+  text-align: center;
+  text-wrap: pretty;
+  color: var(--gs-color-ink);
+  background: color-mix(in oklch, var(--gs-color-edge) 70%, transparent);
+  border-radius: var(--gs-radius-sm);
+}
+
+.gs-story__actions {
+  display: grid;
+}
+
+/* The one thing to do from here, full width, carrying the primary emphasis. The
+   type and the press gesture come from .gs-action-type and .gs-pressable in
+   packages/tokens/primitives.css, so a theme reaches this control the same way
+   it reaches a button. Ringed in the edge at the control radius, as the
+   drawing has it. */
+.gs-story__action {
+  box-sizing: border-box;
+  min-height: var(--gs-size-action);
+  padding: 0 var(--gs-space-6);
+  color: var(--gs-color-on-accent);
+  background: var(--gs-color-interactive);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-control);
+  box-shadow: var(--gs-depth-pressable);
+  cursor: pointer;
+}
+
+.gs-story__action[data-gs-disabled='true'] {
+  color: var(--gs-color-disabled-ink);
+  background: var(--gs-color-disabled);
+  border-color: var(--gs-color-disabled);
+  box-shadow: none;
+  cursor: default;
+}
+
+/* The hud lays over media rather than over a page, and a hud's own stylesheet
+   already assumes that, so there is nothing to declare for it here. That is the
+   result worth recording rather than an omission: the moment story styled
+   `.gs-hud` it would be writing a rule whose winner depends on bundler order. */

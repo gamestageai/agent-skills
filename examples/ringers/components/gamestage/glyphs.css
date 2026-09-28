@@ -1,0 +1,45 @@
+/* Glyphs. Every value comes from the element the glyph sits in; nothing here is
+   a literal colour and nothing here is a token, because a drawn glyph has no
+   colour and no size of its own. */
+
+/* `1em` square, so the size comes from the `font-size` the glyph element already
+   sets from `--gs-size-icon-control` or `--gs-size-icon-hero`. That is how the
+   emoji these replace were sized, so no call site changed its CSS.
+
+   `inline-block` rather than `block`, for the same reason: the emoji was inline
+   content of its span, and a block would drop the label under it wherever a
+   glyph and a word share a line. `vertical-align: middle` puts the drawing where
+   the character used to sit on the baseline. */
+.gs-glyph {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+/* The weight of the drawing, from a token, so a theme can change every mark in
+   the library at once and no component writes a number.
+
+   `non-scaling-stroke` is the point of this rule. A glyph is 1em square over a
+   16-unit grid, so without it the stroke scales with the mark: the same
+   drawing rendered 2, 3, 6 and 8 device pixels at the library's icon sizes of
+   16, 24, 48 and 64, and at hero size the padlock was a slab. Held absolute,
+   one weight draws the same at every size.
+
+   Three weights, asked for rather than derived from the size. `small` is for a
+   mark under about 14px and is thinner, which is the inversion an absolute
+   stroke forces: under the old scaling stroke a 9px mark computed to 0.84
+   device pixels and had to go heavier. `bold` is for a mark carrying a screen
+   on its own. */
+.gs-glyph {
+  stroke-width: var(--gs-stroke-glyph);
+  vector-effect: non-scaling-stroke;
+}
+
+.gs-glyph[data-gs-weight='small'] {
+  stroke-width: var(--gs-stroke-glyph-small);
+}
+
+.gs-glyph[data-gs-weight='bold'] {
+  stroke-width: var(--gs-stroke-glyph-bold);
+}

@@ -87,5 +87,9 @@
   "display_name": "Call It",
   "play_button_label": "Make the call",
   "how_to_play": "Make your call before anyone knows the answer. Nothing is right or wrong yet: when the real result comes in, every call is scored at once and yours is waiting for you.",
-  "primary_colour": "#E2483A"
+  "primary_colour": "#E2483A",
+  "consent_detail": "{brand} would like to record analytics on how you play, so we can improve the game. We only do this if you agree. Data needed to run the game, such as your scores, is processed on the basis of legitimate interests.",
+  "consent_accept_label": "Accept",
+  "consent_reject_label": "Reject",
+  "consent_choose_label": "Manage preferences"
 }
