@@ -1,18 +1,48 @@
 /* Consent. Every value comes from a token; nothing here is a literal colour. */
 
 .gs-consent {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--gs-space-3);
+  box-sizing: border-box;
+  max-inline-size: 26rem;
   padding: var(--gs-space-4);
-  border-radius: var(--gs-radius-lg);
+  border: var(--gs-stroke-hairline) solid var(--gs-color-edge);
+  border-radius: 20px;
   background: var(--gs-color-surface);
   color: var(--gs-color-ink);
   font-family: var(--gs-type-body-font-family);
   box-shadow: var(--gs-depth-floating);
 }
 
+/* A compact card held above the foot of the screen and clear of whatever the
+   page pins there, as Tom's reference draws it (2026-09-28). */
+.gs-consent[data-gs-placement='bottom'] {
+  position: fixed;
+  z-index: 70;
+  inset-inline: var(--gs-space-4);
+  bottom: calc(var(--gs-consent-clear, 0px) + var(--gs-space-3) + env(safe-area-inset-bottom, 0px));
+  margin-inline: auto;
+}
+
+/* The heading is for a screen reader; the message is the card. */
 .gs-consent__title {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The expanded choices keep a visible heading: there it names a form. */
+.gs-consent[data-gs-presentation='expanded'] .gs-consent__title {
+  position: static;
+  inline-size: auto;
+  block-size: auto;
+  clip-path: none;
+  white-space: normal;
   margin: 0;
   font-family: var(--gs-type-title-font-family);
   font-size: var(--gs-type-title-font-size);
@@ -20,9 +50,29 @@
   line-height: var(--gs-type-title-line-height);
 }
 
+/* Close without deciding. */
+.gs-consent__close {
+  position: absolute;
+  inset-block-start: var(--gs-space-2);
+  inset-inline-end: var(--gs-space-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--gs-size-touch-min);
+  block-size: var(--gs-size-touch-min);
+  padding: 0;
+  font-size: 20px;
+  color: var(--gs-color-ink-secondary);
+  background: none;
+  border: 0;
+  border-radius: var(--gs-radius-full);
+  cursor: pointer;
+}
+
 .gs-consent__detail,
 .gs-consent__note {
   margin: 0;
+  font-size: var(--gs-type-body-font-size);
   font-size: var(--gs-type-body-font-size);
   line-height: var(--gs-type-body-line-height);
 }
@@ -40,7 +90,18 @@
 }
 .gs-consent__detail .gs-consent__policy {
   color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--gs-color-interactive-solid);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.gs-consent__choose {
+  color: var(--gs-color-ink-secondary);
+  font-size: var(--gs-type-caption-font-size);
+  text-decoration: underline;
   text-underline-offset: 3px;
+  min-block-size: var(--gs-size-touch-min);
 }
 
 .gs-consent__list {
@@ -49,9 +110,34 @@
   gap: var(--gs-space-2);
 }
 
-/* Two answers side by side at the same width, so neither is the easy one. */
+/* Two answers side by side at the same width and height, so neither is the
+   easy one, with Manage preferences as a small link after them. */
 .gs-consent__actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: var(--gs-space-2);
+}
+
+.gs-consent__actions > [data-gs-part='accept'],
+.gs-consent__actions > [data-gs-part='reject'] {
+  flex: 0 0 auto;
+  min-inline-size: 6.5rem;
+  /* A pill in every theme, as Tom's card draws it: paper's full radius is 4px
+     so that its own pills read square, and that squared these two. */
+  border-radius: 999px;
+}
+
+.gs-consent[data-gs-presentation='expanded'] .gs-consent__actions > * {
+  flex: 1 1 0;
+}
+
+/* Room for the × beside the first lines only, so the choices below it keep
+   the card's full width. */
+.gs-consent[data-gs-closable] .gs-consent__detail,
+.gs-consent[data-gs-closable][data-gs-presentation='expanded'] .gs-consent__title {
+  padding-inline-end: calc(var(--gs-size-touch-min) - var(--gs-space-2));
+}
+.gs-consent[data-gs-closable][data-gs-presentation='expanded'] .gs-consent__detail {
+  padding-inline-end: 0;
 }

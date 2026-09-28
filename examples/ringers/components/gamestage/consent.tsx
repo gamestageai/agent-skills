@@ -12,6 +12,7 @@ import './gamestage-primitives.css'
 // The flat install layout puts every component in one directory. See hud/score.ts.
 import { Button } from './button'
 import { Toggle } from './toggle'
+import { CrossGlyph } from './glyphs'
 
 /**
  * Consent: a fan is asked before anything records them.
@@ -66,19 +67,65 @@ export interface ConsentProps {
    * (consentDetail in @monterosa/gamestage-schema), GS-575.
    */
   brand?: string
+  /**
+   * Shows a × and is called when the fan closes the card with it, without
+   * deciding. Nothing is recorded and nothing is stored, so the host shows it
+   * again next visit. The card hides itself as well.
+   */
+  onClose?: () => void
+  /**
+   * `floating` (the default) holds the card above the foot of the screen and
+   * clear of anything the page pins there, a pill nav or a main button;
+   * `inline` leaves it in the page's flow.
+   */
+  placement?: 'floating' | 'inline'
+  /**
+   * Floating only: how far above the bottom edge to sit, in pixels. Without
+   * it the card measures the highest fixed or sticky element in the lower half
+   * of the screen and sits above that.
+   */
+  bottomClear?: number
+}
+
+/** How far above the bottom edge the highest thing pinned in the lower half reaches. */
+function measureBottomClear(self: HTMLElement | null): number {
+  if (typeof window === 'undefined') return 0
+  const half = window.innerHeight / 2
+  let clear = 0
+  for (const el of Array.from(document.body.querySelectorAll<HTMLElement>('*'))) {
+    if (self && (el === self || self.contains(el) || el.contains(self))) continue
+    const position = getComputedStyle(el).position
+    if (position !== 'fixed' && position !== 'sticky') continue
+    const box = el.getBoundingClientRect()
+    if (box.height === 0 || box.width === 0 || box.top < half || box.top > window.innerHeight) continue
+    clear = Math.max(clear, window.innerHeight - box.top)
+  }
+  return Math.round(clear)
 }
 
 /** {brand} swapped for the brand, or the sentence re-made for Monterosa alone. */
 export function consentDetail(template: string, brand = ''): string {
   const name = brand.trim()
   if (!template.includes('{brand}')) return template
-  return name
-    ? template.replaceAll('{brand}', name)
-    : template.replace('{brand} and Monterosa, who run', 'Monterosa, who runs').replaceAll('{brand}', 'Monterosa')
+  if (template.includes('{brand} and Monterosa, who run')) {
+    return name
+      ? template.replaceAll('{brand}', name)
+      : template.replace('{brand} and Monterosa, who run', 'Monterosa, who runs').replaceAll('{brand}', 'Monterosa')
+  }
+  return template.replaceAll('{brand}', name || 'Monterosa')
 }
 
 export function Consent(props: ConsentProps) {
-  const { strings, onDecide, value, categories = CONSENT_OPTIONAL_CATEGORIES, onPolicyOpened } = props
+  const {
+    strings,
+    onDecide,
+    value,
+    categories = CONSENT_OPTIONAL_CATEGORIES,
+    onPolicyOpened,
+    onClose,
+    placement = 'floating',
+    bottomClear,
+  } = props
   const copy = useStrings(strings)
   const titleId = React.useId()
   const [expanded, setExpanded] = React.useState(Boolean(props.expanded))
@@ -108,18 +155,56 @@ export function Consent(props: ConsentProps) {
     functional: copy['consent.functional'],
   }
 
+  const [closed, setClosed] = React.useState(false)
+  const rootRef = React.useRef<HTMLElement>(null)
+  const [clear, setClear] = React.useState(bottomClear ?? 0)
+  React.useLayoutEffect(() => {
+    if (placement !== 'floating') return
+    if (bottomClear !== undefined) {
+      setClear(bottomClear)
+      return
+    }
+    const measure = () => setClear(measureBottomClear(rootRef.current))
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [placement, bottomClear])
+
+  if (closed) return null
+
   return (
     <section
+      ref={rootRef}
       className="gs-consent"
       data-gs-component="consent"
       data-gs-presentation={expanded ? 'expanded' : 'banner'}
+      data-gs-placement={placement === 'floating' ? 'bottom' : undefined}
+      data-gs-closable={onClose ? 'true' : undefined}
+      style={placement === 'floating' ? ({ ['--gs-consent-clear' as string]: `${clear}px` } as React.CSSProperties) : undefined}
       role="dialog"
       aria-modal="false"
       aria-labelledby={titleId}
     >
+      {/* The heading is for a screen reader: the card is its message. */}
       <h2 id={titleId} ref={titleRef} tabIndex={-1} className="gs-consent__title" data-gs-scope="consent" data-gs-part="label">
         {props.title ?? copy['consent.title']}
       </h2>
+      {onClose ? (
+      <button
+        type="button"
+        className="gs-consent__close gs-action-type gs-pressable"
+        data-gs-scope="consent"
+        data-gs-part="dismiss"
+        aria-label={copy['consent.close']}
+        title={copy['consent.close']}
+        onClick={() => {
+          setClosed(true)
+          onClose?.()
+        }}
+      >
+        <CrossGlyph />
+      </button>
+      ) : null}
       <p className="gs-consent__detail" data-gs-scope="consent" data-gs-part="detail">
         {props.detail ?? consentDetail(copy['consent.detail'], props.brand)}
         {onPolicyOpened ? (
@@ -173,27 +258,29 @@ export function Consent(props: ConsentProps) {
         </>
       ) : (
         <>
-          {/* Same component, same variant, same size: neither answer is the easy one. */}
+          {/* Accept in the game's accent and Reject in outline, at one height
+              and one width, so neither is the easy one; Manage preferences a
+              small link on the same row. */}
           <div className="gs-consent__actions" data-gs-scope="consent" data-gs-part="actions">
-            <Button strings={copy} variant="secondary" data-gs-scope="consent" data-gs-part="reject" onClick={() => onDecide(all(false))}>
-              {copy['consent.reject']}
-            </Button>
-            <Button strings={copy} variant="secondary" data-gs-scope="consent" data-gs-part="accept" onClick={() => onDecide(all(true))}>
+            <Button strings={copy} variant="primary" size="small" data-gs-scope="consent" data-gs-part="accept" onClick={() => onDecide(all(true))}>
               {copy['consent.accept']}
             </Button>
+            <Button strings={copy} variant="secondary" size="small" data-gs-scope="consent" data-gs-part="reject" onClick={() => onDecide(all(false))}>
+              {copy['consent.reject']}
+            </Button>
+            <button
+              type="button"
+              className="gs-consent__policy gs-consent__choose gs-action-type gs-pressable"
+              data-gs-scope="consent"
+              data-gs-part="trigger"
+              onClick={() => {
+                opened.current = true
+                setExpanded(true)
+              }}
+            >
+              {copy['consent.choose']}
+            </button>
           </div>
-          <Button
-            strings={copy}
-            variant="tertiary"
-            data-gs-scope="consent"
-            data-gs-part="trigger"
-            onClick={() => {
-              opened.current = true
-              setExpanded(true)
-            }}
-          >
-            {copy['consent.choose']}
-          </Button>
         </>
       )}
     </section>
