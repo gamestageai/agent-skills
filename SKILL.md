@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-4
+version: 2026-09-28-6
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-4.
-Pack digest c1f9965180778c70.
+Pack version 2026-09-28-6.
+Pack digest b9f5e87f6130a1b8.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -779,7 +779,12 @@ Studio is the only home of a game's words and colours:
   Studio would, so a local page renders the same words.
 
 A copy in the page is a second home that drifts: a producer edits a word in
-Studio and a fan still reads the old one first. Until 2026-09-27 a copy was
+Studio and a fan still reads the old one first. `gamestage verify` fails a page
+that keeps one (`settings-seeded`), and `gamestage deploy` refuses it before
+uploading, naming each setting and the file it is in. A colour counts only as a
+literal fallback on the setting's own variable, as in
+`var(--gs-highlightMainColour, #fff)`; a variable behind it, as in
+`var(--gs-highlightMainColour, var(--gamestage-primary))`, is fine. Until 2026-09-27 a copy was
 allowed as a safety net if it equalled the file. Tom removed that the same day.
 
 A customer's first request is always to change the wording. A game that needs an
@@ -927,7 +932,9 @@ code.
 `gamestage.settings.json`**: the brand the banner names as asking
 (`consent_brand_name`, e.g. "Arsenal"), and the address of their privacy
 policy (`privacy_policy_url`, https). `verify` fails and `deploy` refuses
-while either is empty. Never invent either one.
+while either is empty. Never invent either one, and never copy "Monterosa"
+from a Gamestage sample: that name and https://monterosa.co/privacy-policy are
+right only on Monterosa's own games.
 
 ```js
 const game = await gamestage.start({
