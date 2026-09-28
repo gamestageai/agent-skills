@@ -54,6 +54,24 @@
   .state b { color: var(--text); font-variant-numeric: tabular-nums; }
   .verdict { margin: 0; min-height: 1.5em; }
   footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+/* gs-press-rules: a tap presses a control and never selects its words. Zero specificity, so a page's own press rule wins. iOS Safari
+   selected "Player" on a long press and showed its text handles instead of
+   pressing (Tom, 2026-09-27), so every control opts out of selection, the
+   callout and the grey tap flash, and drops the 300ms double-tap wait. */
+:where(button, [role="button"], input[type="button"], input[type="submit"], label:has(> input[type="radio"]), label:has(> input[type="checkbox"])) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+:where(button:not(:disabled):active, [role="button"]:not([aria-disabled="true"]):active) {
+  transform: translateY(2px) scale(0.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(button:not(:disabled):active, [role="button"]:not([aria-disabled="true"]):active) { transform: none; filter: brightness(0.92); }
+}
 </style>
 <link rel="icon" href="./favicon.svg" type="image/svg+xml">
 </head>
@@ -358,5 +376,6 @@ main().catch((error) => {
   el("prompt").textContent = `Could not load the round: ${error.message}`;
 });
 </script>
+<script>/* gs-press-rules: iOS Safari applies :active only once the page listens for touches. */document.addEventListener('touchstart', function () {}, { passive: true });</script>
 </body>
 </html>

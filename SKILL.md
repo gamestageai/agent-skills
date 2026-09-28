@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-1
+version: 2026-09-28-3
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-1.
-Pack digest 0acb71c6e2d552e4.
+Pack version 2026-09-28-3.
+Pack digest da97e0360accda56.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -320,6 +320,15 @@ forcing a generic sprite onto a brand that owns a better one.
 attribution; a paid tool such as Asset Forge is paid for the app, not for what
 you export with it. Both are safe to ship; say which applies so the developer
 is never guessing.
+**Every control a fan taps presses, and never selects text.** On an iPhone a
+long press on a button otherwise selects its label and shows text handles, and
+a raised button does not move, because Safari applies `:active` only once the
+page listens for touches. Give every button, answer card and nav item
+`user-select: none`, `-webkit-user-select: none`, `-webkit-touch-callout: none`,
+`-webkit-tap-highlight-color: transparent` and `touch-action: manipulation`;
+press it down on pointerdown and release it on pointerup, pointercancel and
+pointerleave; leave a disabled control still. Gamestage UI does all of this, and
+every page `gamestage create` scaffolds carries it, so keep it when you restyle.
 
 ## Ask what data the game needs, and offer the sources that exist
 
@@ -640,10 +649,9 @@ Two halves, and include both:
   `code_not_recognised`: say plainly that the code isn't recognised.
 
 In a plain page, `mountRecovery(game, element)` from the client draws both as a
-dialog in one line, and is the one route today. A `recovery-code` Gamestage UI
-component exists but is not yet in the published registry; check
-`npx gamestage-ui list` before telling a developer to add it. Every word is a
-Studio setting; put them in `gamestage.settings.json`.
+dialog in one line. In a Gamestage UI game, `npx gamestage-ui add recovery-code`
+draws the same two screens. Every word is a Studio setting; put them in
+`gamestage.settings.json`.
 
 Tell the developer the three limits, because each changes what the screen
 should say: it is for anonymous players only; restoring does not merge the

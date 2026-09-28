@@ -599,6 +599,24 @@ dialog p {
 
 #prompt, .points { text-align: center; font-size: 14px; color: var(--muted); }
 
+
+/* gs-press-rules: a tap presses a control and never selects its words. Zero specificity, so a page's own press rule wins. iOS Safari
+   selected "Player" on a long press and showed its text handles instead of
+   pressing (Tom, 2026-09-27), so every control opts out of selection, the
+   callout and the grey tap flash, and drops the 300ms double-tap wait. */
+:where(button, [role="button"], input[type="button"], input[type="submit"], label:has(> input[type="radio"]), label:has(> input[type="checkbox"])) {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+:where(button:not(:disabled):active, [role="button"]:not([aria-disabled="true"]):active) {
+  transform: translateY(2px) scale(0.98);
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(button:not(:disabled):active, [role="button"]:not([aria-disabled="true"]):active) { transform: none; filter: brightness(0.92); }
+}
 </style>
 </head>
 <body>
@@ -662,5 +680,6 @@ dialog p {
   </dialog>
   <!-- The scene reads committed replay geometry; input controls send intention only. -->
   <script type="module">import "./game.js";</script>
+<script>/* gs-press-rules: iOS Safari applies :active only once the page listens for touches. */document.addEventListener('touchstart', function () {}, { passive: true });</script>
 </body>
 </html>
