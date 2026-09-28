@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-27-11
+version: 2026-09-28-1
 ---
 
 # Gamestage
 
-Pack version 2026-09-27-11.
-Pack digest a470d89f1e02658e.
+Pack version 2026-09-28-1.
+Pack digest 0acb71c6e2d552e4.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -918,8 +918,9 @@ const game = await gamestage.start({
 ```
 
 `settingsIn` puts the "Privacy settings" button where a fan will find it, such
-as the Profile screen. Without it the banner adds a small footer at the end of
-the page to hold the button, so every game has a way back to the choices.
+as the Profile screen or beside a bottom nav. Without it the banner pins a
+small pill in the bottom corner of the screen, so every game has a way back to
+the choices. Pass it in a game with a bottom nav, where the corner is taken.
 In a Gamestage UI game, use the `consent` component and pass
 `consentBanner: false`, because the component draws the same banner itself.
 
