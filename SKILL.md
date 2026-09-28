@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-6
+version: 2026-09-28-7
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-6.
-Pack digest b9f5e87f6130a1b8.
+Pack version 2026-09-28-7.
+Pack digest ecb2ac489c8f38d5.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -626,6 +626,18 @@ from another origin:
 
 A blank space where the logo should be is the one outcome that is always
 wrong, worse than a fallback face.
+
+**Serve every font from the game's own files, never from Google Fonts or a
+CDN.** A `<link>` or `@import` to `fonts.googleapis.com`, Adobe Fonts or a
+public CDN loads before the consent banner can ask anything, so it hands that
+company the player's IP address with no way to ask first, and a German court
+has fined a site for exactly that. Download the `.woff2` files into the game
+(Google Fonts are under the SIL Open Font License, which allows it), write
+`@font-face` rules that point at them, and remove the remote link. A Google
+font is also available ready-made at `https://gamestage.ai/fonts/<family>.css`,
+for example `https://gamestage.ai/fonts/bebas-neue.css`. `verify` fails a page
+that loads a font from a third party (`fonts-self-hosted`), and `deploy`
+refuses it.
 
 **For a native app, tell the developer what their app team must do**, because
 it is in the app rather than the page: set the web view's background to the
