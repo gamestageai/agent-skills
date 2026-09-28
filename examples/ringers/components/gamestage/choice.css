@@ -427,6 +427,31 @@
   min-inline-size: 0;
   max-inline-size: 100%;
 
+  /* Label fit, GSUI-281. The label fills its option's width, because that is
+     the box it is fitted to; as a flex item it would otherwise be only as wide
+     as its own text and every label would appear to fit. The group decides the
+     size (--gs-label-scale) and the line count (--gs-label-lines) once it has
+     measured; past the line count the text ends in an ellipsis. Under
+     `uniform`, --gs-label-block reserves that many lines on every label, so
+     every option in a group is the same height.
+
+     The text is centred in that reserved block, not pinned to its top. A
+     one-line label used to sit a whole line above centre: Verstappen was 5px
+     from the top of its chip and 16px from the bottom. Tom, 2026-09-28. */
+  align-self: stretch;
+  /* Its width comes from the option, never its text: a long name once widened
+     its card past the phone (517px at 390). */
+  contain: inline-size;
+  font-size: calc(1em * var(--gs-label-scale, 1));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-block-size: calc(var(--gs-label-block, 0) * 1lh);
+}
+/* The clamp lives on the text, because a -webkit-box cannot centre itself in a
+   taller box. */
+.gs-choice__text {
+  min-inline-size: 0;
   /* A word is never broken in half (GSUI-235). This was
      `overflow-wrap: anywhere`, and in the `cards` presentation at 390 it drew
      the demo's first answer as "Verstap / pen": the card is a 148px column,
@@ -437,33 +462,17 @@
      `normal` keeps the break between words and cuts a word that cannot fit
      with an ellipsis. The text itself is untouched, so the option's accessible
      name still carries the whole word. Half a name with nothing to say it is
-     half is an answer to be guessed at; "Versta…" says there is more. A
-     smaller type step would beat both and has no token, which is GSUI-227. */
+     half is an answer to be guessed at; "Versta…" says there is more. */
   overflow-wrap: normal;
   overflow: hidden;
   text-overflow: ellipsis;
-
-  /* Label fit, GSUI-281. The label fills its option's width, because that is
-     the box it is fitted to; as a flex item it would otherwise be only as wide
-     as its own text and every label would appear to fit. The group decides the
-     size (--gs-label-scale) and the line count (--gs-label-lines) once it has
-     measured; past the line count the text ends in an ellipsis. Under
-     `uniform`, --gs-label-block reserves that many lines on every label, so a
-     one-line name and a two-line name start at the same height. */
-  align-self: stretch;
-  /* The clamp below needs display: -webkit-box, and a -webkit-box sizes itself
-     for its whole text on one line: a long name then widened its card past the
-     phone (517px at 390). Its width comes from the option, never its text. */
-  contain: inline-size;
-  font-size: calc(1em * var(--gs-label-scale, 1));
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--gs-label-lines, 2);
   line-clamp: var(--gs-label-lines, 2);
-  min-block-size: calc(var(--gs-label-block, 0) * 1lh);
 }
 /* One line, cut with an ellipsis. */
-.gs-choice[data-gs-label-fit='truncate'] .gs-choice__label {
+.gs-choice[data-gs-label-fit='truncate'] .gs-choice__text {
   display: block;
   white-space: nowrap;
 }
@@ -588,11 +597,11 @@
 }
 
 .gs-choice__given {
-  font-size: max(14px, 0.78em);
-  font-weight: 500;
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-body-font-weight);
   opacity: 0.85;
 }
 
 .gs-choice__family {
-  font-weight: 800;
+  font-weight: var(--gs-type-title-font-weight);
 }

@@ -765,7 +765,11 @@ export function App() {
                     <div><dt>{word('label_profile_best')}</dt><dd>{profile.best_score ?? 0}</dd></div>
                     <div><dt>{word('label_profile_max_streak')}</dt><dd>{profile.max_streak ?? 0}</dd></div>
                   </dl>
-                  <Streak value={profile.current_streak ?? 0} label={word('label_profile_streak')} />
+                  {/* A streak shows from two in a row. At nought the badge read
+                      "x0" in a box, which looked like an empty field. GS-590. */}
+                  {(profile.current_streak ?? 0) >= 2 ? (
+                    <Streak value={profile.current_streak ?? 0} label={word('label_profile_streak')} />
+                  ) : null}
                   <Toggle
                     label={word('label_sound')}
                     checked={sound}

@@ -1,22 +1,11 @@
-/* Gamestage fonts, paper theme (GSUI-60).
+/* Gamestage fonts, paper theme (GSUI-60). Paper sets everything in IBM Plex
+   Sans, numbers included, with tabular figures where numbers line up. The
+   Instrument Serif numerals it used to carry went with the one-face rule,
+   GSUI-292, Tom 2026-09-28: they read as a different game beside the words.
 
-   The paper theme names IBM Plex Sans for interface text and Instrument Serif
-   for the numbers a player tracks. Neither is in the base pairing, so neither
-   is on the page unless this stylesheet is, and a paper install without it
-   falls through to system-ui and Georgia and reads as a recolour.
-
-   Both faces are the paper theme's own, so the `fonts-paper` item ships them.
-   It still depends on `@gamestage/fonts`, because a page using the paper theme
-   still renders components that ask for the base families.
-
-   Import once at the root, before gamestage-tokens.css. Nothing here reaches a
-   third-party origin; the reason, the licences and the provenance are in
-   gamestage-fonts/README.md (GSUI-149). The url() paths are relative to this
-   stylesheet and resolve the same way in this repository and in a customer's
-   app.
-
-   Instrument Serif is two static files rather than one variable file, because
-   the family has no weight axis: one upright, one italic, 400 each. */
+   Import once at the root, before gamestage-tokens.css. Nothing here reaches
+   a third-party origin; the reason, the licence and the provenance are in
+   gamestage-fonts/README.md (GSUI-149). */
 
 @font-face {
   font-family: 'IBM Plex Sans';
@@ -30,24 +19,4 @@
     U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-@font-face {
-  font-family: 'Instrument Serif';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./gamestage-fonts/instrument-serif-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}
 
-@font-face {
-  font-family: 'Instrument Serif';
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url('./gamestage-fonts/instrument-serif-italic-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
-    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
-    U+2212, U+2215, U+FEFF, U+FFFD;
-}

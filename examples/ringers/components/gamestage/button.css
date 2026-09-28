@@ -35,6 +35,12 @@
   padding: 0 var(--gs-space-8);
   /* 18px on the 64 and 68px faces, 1f and 2b: the step above radius.control. */
   border-radius: var(--gs-radius-lg);
+  /* The large button's word is one step up the scale, 20, at the action's
+     semibold. With one face per theme (GSUI-292) the display face no longer
+     carries the weight of the main action, so the size does: at 17 in the
+     text face, PLAY AGAIN read lighter than the slab around it (the
+     coordinator, 2026-09-28). */
+  font-size: var(--gs-type-title-font-size);
 }
 
 /* The drawing spaces only the primary action's letters: 1f sets .01em on Play
@@ -313,10 +319,22 @@
 
 .gs-button__label {
   font: inherit;
-  /* Label fit, GSUI-281: the size and line count the button resolved, and an
-     ellipsis past them. Only a plain-text label carries these; see button.tsx. */
+  /* Label fit, GSUI-281: the size the button resolved, and the lines a group
+     reserves so buttons in a row share one height. The reserved block is a
+     flex box that centres the text inside it: the text used to sit at the top
+     of a two-line block, so a one-line label read well above centre (Tom,
+     2026-09-28, PLAY AGAIN 7px from the top and 31px from the bottom). */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   min-inline-size: 0;
   font-size: calc(1em * var(--gs-label-scale, 1));
+  min-block-size: calc(var(--gs-label-block, 0) * 1lh);
+}
+/* The clamp lives on the text, because a -webkit-box cannot centre itself in
+   a taller box. Only a plain-text label carries these; see button.tsx. */
+.gs-button__text {
+  min-inline-size: 0;
   overflow: hidden;
   overflow-wrap: normal;
   text-overflow: ellipsis;
@@ -324,9 +342,8 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: var(--gs-label-lines, 2);
   line-clamp: var(--gs-label-lines, 2);
-  min-block-size: calc(var(--gs-label-block, 0) * 1lh);
 }
-.gs-button[data-gs-label-fit='truncate'] .gs-button__label {
+.gs-button[data-gs-label-fit='truncate'] .gs-button__text {
   display: block;
   white-space: nowrap;
 }

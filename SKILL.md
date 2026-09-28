@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-13
+version: 2026-09-28-14
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-13.
-Pack digest 4b2b5a4bb4285e4c.
+Pack version 2026-09-28-14.
+Pack digest de03baa11898a2e8.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -638,6 +638,16 @@ from another origin:
 
 A blank space where the logo should be is the one outcome that is always
 wrong, worse than a fallback face.
+
+**Set every size on the one type scale: 14, 17, 20, 28 and 40.** A screen
+uses at most those five sizes, one typeface for all its text with tabular
+figures for numbers, plus the game's own logo face, and two weights, 400 and
+600. Gamestage UI's roles already sit on it; in the game's own stylesheet read
+`var(--gs-type-scale-step1)` to `var(--gs-type-scale-step5)` rather than a
+number, and never a size under 14px. 14 is for labels and chrome; anything a
+fan reads as a sentence, a name or a button is 17 or more. Headings are
+sentence case ("Pick your name"), not capitals. A game that grew a size for
+each screen ends up with sixteen of them and reads as three different games.
 
 **Serve every font from the game's own files, never from Google Fonts or a
 CDN.** A `<link>` or `@import` to `fonts.googleapis.com`, Adobe Fonts or a

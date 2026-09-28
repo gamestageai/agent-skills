@@ -8,21 +8,16 @@
 @layer gs.theme {
   [data-gs-theme="paper"] {
   --gs-type-font-family-interface: 'IBM Plex Sans', system-ui, sans-serif;
-  --gs-type-font-family-display: 'Instrument Serif', Georgia, serif;
   --gs-type-action-font-family: var(--gs-type-font-family-interface);
-  --gs-type-action-font-size: 17px;
   --gs-type-action-font-weight: 600;
   --gs-type-action-letter-spacing: 0.02em;
   --gs-type-display-font-family: var(--gs-type-font-family-display);
-  --gs-type-display-font-size: 60px;
   --gs-type-display-font-weight: 400;
   --gs-type-display-letter-spacing: 0em;
   --gs-type-score-font-family: var(--gs-type-font-family-display);
-  --gs-type-score-font-size: 40px;
   --gs-type-score-font-weight: 400;
   --gs-type-score-font-variant-numeric: tabular-nums;
   --gs-type-label-font-family: var(--gs-type-font-family-interface);
-  --gs-type-label-font-size: 13px;
   --gs-type-label-font-weight: 600;
   --gs-type-label-letter-spacing: 0.10em;
   --gs-radius-sm: 2px;
@@ -98,6 +93,7 @@
   --gs-depth-styles-glow-pressed: 0 0 0 var(--gs-stroke-selected) var(--gs-color-interactive-solid);
   --gs-depth-pressable: inset 0 1px 0 rgba(255,255,255,.3), 0 var(--gs-press-travel) 0 var(--gs-color-interactive-base);
   --gs-depth-pressable-positive: inset 0 1px 0 rgba(255,255,255,.35), 0 var(--gs-press-travel) 0 var(--gs-color-positive-base);
+  --gs-type-font-family-display: var(--gs-type-font-family-interface);
   --gs-type-body-font-family: var(--gs-type-font-family-interface);
   --gs-type-label-font-family: var(--gs-type-font-family-interface);
   --gs-type-caption-font-family: var(--gs-type-font-family-interface);

@@ -452,7 +452,7 @@
   background: transparent;
   color: var(--gs-color-ink);
   font-family: var(--gs-type-body-font-family);
-  font-weight: 600;
+  font-weight: var(--gs-type-action-font-weight);
   cursor: pointer;
 }
 

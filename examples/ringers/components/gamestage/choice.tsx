@@ -652,7 +652,7 @@ export function Choice(props: ChoiceProps) {
             <span className="gs-choice__family">{name.family}</span>
           </>
         ) : (
-          plan?.text ?? option.label
+          <span className="gs-choice__text">{plan?.text ?? option.label}</span>
         )
         const labelStyle =
           plan && fitSettings.groupFit === 'each'

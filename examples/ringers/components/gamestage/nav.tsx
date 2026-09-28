@@ -121,7 +121,8 @@ export interface NavProps
    * `hidden` draws the marks alone: each destination's label stays its
    * accessible name and becomes a hover tooltip on a pointer that can hover.
    * Every destination needs an `icon`. Tom, 2026-09-27: "change the mobile nav
-   * to be icon only no words". `shown` by default.
+   * to be icon only no words". `shown` by default, except `floating`, which is
+   * marks alone unless it is given `shown`.
    */
   labels?: 'shown' | 'hidden'
 }
@@ -141,7 +142,7 @@ export function Nav(props: NavProps) {
     placement,
     onNavigate,
     label = copy['nav.label'],
-    labels = 'shown',
+    labels: labelsProp,
     material = 'solid',
     className,
     ...rest
@@ -153,6 +154,10 @@ export function Nav(props: NavProps) {
   const activeIndex = destinations.findIndex((d) => d.active)
   const glass = presentation === 'glass'
   const floating = presentation === 'floating'
+  // The floating pill is marks alone by default, the current place included:
+  // Tom, 2026-09-28, "NOT label the nav when you click it, just show it
+  // highlighted". `labels="shown"` gives a floating nav its current word back.
+  const labels = labelsProp ?? (floating ? 'hidden' : 'shown')
   const lensStyle = {
     '--gs-nav-count': String(Math.max(destinations.length, 1)),
     '--gs-nav-index': String(Math.max(activeIndex, 0)),
@@ -180,7 +185,18 @@ export function Nav(props: NavProps) {
       el.querySelectorAll<HTMLElement>('.gs-nav__label').forEach((other) => {
         if (other !== label && other.style.minWidth) other.style.minWidth = ''
       })
-      if (!label || labels === 'hidden') return
+      if (labels === 'hidden') {
+        // Marks alone: every place is a whole 56px, so only the centring can
+        // land on a half. One pixel of padding at the end puts it back.
+        const pad = (v: string) => {
+          if (el.style.paddingInlineEnd !== v) el.style.paddingInlineEnd = v
+        }
+        pad('')
+        const left = el.getBoundingClientRect().left
+        if (Math.abs(left - Math.round(left)) > 0.01) pad('7px')
+        return
+      }
+      if (!label) return
       const base = Math.ceil(textWidth(label))
       const set = (w: number) => {
         if (label.style.minWidth !== `${w}px`) label.style.minWidth = `${w}px`
@@ -215,9 +231,9 @@ export function Nav(props: NavProps) {
       data-gs-labels={labels === 'hidden' ? 'hidden' : undefined}
       data-gs-material={floating ? material : undefined}
       aria-label={label}
-      style={glass ? { ...lensStyle, ...rest.style } : rest.style}
+      style={glass || floating ? { ...lensStyle, ...rest.style } : rest.style}
     >
-      {glass && activeIndex >= 0 ? (
+      {(glass || (floating && labels === 'hidden')) && activeIndex >= 0 ? (
         // Decoration only: the current destination already says so in its
         // name and aria-current. No part name, because it carries no state a
         // test or a screen reader needs; it is the glass catching the light.

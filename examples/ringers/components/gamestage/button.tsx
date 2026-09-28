@@ -289,13 +289,13 @@ export function Button(props: ButtonProps) {
           // screen reader user is owed the name, not the abbreviation.
           <>
             <span className="gs-button__label" ref={fit.labelRef('label')} aria-hidden="true">
-              {plan.text}
+              <span className="gs-button__text">{plan.text}</span>
             </span>
             <span className="gs-button__announcement">{text}</span>
           </>
         ) : (
           <span className="gs-button__label" ref={text === null ? undefined : fit.labelRef('label')}>
-            {children}
+            <span className="gs-button__text">{children}</span>
           </span>
         )
       )}

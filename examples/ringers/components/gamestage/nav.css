@@ -113,6 +113,13 @@
   outline-offset: var(--gs-space-1);
 }
 
+/* The ring is for a keyboard only. A tap or a click that leaves focus on a
+   destination draws nothing: Tom saw a thick teal ring round the pill after a
+   tap (2026-09-28). */
+.gs-nav__destination:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* -- bar: the foot of the screen ------------------------------------------ */
 /* A surface with an edge along its top and nothing else: no radius, no side
    or bottom stroke. Destinations share the width, icon over word. */
@@ -348,15 +355,15 @@
   color: inherit;
   border-width: 0;
   border-radius: var(--gs-glass-radius, 999px);
-  /* iOS sets tab labels at 10pt semibold with no tracking. The face stays the
-     theme's interface face; the size and weight follow the tab bar. */
-  font-size: 10px;
-  font-weight: 600;
+  /* iOS sets tab labels at 10pt; the one type scale's smallest step is 14,
+     the floor for anything a fan reads (GSUI-292). */
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-nav-label-weight);
   letter-spacing: 0.01em;
 }
 
 .gs-nav[data-gs-presentation='glass'] .gs-nav__icon {
-  font-size: 24px;
+  font-size: var(--gs-size-icon-control);
 }
 
 .gs-nav[data-gs-presentation='glass'] .gs-nav__label {
@@ -489,7 +496,7 @@
   background: transparent;
   border: 0;
   border-radius: 999px;
-  font-size: 17px;
+  font-size: var(--gs-type-action-font-size);
   font-weight: var(--gs-nav-label-weight);
   white-space: nowrap;
   transition:
@@ -500,7 +507,7 @@
 }
 
 .gs-nav[data-gs-presentation='floating'] .gs-nav__icon {
-  font-size: 24px;
+  font-size: var(--gs-size-icon-control);
 }
 
 /* Every place but the current one is its mark alone. The word folds away
@@ -544,6 +551,53 @@
 
 .gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__destination[data-gs-active='true'] .gs-nav__label {
   display: none;
+}
+
+/* Marks alone, the default: every place the same width, so nothing moves
+   when the selection does; the current place is the lighter pill sliding
+   behind its mark and the mark at full strength, never a word or a heavier
+   mark. The word stays each place's name and a hover tooltip. */
+.gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] {
+  gap: 0;
+}
+
+.gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__destination,
+.gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__destination[data-gs-active='true'] {
+  flex: 0 0 56px;
+  inline-size: 56px;
+  min-width: 56px;
+  padding-inline: 0;
+  gap: 0;
+  background: transparent;
+}
+
+.gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__label {
+  display: none;
+}
+
+.gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__lens {
+  position: absolute;
+  z-index: 0;
+  top: 6px;
+  bottom: 6px;
+  left: 6px;
+  width: 56px;
+  border-radius: 999px;
+  background: var(--gs-floating-pill);
+  transform: translateX(calc(56px * var(--gs-nav-index, 0)));
+  transition: transform var(--gs-motion-reorder) var(--gs-motion-ease-pop);
+  pointer-events: none;
+}
+
+.gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__destination {
+  position: relative;
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-nav[data-gs-presentation='floating'][data-gs-labels='hidden'] .gs-nav__lens {
+    transition: none;
+  }
 }
 
 /* Frosted, over the scene. Solid again where the browser cannot blur or the
@@ -676,7 +730,7 @@
   min-block-size: 48px;
   touch-action: manipulation;
 }
-.gs-nav[data-gs-labels='hidden'] .gs-nav__icon { font-size: 24px; }
+.gs-nav[data-gs-labels='hidden'] .gs-nav__icon { font-size: var(--gs-size-icon-control); }
 .gs-nav[data-gs-labels='hidden'] .gs-nav__destination[data-gs-active='true']::after {
   content: '';
   position: absolute;
@@ -696,7 +750,8 @@
    properties, so a theme or a game that wants a heavier nav sets them. */
 .gs-nav {
   --gs-nav-stroke: 1.5px;
-  --gs-nav-label-weight: 500;
+  /* Regular, one of the scale's two weights (GSUI-292). */
+  --gs-nav-label-weight: var(--gs-type-body-font-weight);
 }
 
 .gs-nav .gs-nav__icon .gs-glyph {

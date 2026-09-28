@@ -61,7 +61,7 @@
   inline-size: var(--gs-size-touch-min);
   block-size: var(--gs-size-touch-min);
   padding: 0;
-  font-size: 20px;
+  font-size: var(--gs-size-icon-control);
   color: var(--gs-color-ink-secondary);
   background: none;
   border: 0;
@@ -128,8 +128,11 @@
   border-radius: 999px;
 }
 
+/* In the panel the three answers stack, each the card's width, so "Save my
+   choices" is one line at the scale's 17px on a 320px phone instead of two
+   lines that ran past the bottom of its button (GSUI-292). */
 .gs-consent[data-gs-presentation='expanded'] .gs-consent__actions > * {
-  flex: 1 1 0;
+  flex: 1 1 100%;
 }
 
 /* Room for the × beside the first lines only, so the choices below it keep

@@ -39,8 +39,12 @@
 /* A style query rather than a value substitution, because the token is a shape
    word and not a length: `border-radius: circle` is invalid and would compute
    to a square corner, silently. */
+/* A circle is 50%, never the theme's full radius: paper sets that to 4px so
+   its pills read square, and a circle drawn with it was a square frame
+   around a round picture (Tom, 2026-09-28, on Ringers). A theme that wants a
+   square avatar says so with --gs-shape-identity, not with its corners. */
 @container style(--gs-shape-identity: circle) {
-  .gs-identity__avatar { border-radius: var(--gs-radius-full); }
+  .gs-identity__avatar { border-radius: 50%; }
 }
 
 /* The picture clips itself to the shape, because the avatar cannot clip: the
@@ -187,7 +191,8 @@
   box-sizing: border-box;
   inline-size: var(--gs-size-icon-utility);
   block-size: var(--gs-size-icon-utility);
-  border-radius: var(--gs-radius-full);
+  /* A dot is a circle in every theme; see the avatar above. */
+  border-radius: 50%;
   border: var(--gs-stroke-ui) solid var(--gs-color-edge);
   background: var(--gs-color-muted);
   transition: background var(--gs-motion-emphasis) var(--gs-motion-ease-emphasis),
