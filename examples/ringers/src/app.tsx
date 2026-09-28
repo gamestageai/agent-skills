@@ -450,6 +450,26 @@ export function App() {
     if (first) setYouOpen(true)
   }
 
+  // How to play stops above the floating nav rather than covering it, so the
+  // page says how much room the nav takes at the foot of the screen.
+  React.useLayoutEffect(() => {
+    const nav = document.querySelector<HTMLElement>('.ringers-nav')
+    if (!nav) return
+    const measure = () =>
+      document.documentElement.style.setProperty(
+        '--ringers-nav-room',
+        `${Math.max(0, window.innerHeight - nav.getBoundingClientRect().top)}px`,
+      )
+    measure()
+    const watch = new ResizeObserver(measure)
+    watch.observe(nav)
+    window.addEventListener('resize', measure)
+    return () => {
+      watch.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  })
+
   // --- Name and picture ----------------------------------------------------
   const [youOpen, setYouOpen] = React.useState(false)
   const [options, setOptions] = React.useState<{ adjectives: string[]; animals: string[]; avatars: { id: string; url: string }[] } | null>(null)
@@ -907,7 +927,11 @@ export function App() {
           presentation="floating"
           placement="bottom"
           label={word('label_nav')}
-          onNavigate={(id) => setPlace(id as Place)}
+          onNavigate={(id) => {
+            // Leaving How to play by a tab counts as having read it.
+            if (place === 'how' && id !== 'how') closeHow()
+            setPlace(id as Place)
+          }}
           destinations={[
             { id: 'play', label: word('label_tab_play'), icon: <PlayGlyph filled={place === 'play'} />, active: place === 'play' },
             { id: 'leaderboard', label: word('label_tab_leaderboard'), icon: <TrophyGlyph filled={place === 'leaderboard'} />, active: place === 'leaderboard' },
@@ -919,6 +943,7 @@ export function App() {
         {place === 'how' ? (
           <Stories
             frames={howFrames}
+            keepNav
             title={word('label_how_title')}
             closeLabel={word('label_how_close')}
             previousLabel={word('label_how_back')}

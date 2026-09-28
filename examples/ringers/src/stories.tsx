@@ -21,6 +21,12 @@ export function Stories(props: {
   previousLabel: string
   nextLabel: string
   onClose: () => void
+  /**
+   * Leave the nav showing and usable. How to play is one of the nav's own
+   * places, so it sits above the nav like the others rather than covering it.
+   * The end-of-round reveal leaves this off and stays a modal. Tom, 2026-09-28.
+   */
+  keepNav?: boolean
 }) {
   const { frames, onClose } = props
   const [step, setStep] = React.useState(1)
@@ -82,6 +88,7 @@ export function Stories(props: {
     <div
       ref={backdrop}
       className="ringers-stories"
+      data-keep-nav={props.keepNav ? 'true' : undefined}
       data-still={still ? 'true' : undefined}
       onKeyDown={(event) => {
         if (event.key === 'Escape') onClose()
@@ -100,7 +107,7 @@ export function Stories(props: {
         nextLabel={props.nextLabel}
         format="portrait"
         gestures
-        fullscreen
+        fullscreen={!props.keepNav}
         onHold={setHeld}
         onDismissProgress={fade}
       />

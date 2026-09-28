@@ -398,3 +398,9 @@ body { font-family: var(--gs-type-font-family-interface); font-size: var(--gs-ty
 /* Privacy settings and the copyright link, which the client writes into this
    slot and sizes by inheritance: chrome, so the scale's smallest step. GS-590. */
 .ringers-privacy { font-size: var(--gs-type-scale-step1); }
+
+/* How to play leaves the nav showing: it fills the screen above the floating
+   nav, and the nav sits over its foot as on every other page. The end-of-round
+   story still covers everything. Tom, 2026-09-28. */
+.ringers-stories[data-keep-nav] { box-sizing: border-box; padding-bottom: var(--ringers-nav-room, 96px); }
+.ringers:has(.ringers-stories[data-keep-nav]) .ringers-nav { z-index: 31; }
