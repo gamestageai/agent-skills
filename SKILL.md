@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-9
+version: 2026-09-28-10
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-9.
-Pack digest 9c0d722a12500fe9.
+Pack version 2026-09-28-10.
+Pack digest 33c3020f38df5ffb.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -649,6 +649,18 @@ font is also available ready-made at `https://gamestage.ai/fonts/<family>.css`,
 for example `https://gamestage.ai/fonts/bebas-neue.css`. `verify` fails a page
 that loads a font from a third party (`fonts-self-hosted`), and `deploy`
 refuses it.
+
+**Give the game a strapline so a pasted link looks like the game.** Slack,
+WhatsApp and iMessage read the page's Open Graph and Twitter tags without
+running any script. `deploy` writes them from `display_name` and `strapline`
+in `gamestage.settings.json`, and draws a centred 1200x630 `share-card.png`
+from the intro screen's colours. Tags you write yourself are kept, so only
+write them if you want something different, and then write the whole set with
+absolute `https` image addresses and `twitter:card` set to
+`summary_large_image`. Keep anything that matters in the middle 600px of your
+own card: Slack often shows a small square cut from the middle. `verify` fails
+a game whose published page would lack a tag or carry a relative image
+(`share-tags`).
 
 **For a native app, tell the developer what their app team must do**, because
 it is in the app rather than the page: set the web view's background to the
