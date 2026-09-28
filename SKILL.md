@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-11
+version: 2026-09-28-13
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-11.
-Pack digest 28bd5d8c715fd4e6.
+Pack version 2026-09-28-13.
+Pack digest 4b2b5a4bb4285e4c.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -364,7 +364,7 @@ Recommend in this order, and say why:
 they license is their terms, not ours.
 
 **An unofficial source is for prototyping only.** When you suggest one, such
-as Fantasy Premier League or ESPN, tell the developer this, word for word,
+as Fantasy Premier League, tell the developer this, word for word,
 before they build on it:
 
 > Requests to this source are made on behalf of you, the game builder. You are responsible for the data you consume, and for securing the legal rights and licence to use it. We recommend using it for testing only, and not launching with it unless you have explicit permission from the data owner.
@@ -539,8 +539,9 @@ creator's own login system already gives them. Gamestage ships no identity
 provider at any plan.
 
 That identified-player route is proved by the shared validator and local
-`dev --as` harness. The deployed Engine adapter does not yet load a game's
-declared issuer and keys, so do not claim identified hosted play works.
+`dev --as` harness. On a deployed game it needs the issuer and keys configured
+on that deployment, which Monterosa sets: do not tell a developer identified
+play works on their deployment unless you know that has been configured.
 
 **`verify` is the arbiter. Your own reading of the code is not.** When a browser
 is available it makes a real play. A status code, a green build and a page that
@@ -898,8 +899,10 @@ that failed to include it, and every client would have to guess whether to draw
 an empty state or an error. `ready` and `exhausted` say which, and the Engine
 answers 200 either way.
 
-So draw the control only on `ready`. A button offering another round that then
-cannot produce one is worse than no button.
+So draw **Play next** on `ready`, and on `exhausted` draw the same button greyed
+and disabled, reading "Come back tomorrow" (from Studio). Decide it before the
+button renders, so a fan never taps and gets refused. A button offering another
+round that then cannot produce one is worse than either.
 
 The Engine picks: a round this player has never opened before one they left
 half done, never one they finished, and never one that has stopped accepting
@@ -909,6 +912,36 @@ plays. You do not order the pool yourself.
 `rounds/mine` says which this player has played and which they finished. Most
 games need neither: `rounds/next` is the whole feature for a Play Another
 button.
+
+## Design a game fans come back to
+
+The rules the most successful daily games share, from Wordle and Connections to
+Candy Crush and Duolingo, as things you check before deploying. The reasons and
+sources are in the Game design chapter (https://gamestage.ai/docs/game-design).
+
+1. **A fan reaches their first answer within 30 seconds, in 3 taps or fewer.**
+   The round is on the first screen. How to play is a button, never a gate.
+2. **One main action per screen.** After a round it is **Play next**: filled,
+   full width, the loudest thing on the screen. "Come back tomorrow" greyed in
+   the same place when the pool is empty. Share result and See the story sit
+   beneath it, quieter.
+3. **Reveal the answer after every round.** The story, if any, is 1 to 3 slides
+   (the answer, the closest miss, one fact) and opens only when the fan taps it.
+4. **Design the scoring so ties are rare.** Score by closeness, fewer guesses or
+   speed rather than pass or fail, and let the leaderboard rank the week's total.
+5. **Give fans a reason to come back.** A round a day or per fixture, the same
+   for everyone. A streak shown from two, forgiving a day with no match.
+6. **Mix easy and hard,** and give a pick-one quiz six options, not four.
+7. **Share without spoiling.** The share card shows the score and how the fan
+   got there, never the answer.
+8. **Nothing manipulative.** No lives or energy that stop play, no offers at the
+   moment of failure, no paid random rewards, no guilt notifications. Many fans
+   are children and the rights holder carries the reputation.
+
+**Run `gamestage review` before `gamestage deploy`.** It plays the built game
+against a real Engine and reports advice against these rules, each with a fix.
+It never fails a deploy: read its advice, fix what you agree with, and tell the
+human what you left and why.
 
 ## Name the four moments worth measuring, and nothing else
 
