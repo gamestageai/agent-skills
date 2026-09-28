@@ -575,3 +575,24 @@
    the face lands where the base was. */
 .gs-choice__commit--default:active { transform: var(--gs-press-transform); box-shadow: var(--gs-depth-pressable-pressed); }
 .gs-choice__commit--default:focus-visible { outline: var(--gs-stroke-focus) solid var(--gs-color-ink); outline-offset: 3px; }
+
+/* A person's name on two lines: the given name small and light, the family
+   name large and bold, both centred, in every state. The given line keeps the
+   14px floor. Tom, 2026-09-28. */
+.gs-choice__label[data-gs-names] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  line-height: 1.1;
+}
+
+.gs-choice__given {
+  font-size: max(14px, 0.78em);
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.gs-choice__family {
+  font-weight: 800;
+}

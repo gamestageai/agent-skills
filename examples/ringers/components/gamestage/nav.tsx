@@ -167,19 +167,40 @@ export function Nav(props: NavProps) {
   React.useLayoutEffect(() => {
     const el = navRef.current
     if (!floating || !el) return
+    // The word's own width, read from its text so a min-width already set on
+    // it does not feed back into the measure.
+    const textWidth = (label: HTMLElement) => {
+      const range = document.createRange()
+      range.selectNodeContents(label)
+      // A test DOM has no layout and no Range geometry; nothing to snap there.
+      return typeof range.getBoundingClientRect === 'function' ? range.getBoundingClientRect().width : label.scrollWidth
+    }
     const snap = () => {
-      el.querySelectorAll<HTMLElement>('.gs-nav__label').forEach((label) => (label.style.minWidth = ''))
       const label = el.querySelector<HTMLElement>('[data-gs-active="true"] .gs-nav__label')
+      el.querySelectorAll<HTMLElement>('.gs-nav__label').forEach((other) => {
+        if (other !== label && other.style.minWidth) other.style.minWidth = ''
+      })
       if (!label || labels === 'hidden') return
-      const width = label.scrollWidth
-      label.style.minWidth = `${Math.ceil(width)}px`
+      const base = Math.ceil(textWidth(label))
+      const set = (w: number) => {
+        if (label.style.minWidth !== `${w}px`) label.style.minWidth = `${w}px`
+      }
+      set(base)
       const left = el.getBoundingClientRect().left
-      if (Math.abs(left - Math.round(left)) > 0.01) label.style.minWidth = `${Math.ceil(width) + 1}px`
+      if (Math.abs(left - Math.round(left)) > 0.01) set(base + 1)
     }
     snap()
+    // Again whenever anything that decides where the capsule lands changes:
+    // the page, the capsule's own box, the box it is centred in, or a web font
+    // arriving after first paint. Points sat on a half pixel because its
+    // container settled after the first snap. Setting the same width again is
+    // a no-op, so the observer cannot feed itself.
+    document.fonts?.ready.then(snap).catch(() => {})
     if (typeof ResizeObserver === 'undefined') return
     const observer = new ResizeObserver(() => snap())
     observer.observe(document.documentElement)
+    observer.observe(el)
+    if (el.parentElement) observer.observe(el.parentElement)
     return () => observer.disconnect()
   }, [floating, activeIndex, labels, destinations])
 

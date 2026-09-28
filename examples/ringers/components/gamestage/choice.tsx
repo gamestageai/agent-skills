@@ -90,6 +90,14 @@ export interface ChoiceOption {
    */
   kind?: 'person'
   /**
+   * A person's given and family names, for the two-line name a `person` option
+   * draws: the given name small and light above, the family name bold below.
+   * Without them the label is split at its first space ("Ruud / van
+   * Nistelrooy"); one word stays one line. Tom, 2026-09-28.
+   */
+  given?: string
+  family?: string
+  /**
    * The letter in the tile's corner: A, B, C, D in a quiz grid (specimen 1h).
    * Drawn on a raised square in the display face, and when the option settles
    * the tick or the cross takes its place, so the corner is where a player
@@ -186,9 +194,35 @@ export interface ChoiceRound {
  * shared group; a `LabelFitProvider` above sets them app-wide. See
  * `label-fit.tsx`. GSUI-281.
  */
+/**
+ * A person's name on two lines. The option's own given and family names when
+ * it carries them, otherwise the label split at its first space. One word, or
+ * nothing to split, stays one line; the family line always has words in it,
+ * falling back to the label, so a name is never drawn blank.
+ */
+export function twoLineName(option: Pick<ChoiceOption, 'kind' | 'label' | 'given' | 'family'>): {
+  given: string
+  family: string
+} | null {
+  const given = option.given?.trim() ?? ''
+  const family = option.family?.trim() ?? ''
+  if (family) return { given, family }
+  if (option.kind !== 'person') return null
+  const label = option.label.trim()
+  const space = label.indexOf(' ')
+  if (space < 0) return { given: '', family: label || option.label }
+  return { given: label.slice(0, space), family: label.slice(space + 1).trim() || label }
+}
+
 export interface ChoiceProps extends LabelFitSettings {
   /** Per-instance vocabulary, merged over the provider. */
   strings?: StringsOverrides
+  /**
+   * How a `person` option draws its name. `two` (the default) puts the given
+   * name small and light above the family name, bold, both centred; `one`
+   * draws the label on one run as before. Tom, 2026-09-28.
+   */
+  nameLines?: 'two' | 'one'
 
   options: ChoiceOption[]
   presentation?: ChoicePresentation
@@ -330,6 +364,7 @@ export function Choice(props: ChoiceProps) {
     nameFormat,
     groupFit,
     fitGroup,
+    nameLines = 'two',
   } = componentProps
 
   // The labels are fitted once the group has laid out, and again only on a
@@ -610,7 +645,15 @@ export function Choice(props: ChoiceProps) {
         // What is drawn, which may be a shortened name. The accessible name
         // above is built from `option.label`, so it is always the full one.
         const plan = fit.plans.get(option.id)
-        const drawn = plan?.text ?? option.label
+        const name = nameLines === 'two' ? twoLineName(option) : null
+        const drawn = name ? (
+          <>
+            {name.given ? <span className="gs-choice__given">{name.given}</span> : null}
+            <span className="gs-choice__family">{name.family}</span>
+          </>
+        ) : (
+          plan?.text ?? option.label
+        )
         const labelStyle =
           plan && fitSettings.groupFit === 'each'
             ? ({ ['--gs-label-scale' as string]: plan.scale } as React.CSSProperties)
@@ -656,8 +699,9 @@ export function Choice(props: ChoiceProps) {
             {option.media ? <span className="gs-choice__media">{option.media}</span> : null}
             <span
               className="gs-choice__label"
-              ref={fit.labelRef(option.id)}
-              style={labelStyle}
+              ref={name ? undefined : fit.labelRef(option.id)}
+              style={name ? undefined : labelStyle}
+              data-gs-names={name ? (name.given ? 'two' : 'one') : undefined}
             >
               {drawn}
             </span>

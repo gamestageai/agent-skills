@@ -299,6 +299,7 @@ export function App() {
   }, [clock, expired, round, state, timedOutRead])
 
   const board = round?.challenge.board ?? []
+  const names = ((round?.challenge as { names?: Record<string, { given?: string; family?: string }> } | undefined)?.names ?? {})
   const wanted = typeof round?.challenge.pick === 'number' ? round.challenge.pick : 4
   const solved = state?.progress?.solved ?? []
   const deadline =
@@ -569,10 +570,16 @@ export function App() {
     const isFound = solved.includes(name)
     const isMissed = missed.includes(name)
     const full = chosen.length >= remaining && !chosen.includes(name)
+    // A person's name on two lines, given above family: from the producer's
+    // own given and family names when the round carries them, otherwise the
+    // library splits the label at its first space.
+    const named = names[name]
     return {
       id: name,
       label: name,
       kind: 'person' as const,
+      ...(named?.given ? { given: named.given } : {}),
+      ...(named?.family ? { family: named.family } : {}),
       disabled: isFound || isMissed || full,
       detail: isFound ? word('label_detail_found') : isMissed ? word('label_detail_wrong') : '',
       // A marker the stylesheet reads, so a found card can wear the accent
