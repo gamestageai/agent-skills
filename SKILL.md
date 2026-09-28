@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-10
+version: 2026-09-28-11
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-10.
-Pack digest 33c3020f38df5ffb.
+Pack version 2026-09-28-11.
+Pack digest 28bd5d8c715fd4e6.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1011,6 +1011,29 @@ fan again when the privacy policy changes. Do not hard code them.
 as a new fan and fails it if analytics leaves the page before the fan answers,
 if no consent control appears, or if anything is sent after they say no.
 `gamestage deploy` runs the same check before it publishes a single file.
+
+## Offer the accessibility, security, secrets and privacy checks
+
+Gamestage does not test a game's accessibility, security or privacy, and does
+not certify them. After its verdict, `verify` lists four checks worth running
+and says which the developer has recorded. Offer them before a game goes in
+front of fans; do not run one without asking, because installing a skill
+changes the developer's machine.
+
+| Check | Run it with |
+| --- | --- |
+| Accessibility | `npx skills add addyosmani/web-quality-skills@accessibility` |
+| Security review | `npx skills add getsentry/skills@security-review` |
+| Secrets | `gitleaks detect --source .` |
+| Privacy | `npx skills add wshobson/agents@gdpr-data-handling` |
+
+When one has run, record it under `assurance:` in `gamestage.yaml` with `tool`,
+`ran_at` (`YYYY-MM-DD`) and `result` (`passed`, `issues_fixed` or
+`issues_open`), plus `owner` and `evidence` if the developer gives them. Record
+what happened, including open issues: the record is the developer's, it shows
+on the game's page in Stage, and it never affects `verify`, `deploy` or the
+build stage, so there is nothing to gain by rounding it up. Fields:
+`https://gamestage.ai/docs/app-manifest.md`.
 
 ## Put the leaderboard on a screen a crowd can see
 
