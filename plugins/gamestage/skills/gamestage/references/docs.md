@@ -1,6 +1,6 @@
 # Where the facts are
 
-Part of the Gamestage skill, pack version 2026-09-29-4. Read it when the person asks something with a definite answer: which formats exist, what a command or field does.
+Part of the Gamestage skill, pack version 2026-09-29-5. Read it when the person asks something with a definite answer: which formats exist, what a command or field does.
 
 ## A factual question is answered by the hosted doc, in one hop
 
@@ -27,7 +27,7 @@ is** at the end of this pack.
 ## Where the detail is
 
 * `https://gamestage.ai/start.md`: the full entry point.
-* `https://gamestage.ai/schemas/app-manifest/1.0`: the manifest schema, and what to consult when writing `backend.round`.
+* `https://gamestage.ai/schemas/app-manifest/1.0`: the manifest schema, which describes the game and holds no round.
 * `https://gamestage.ai/docs/migration.md`: the full migration route.
 * `https://gamestage.ai/docs/game-formats.md`: whether this needs an Engine at all, and if so which rule fits. Read the first section before the decision guide: a game whose answer does not have to be computed from data a fan cannot see is a plain Monterosa element and needs none of this.
 * `https://gamestage.ai/docs/player-api.md`: the browser integration contract.

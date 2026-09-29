@@ -1,6 +1,6 @@
 # Data and sources
 
-Part of the Gamestage skill, pack version 2026-09-29-4. Read it when the person says yes to seeing the data, or the game scores against figures.
+Part of the Gamestage skill, pack version 2026-09-29-5. Read it when the person says yes to seeing the data, or the game scores against figures.
 
 ## Ask what data the game needs, and offer the sources that exist
 

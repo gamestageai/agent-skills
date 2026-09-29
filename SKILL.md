@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-09-29-4
+version: 2026-09-29-5
 ---
 
 # Gamestage
 
-Pack version 2026-09-29-4.
-Pack digest ee728ead02a1fd5a.
+Pack version 2026-09-29-5.
+Pack digest 1e70c5a1bc65c699.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -237,8 +237,8 @@ The shape of a migration:
 
 ```
 gamestage inspect .        read-only. reports what must move, with line numbers
-   ↓ you edit            move answers into the server-owned container
-gamestage dev            serves that container through the real Engine
+   ↓ you edit            take the answers out of the page
+gamestage dev            plays a sample round through the real Engine
    ↓ you play it         open it in a browser and make a play
 gamestage verify         proves the Engine decided the outcome, not the page
 gamestage deploy         publishes through Backstage, where one is available
@@ -618,17 +618,16 @@ Four things you must not do, in the order you are most likely to be tempted:
 
 **Answers never reach the client.** Not in the HTML, not in a bundle, not in a
 JSON file next to the game. If a player can download it, treat it as public.
-Move the answer set into `backend.round` in `gamestage.yaml`, where a deploy
-provisions it into the Engine. Deleting the answers without moving them leaves
-the Engine nothing to mark against.
+Take the answers out of the page; do not move them into `gamestage.yaml`
+either, because a manifest describes the game and carries no content.
 
-*Where the round ends up, and why the manifest is not it.* A finished
-Gamestage game keeps its round in Monterosa Studio, so whoever runs the game can
-change a word without you. The manifest is the way to get a round moving today
-and a place it passes through, not where it belongs: a manifest describes a game
-and carries no content. Put the round there, deploy, and expect it to move on.
-Nothing you write here is wasted when it does, because the shape is the same
-either way.
+*Where the round lives.* A game's rounds are written in Monterosa Studio, where
+whoever runs the game changes them without a deploy, and the Engine reads them
+from there. To play the game before Studio holds a round, `gamestage dev` plays
+a local sample round of the game's format that a deploy never sends. A first
+deploy with no round is expected: it says "No round yet: add one in Studio" and
+prints the link, so tell the person that rather than calling the game live. To
+write a round into Studio from this machine, see `gamestage round push --help`.
 
 **Never invent a player id.** An id a page picks for itself is one anybody can
 send on someone else's behalf. Anonymous play is supported and the Engine issues
@@ -1287,7 +1286,7 @@ completion.
 ## Where the detail is
 
 * `https://gamestage.ai/start.md`: the full entry point.
-* `https://gamestage.ai/schemas/app-manifest/1.0`: the manifest schema, and what to consult when writing `backend.round`.
+* `https://gamestage.ai/schemas/app-manifest/1.0`: the manifest schema, which describes the game and holds no round.
 * `https://gamestage.ai/docs/migration.md`: the full migration route.
 * `https://gamestage.ai/docs/game-formats.md`: whether this needs an Engine at all, and if so which rule fits. Read the first section before the decision guide: a game whose answer does not have to be computed from data a fan cannot see is a plain Monterosa element and needs none of this.
 * `https://gamestage.ai/docs/player-api.md`: the browser integration contract.
