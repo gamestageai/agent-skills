@@ -1,13 +1,13 @@
 ---
 name: gamestage
-description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one. Start every conversation by running `npx gamestage@latest start --json`, telling the person whether they are signed in, and asking whether they have a game already or want to make a new one, before doing anything else."
-version: 2026-09-29-3
+description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
+version: 2026-09-29-4
 ---
 
 # Gamestage
 
-Pack version 2026-09-29-3.
-Pack digest 14f4f5097e8e8c81.
+Pack version 2026-09-29-4.
+Pack digest ee728ead02a1fd5a.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -34,6 +34,10 @@ have told you what they want to do with Gamestage.
      `npx gamestage@latest login`: it opens your browser, and creates your
      account if you don't have one. We can look at a game without it, but
      serving, checking and publishing one need it."
+   - Not signed in, and you are in Claude.ai, Claude Desktop or Cowork: they
+     have no terminal, so never ask them to run a command. Offer to sign them
+     in, and when they agree run `npx gamestage@latest login` yourself and give
+     them the address and code it prints (see **In Claude.ai or Claude Desktop**).
 3. **Ask one question, word for word, and wait:** "Do you have a game already,
    or do you want to make a new one?"
    - **A game already**: ask where it is, this folder or another path, then
@@ -53,7 +57,14 @@ have told you what they want to do with Gamestage.
      once that a real dataset can replace them, and offer the same list.
 
 Skip the question only when their first message already answered it ("take my
-quiz in ./quiz to production"). Never skip the sign-in line.
+quiz in ./quiz to production", or "I want to make a game", which is a new one).
+Never skip the sign-in line.
+
+**Keep the first reply short: at most two questions.** Ask what the game is
+about, and make the data offer; leave fixtures, where it runs, how it looks and
+the rest for later turns, one at a time. Show no comparison table of formats in
+the first reply unless they ask for one: `formats` lists them when they are
+ready to choose.
 
 ## Install this pack
 
@@ -128,6 +139,45 @@ where the binary comes from. On 2026-08-12 an agent built a whole game, checked
 it, and then stopped at "the `gamestage` executable is not currently available on
 the shell's PATH" — one line from the thing it had been asked to do. A tool a
 reader cannot invoke is a tool that does not exist.
+
+## Start a new game: create, dev, deploy, Studio
+
+```
+gamestage formats              what each format is, with a real game to play
+gamestage create               asks the format and the name, makes the game's folder
+gamestage dev --serve          plays a local sample round; nothing is published
+gamestage verify               proves the Engine decides the outcome, not the page
+gamestage deploy <game>        puts the game online, with no round yet
+gamestage open <game> studio   where a producer adds the real round
+```
+
+The sample round sits in a local file that only `dev` reads, and a deploy never
+sends it. Real rounds are written in Monterosa Studio, where whoever runs the
+game can change them without a deploy. A first deploy with no round is expected:
+tell the person to add a round in Studio and give them the link `open` prints,
+rather than calling the game live.
+
+## In Claude.ai or Claude Desktop
+
+When you run in a hosted sandbox rather than on the person's own machine, three
+things change.
+
+1. **They cannot open a local address.** `dev --serve` runs inside your sandbox,
+   so its URL means nothing on their screen. To let them see the game, deploy it
+   and give them the playground link, after fetching it yourself. A new account
+   cannot deploy until Monterosa approves its workspace, so say that before they
+   expect a link.
+2. **You run `login`; they open a link.** They have no terminal, so never tell
+   them to run a command. Run `npx gamestage@latest login` yourself: it prints
+   an address and a code on standard error. Put both in front of them straight
+   away; they open the address on their own device and approve, and the command
+   returns signed in. The browser it tries to open is inside the sandbox and
+   they will never see it. **Human handoffs** in the account reference has the
+   rest. This route has not yet been proven end to end in Claude.ai: if `login`
+   fails there, say what it printed and stop.
+3. **Nothing persists.** The sandbox may be new each conversation, so a sign-in
+   and any files can be gone next time. Run `start --json` first every time, as
+   above.
 
 ## A factual question is answered by the hosted doc, in one hop
 

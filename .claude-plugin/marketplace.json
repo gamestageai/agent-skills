@@ -1,0 +1,15 @@
+{
+  "name": "gamestage",
+  "description": "The Gamestage plugin for Claude Code.",
+  "owner": {
+    "name": "Monterosa",
+    "url": "https://gamestage.ai"
+  },
+  "plugins": [
+    {
+      "name": "gamestage",
+      "source": "./plugins/gamestage",
+      "description": "Take a browser game to production with Gamestage: the answers, scoring and settlement move behind a server the player cannot edit."
+    }
+  ]
+}
