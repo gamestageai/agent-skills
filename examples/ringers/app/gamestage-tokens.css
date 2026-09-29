@@ -128,6 +128,7 @@
   --gs-type-action-letter-spacing: 0.01em;
   --gs-type-action-text-transform: none;
   --gs-type-action-text-transform-primary: var(--gs-type-action-text-transform);
+  --gs-type-action-font-family-primary: var(--gs-type-action-font-family);
   --gs-type-stat-font-family: var(--gs-type-font-family-display);
   --gs-type-stat-font-size: var(--gs-type-scale-step4);
   --gs-type-stat-font-weight: 600;
@@ -392,17 +393,18 @@
   --gs-color-shadow-solid: rgba(0,10,40,.55);
   --gs-stroke-control: 3px;
   --gs-stroke-ui: 3px;
-  --gs-type-action-font-family: var(--gs-type-font-family-display);
+  --gs-type-action-font-family: var(--gs-type-font-family-interface);
   --gs-type-action-font-weight: 600;
   --gs-type-action-text-transform-primary: uppercase;
   --gs-type-action-letter-spacing: 0.02em;
+  --gs-type-action-font-family-primary: var(--gs-type-font-family-display);
   --gs-type-display-shadow: 0 3px 0 var(--gs-color-edge);
   --gs-type-stat-font-family: var(--gs-type-font-family-display);
-  --gs-type-stat-font-weight: 600;
+  --gs-type-stat-font-weight: 400;
   --gs-type-score-font-family: var(--gs-type-font-family-display);
-  --gs-type-score-font-weight: 600;
+  --gs-type-score-font-weight: 400;
   --gs-type-score-font-variant-numeric: tabular-nums;
-  --gs-type-display-font-family: var(--gs-type-font-family-display);
+  --gs-type-display-font-family: var(--gs-type-font-family-interface);
   --gs-type-display-font-weight: 600;
   --gs-type-label-font-family: var(--gs-type-font-family-interface);
   --gs-type-label-font-weight: 600;
@@ -410,11 +412,12 @@
   --gs-type-label-text-transform: uppercase;
   --gs-type-caption-font-family: var(--gs-type-font-family-interface);
   --gs-type-caption-font-weight: 600;
-  --gs-type-title-font-family: var(--gs-type-font-family-display);
+  --gs-type-title-font-family: var(--gs-type-font-family-interface);
   --gs-type-title-font-weight: 600;
   --gs-type-title-line-height: 1.2;
   --gs-type-figure-font-family: var(--gs-type-font-family-display);
-  --gs-type-figure-font-weight: 600;
+  --gs-type-figure-font-weight: 400;
+  --gs-type-font-family-display: Bungee, 'DM Sans', system-ui, sans-serif;
   --gs-depth-style: offset;
   --gs-depth-pressable: inset 0 3px 0 rgba(255,255,255,.45), 0 var(--gs-press-travel) 0 var(--gs-color-edge), 0 12px 20px var(--gs-color-shadow);
   --gs-depth-pressable-pressed: inset 0 3px 0 rgba(255,255,255,.45);
@@ -431,6 +434,10 @@
   --gs-depth-styles-glow-pressable: 0 0 0 var(--gs-stroke-control) var(--gs-color-edge-high);
   --gs-depth-styles-glow-pressed: 0 0 0 var(--gs-stroke-selected) var(--gs-color-interactive-solid);
   --gs-depth-reward: 0 0 0 3px var(--gs-color-background-solid), 0 0 0 5px var(--gs-color-reward-solid), 0 0 28px oklch(0.87 0.17 92 / .45);
+  --gs-type-stat-font-family: var(--gs-type-font-family-display);
+  --gs-type-figure-font-family: var(--gs-type-font-family-display);
+  --gs-type-score-font-family: var(--gs-type-font-family-display);
+  --gs-type-display-font-family: var(--gs-type-font-family-display);
   }
 }
 
@@ -529,6 +536,7 @@
   --gs-type-eyebrow-font-family: var(--gs-type-font-family-interface);
   --gs-type-title-font-family: var(--gs-type-font-family-interface);
   --gs-type-action-font-family: var(--gs-type-font-family-interface);
+  --gs-type-action-font-family-primary: var(--gs-type-action-font-family);
   --gs-type-stat-font-family: var(--gs-type-font-family-display);
   --gs-type-figure-font-family: var(--gs-type-font-family-display);
   --gs-type-score-font-family: var(--gs-type-font-family-display);

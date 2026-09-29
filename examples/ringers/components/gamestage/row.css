@@ -1,0 +1,127 @@
+/* Row. Every value comes from a token; nothing here is a literal colour.
+
+   Specimens 4d, 4e and 4f draw the same shell four times: the surface fill, a
+   3px edge, radius 14, a label that gives way and something at the end that
+   does not. The drawing's four heights are 48, 50, 52 and 56, which is the
+   spread you get from four people drawing one row; size.touch-min is 48 and
+   is the floor here, so a row grows to whatever it holds rather than being
+   pinned to one of the four. */
+
+.gs-row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--gs-space-gap);
+  inline-size: 100%;
+  min-block-size: var(--gs-size-touch-min);
+  /* No block padding: the drawing pads these rows `0 12px` and the label is
+     one line that truncates rather than wraps, so there is nothing for block
+     padding to protect. The height floor is what gives the row its shape, and
+     a row holding something taller than the floor grows instead. */
+  padding: 0 var(--gs-space-3);
+
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-md);
+  background: var(--gs-color-surface);
+  color: var(--gs-color-ink);
+  text-align: start;
+}
+
+/* A row the player can open. The theme owns the gesture; this owns the
+   pointer, because a div that is a button looks like neither. */
+.gs-row.gs-pressable {
+  cursor: pointer;
+}
+
+/* The name. It is host copy of arbitrary length, so it is the part that gives
+   way: one line, cut with an ellipsis, with the zero minimum that makes the
+   cut possible at all. A player recognises "Monaco GP predi..."; the delta
+   beside it cannot be cut and half a number is a wrong number. */
+.gs-row__label {
+  flex: 1 1 auto;
+  min-inline-size: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  line-height: var(--gs-type-title-line-height);
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--gs-color-ink);
+}
+
+/* The reading at the end. The display face at the figure size, which is the
+   drawing's 13px to within a pixel, and tabular so a column of them lines up
+   and a changing digit does not move the row. It never shrinks: the label is
+   what gives way. */
+.gs-row__value {
+  flex: none;
+  font-family: var(--gs-type-figure-font-family);
+  font-size: var(--gs-type-figure-font-size);
+  font-weight: var(--gs-type-figure-font-weight);
+  font-variant-numeric: var(--gs-type-score-font-variant-numeric);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* A result that went the player's way is the only thing on the row drawn in
+   a colour, and the disc at the front says the same thing without one. */
+.gs-row[data-gs-state='correct'] .gs-row__value {
+  color: var(--gs-color-positive-solid);
+}
+
+.gs-row__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--gs-space-2);
+}
+
+/* The result disc. A filled disc with the mark knocked out of it rather than
+   a coloured outline: colour.positive and colour.negative are gradients in
+   the arcade theme, so a rule putting either in `color` or `border-color` is
+   dropped by the browser and the mark silently turns the colour of the text
+   around it. As a background both are valid in every theme. */
+.gs-row__glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  box-sizing: border-box;
+
+  inline-size: var(--gs-size-icon-control);
+  block-size: var(--gs-size-icon-control);
+
+  color: var(--gs-color-on-accent);
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-full);
+}
+
+.gs-row[data-gs-state='correct'] .gs-row__glyph {
+  background: var(--gs-color-positive);
+}
+
+.gs-row[data-gs-state='wrong'] .gs-row__glyph {
+  background: var(--gs-color-negative);
+}
+
+.gs-row__glyph svg {
+  inline-size: var(--gs-size-icon-utility);
+  block-size: var(--gs-size-icon-utility);
+}
+
+/* In the reading, not on screen. The result is a shape and a word before it
+   is a colour, which is the rule a colour-blind player depends on. */
+.gs-row__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+  border: 0;
+}

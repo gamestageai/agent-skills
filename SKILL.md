@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-28-14
+version: 2026-09-29-1
 ---
 
 # Gamestage
 
-Pack version 2026-09-28-14.
-Pack digest de03baa11898a2e8.
+Pack version 2026-09-29-1.
+Pack digest 05121b3d5d14e0b7.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -180,7 +180,15 @@ This table said four until 2026-09-03, missing `bingo`, and was wrong the day
 it was written. The list the tool prints is the one that cannot go stale:
 `gamestage start` in an empty folder shows the current formats, and
 `gamestage create` with no format shows the same menu. Trust those over this
-table when they disagree.
+table when they disagree. `gamestage formats <format>` (or `--json formats`)
+says what each one keeps secret, what a producer writes in Studio, and names a
+deployed game of that kind the developer can play before choosing.
+
+`create` makes a folder named after the game when the current folder holds
+other things and no `index.html`; `--json` reports it as `directory`, so work
+there. Pass `--here` to write into the current folder regardless. Pass
+`--brand` and `--privacy-url` when the developer has said who runs the game,
+or `verify` and `deploy` will ask for them later.
 
 Ask it plainly: which of these, and what is the game about. Then build.
 

@@ -344,6 +344,18 @@
   text-decoration-thickness: var(--gs-stroke-ui);
 }
 
+/* Arcade: the same fault the wrong plate had, light red on mid blue at
+   2.6:1, and the same answer. The wrong option is filled in the negative
+   with the dark bright ink, still struck through and still dashed, so it
+   keeps its shape and its cross. Set on the theme as the defaults of the
+   component's own properties, so a game that sets its own wrong paint on
+   the choice or any container nearer it still wins. */
+:where([data-gs-theme='arcade']) {
+  --gs-choice-wrong-fill: var(--gs-color-negative);
+  --gs-choice-wrong-ink: var(--gs-color-on-bright);
+  --gs-choice-wrong-edge: var(--gs-color-edge);
+}
+
 /* A wrong answer shakes (specimen 4b: "motion.shake 400ms, ±6px, 3 cycles ·
    reduced-motion: dashed only"). The option already carries
    data-gs-animates="motion", so reduced motion zeroes this duration and the

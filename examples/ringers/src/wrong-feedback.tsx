@@ -70,5 +70,7 @@ export function useWrongFeedback(className: string) {
       ) : null}
     </div>
   )
-  return { show, node }
+  // While the plate is up, the page holds any toast back: "You're Copper
+  // Ferret now." after a name is saved must not compete with the answer.
+  return { show, node, showing: shown !== null }
 }

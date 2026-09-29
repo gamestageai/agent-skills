@@ -66,7 +66,7 @@ body { font-family: var(--gs-type-font-family-interface); font-size: var(--gs-ty
 .ringers-main {
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 20px 20px calc(96px + env(safe-area-inset-bottom));
+  padding: 20px 20px 0; /* its foot is --gs-nav-clearance: it is data-gs-page. GS-599 */
 }
 
 .ringers-play { display: grid; gap: 18px; align-content: start; }
@@ -408,15 +408,15 @@ body { font-family: var(--gs-type-font-family-interface); font-size: var(--gs-ty
    along a hard edge (Tom, 2026-09-28). The words keep clear of the nav with
    padding inside the frame instead. The end-of-round story still covers the
    nav. */
-.ringers-stories[data-keep-nav] .ringers-frame { padding-bottom: calc(var(--ringers-nav-room, 96px) + 24px); }
+.ringers-stories[data-keep-nav] .ringers-frame { padding-bottom: calc(var(--gs-nav-clearance, 96px) + 24px); }
 .ringers:has(.ringers-stories[data-keep-nav]) .ringers-nav { z-index: 31; }
 
 /* A pick that played for them. GS-600, Tom 2026-09-28: the toast was boring.
-   The wrong plate sits over the board; the tile shakes (motion.css plays
+   The wrong plate sits over the question, never over the board; the tile shakes (motion.css plays
    data-gs-motion="shake") and flashes the negative colour, which stays under
    reduced motion as a colour change. */
 .ringers-feedback {
-  position: absolute; inset-inline: 0; top: 300px; z-index: 40;
+  position: absolute; inset-inline: 0; top: 44px; z-index: 40;
   display: grid; place-items: center; pointer-events: none;
 }
 .ringers-feedback:empty { display: none; }
@@ -428,3 +428,17 @@ body { font-family: var(--gs-type-font-family-interface); font-size: var(--gs-ty
 @media (prefers-reduced-motion: no-preference) {
   .gs-choice__option[data-wrong-flash] { animation: gs-shake var(--gs-motion-shake, 400ms) var(--gs-motion-ease-shake, ease), ringers-wrong-flash 700ms ease-out; }
 }
+
+/* The profile in tabs, as Stat Attack draws it (Tom, 2026-09-29, GS-600). */
+.ringers-tab[hidden] { display: none; }
+.ringers-tab { display: grid; gap: 14px; align-content: start; }
+.ringers-rate { display: grid; grid-template-columns: 112px 1fr; align-items: center; gap: 16px; }
+.ringers-rate p { margin: 0; }
+.ringers-ring { position: relative; margin: 0; width: 112px; aspect-ratio: 1; }
+.ringers-ring svg { width: 100%; height: 100%; display: block; }
+.ringers-ring circle { fill: none; stroke-width: 10; }
+.ringers-ring__track { stroke: var(--gs-color-edge, rgba(0, 0, 0, .12)); }
+.ringers-ring__fill { stroke: var(--ringers-accent, var(--gs-color-ink)); stroke-linecap: round; transition: stroke-dasharray .6s ease-out; }
+.ringers-ring figcaption { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; line-height: 1.05; }
+.ringers-ring__figure { font-family: var(--gs-type-font-family-display); font-weight: 600; font-size: var(--gs-type-scale-step3); }
+.ringers-ring__caption { font-size: var(--gs-type-scale-step1); opacity: .8; }

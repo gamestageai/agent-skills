@@ -453,7 +453,9 @@
   --gs-floating-gap: var(--gs-space-3, 12px);
 
   position: fixed;
-  z-index: 50;
+  /* The floating nav's layer, as a property so a sheet or a modal can sit one
+     above it by arithmetic rather than by a bigger number. */
+  z-index: var(--gs-layer-nav, 50);
   inset-inline: 0;
   bottom: calc(env(safe-area-inset-bottom, 0px) + var(--gs-floating-gap));
   gap: 2px;
@@ -477,11 +479,39 @@
   --gs-floating-shadow: 0 12px 32px color-mix(in srgb, black 14%, transparent), 0 2px 8px color-mix(in srgb, black 8%, transparent);
 }
 
-/* The page keeps the capsule's height free at its foot, so a page's last line
-   scrolls clear of it. */
+/* The page runs to the bottom edge and the capsule floats over it. Tom,
+   2026-09-28, on Stat Attack: "the UI on mobile should go behind the nav to
+   the bottom". A reserved strip under the page left a band of background
+   between the last card and the capsule.
+
+   So the page's scroll area, marked data-gs-page, fills the screen to its foot
+   and keeps the capsule's clearance as padding at its end instead: its height,
+   its gap above the edge and a gap above it, and the home bar. Scrolled to the
+   end, the last line sits clear of the capsule; at rest, content passes under
+   it.
+
+   --gs-nav-clearance is measured by the nav itself and written on :root while
+   a floating nav is mounted (nav.tsx), so it is right whatever the capsule's
+   height turns out to be. The calc below is only the first paint's value,
+   before the nav has measured. A host that lays out its own foot pads by
+   var(--gs-nav-clearance, 0px). */
+:root:has(.gs-nav[data-gs-presentation='floating']) [data-gs-page] {
+  padding-block-end: calc(
+    var(--gs-page-end, var(--gs-space-4, 16px)) +
+      var(--gs-nav-clearance, calc(var(--gs-floating-height, 64px) + 2 * var(--gs-space-3, 12px) + env(safe-area-inset-bottom, 0px)))
+  );
+  scroll-padding-block-end: var(--gs-nav-clearance, 0px);
+}
+
+/* A host without a marked page keeps the old reservation: a block the
+   capsule's height at the foot of wherever the nav sits. */
 .gs-nav__spacer {
   display: block;
-  height: calc(var(--gs-floating-height, 64px) + 2 * var(--gs-space-3, 12px) + env(safe-area-inset-bottom, 0px));
+  height: var(--gs-nav-clearance, calc(var(--gs-floating-height, 64px) + 2 * var(--gs-space-3, 12px) + env(safe-area-inset-bottom, 0px)));
+}
+
+:root:has([data-gs-page]) .gs-nav__spacer {
+  display: none;
 }
 
 .gs-nav[data-gs-presentation='floating'] .gs-nav__destination {
@@ -553,6 +583,8 @@
   display: none;
 }
 
+/* The bar's underline mark is not the pill's: the pill's current place is its
+   highlight, and the mark drew a stray bar under it (Tom, 2026-09-28). */
 /* Marks alone, the default: every place the same width, so nothing moves
    when the selection does; the current place is the lighter pill sliding
    behind its mark and the mark at full strength, never a word or a heavier
@@ -731,7 +763,7 @@
   touch-action: manipulation;
 }
 .gs-nav[data-gs-labels='hidden'] .gs-nav__icon { font-size: var(--gs-size-icon-control); }
-.gs-nav[data-gs-labels='hidden'] .gs-nav__destination[data-gs-active='true']::after {
+.gs-nav[data-gs-labels='hidden']:not([data-gs-presentation='floating']) .gs-nav__destination[data-gs-active='true']::after {
   content: '';
   position: absolute;
   inset-block-end: 4px;

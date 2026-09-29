@@ -169,7 +169,7 @@ export interface StarGlyphProps extends GlyphProps {
 
 export function StarGlyph({ className, filled = false, weight }: StarGlyphProps) {
   return (
-    <svg {...svgProps(className)} fill={filled ? 'currentColor' : 'none'}>
+    <svg {...svgProps(className, weight)} fill={filled ? 'currentColor' : 'none'}>
       <path d="M8 2.5l1.8 3.7 4 .6-2.9 2.8.7 4-3.6-1.9-3.6 1.9.7-4L2.2 6.8l4-.6z" />
     </svg>
   )

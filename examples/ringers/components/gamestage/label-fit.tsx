@@ -285,7 +285,14 @@ function measurerFor(label: HTMLElement): { measure: MeasureLines; basePx: numbe
   s.whiteSpace = 'normal'
   s.overflowWrap = 'normal'
   s.wordBreak = 'normal'
-  document.body.appendChild(probe)
+  // Measured where the label lives, not on <body>. On <body> the copy sat
+  // outside the theme island and set arcade's Unbounded narrower than the label
+  // itself draws it on Linux: "Get my progress back" measured 281px against the
+  // 297 it has, so one line was reserved, and the real text broke onto a second
+  // line that the one-line clamp hid. Inside the label's own box the copy
+  // inherits exactly what the text does. It is absolute and hidden, so it moves
+  // nothing while it is there.
+  ;(label.closest<HTMLElement>('.gs-label-box') ?? label.parentElement ?? document.body).appendChild(probe)
 
   const measure: MeasureLines = (text, scale) => {
     const px = basePx * scale

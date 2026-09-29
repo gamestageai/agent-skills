@@ -209,5 +209,11 @@
   "consent_accept_label": "Accept",
   "consent_reject_label": "Reject",
   "consent_choose_label": "Manage preferences",
-  "label_wrong_plate": "Wrong"
+  "label_wrong_plate": "Wrong",
+  "label_preferences_heading": "Preferences",
+  "label_profile_tab_stats": "Stats",
+  "label_profile_tab_settings": "Settings",
+  "label_profile_tab_account": "Account",
+  "label_profile_win_rate": "Win rate",
+  "label_profile_rounds_won": "Rounds won: {won} of {played}."
 }

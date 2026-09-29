@@ -220,6 +220,38 @@ export function Nav(props: NavProps) {
     return () => observer.disconnect()
   }, [floating, activeIndex, labels, destinations])
 
+  // The clearance a page needs at its foot so its last line scrolls clear of
+  // the capsule, measured rather than assumed: the capsule's own height, the
+  // gap under it (which already holds the home bar), and one gap above it.
+  // Written to --gs-nav-clearance on :root, kept current as the capsule
+  // resizes, and removed when it unmounts. Tom, 2026-09-28: the pill covered
+  // Stat Attack's Guess button, because a page padded by a constant is a page
+  // that is wrong the first time the capsule is a different height.
+  React.useLayoutEffect(() => {
+    const el = navRef.current
+    if (!floating || !el || typeof window === 'undefined') return
+    const root = document.documentElement
+    const write = () => {
+      const style = getComputedStyle(el)
+      const below = parseFloat(style.bottom) || 0
+      const gap = parseFloat(style.getPropertyValue('--gs-floating-gap')) || 12
+      const height = el.getBoundingClientRect().height
+      if (!height) return
+      const value = `${Math.ceil(height + below + gap)}px`
+      if (root.style.getPropertyValue('--gs-nav-clearance') !== value) root.style.setProperty('--gs-nav-clearance', value)
+    }
+    write()
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(write)
+    observer?.observe(el)
+    observer?.observe(root)
+    window.addEventListener('resize', write)
+    return () => {
+      observer?.disconnect()
+      window.removeEventListener('resize', write)
+      root.style.removeProperty('--gs-nav-clearance')
+    }
+  }, [floating])
+
   const nav = (
     <nav
       {...rest}
@@ -323,9 +355,10 @@ export function Nav(props: NavProps) {
     </nav>
   )
 
-  // Floating holds itself over the page, so it reserves its own height where
-  // it is placed: a page's last lines scroll clear of it without the host
-  // having to know how tall it is.
+  // Floating holds itself over the page. A page marked `data-gs-page` runs
+  // under it to the bottom edge and keeps --gs-nav-clearance, measured above,
+  // as padding at its end (nav.css). A host that marks no page gets the old spacer instead, so its
+  // last lines still scroll clear without it knowing how tall the capsule is.
   return floating ? (
     <>
       <div className="gs-nav__spacer" aria-hidden="true" />

@@ -13,8 +13,10 @@ import { Sheet } from '@/components/gamestage/sheet'
 import { Streak } from '@/components/gamestage/streak'
 import { Toast } from '@/components/gamestage/toast'
 import { Toggle } from '@/components/gamestage/toggle'
+import { Preferences } from '@/components/gamestage/preferences'
 import { Stories, type RevealFrame } from './stories'
 import { useWrongFeedback } from './wrong-feedback'
+import { Ring } from './ring'
 
 /**
  * Ringers, drawn with Gamestage UI in a monochrome demo register.
@@ -327,6 +329,11 @@ export function App() {
   }, [round, state, failure])
 
   const wrongFeedback = useWrongFeedback('ringers-feedback')
+  // The profile in three tabs, as Stat Attack draws it: what you have done,
+  // how the game behaves, and how to keep your progress. All three stay
+  // mounted and the others are hidden, so the privacy slot is always in the
+  // page for the consent client to find. Tom, 2026-09-29, GS-600.
+  const [profileTab, setProfileTab] = React.useState<'stats' | 'settings' | 'account'>('stats')
 
   async function lockIn() {
     if (!round || chosen.length === 0 || !game.current) return
@@ -455,25 +462,8 @@ export function App() {
     if (first) setYouOpen(true)
   }
 
-  // How to play stops above the floating nav rather than covering it, so the
-  // page says how much room the nav takes at the foot of the screen.
-  React.useLayoutEffect(() => {
-    const nav = document.querySelector<HTMLElement>('.ringers-nav')
-    if (!nav) return
-    const measure = () =>
-      document.documentElement.style.setProperty(
-        '--ringers-nav-room',
-        `${Math.max(0, window.innerHeight - nav.getBoundingClientRect().top)}px`,
-      )
-    measure()
-    const watch = new ResizeObserver(measure)
-    watch.observe(nav)
-    window.addEventListener('resize', measure)
-    return () => {
-      watch.disconnect()
-      window.removeEventListener('resize', measure)
-    }
-  })
+  // How to play's words keep clear of the floating nav by --gs-nav-clearance,
+  // which the Gamestage UI nav measures itself. GS-599.
 
   // --- Name and picture ----------------------------------------------------
   const [youOpen, setYouOpen] = React.useState(false)
@@ -731,7 +721,7 @@ export function App() {
           </p>
         ) : null}
 
-        <main className="ringers-main">
+        <main data-gs-page className="ringers-main">
           {place === 'leaderboard' ? (
             <section className="ringers-panel">
               <h2 className="ringers-visually-hidden">{word('label_board_title')}</h2>
@@ -784,6 +774,29 @@ export function App() {
                       {word('label_profile_change')}
                     </Button>
                   </div>
+                  <Nav
+                    className="ringers-profile-tabs"
+                    presentation="tabs"
+                    label={word('label_profile_title')}
+                    onNavigate={(id) => setProfileTab(id as 'stats' | 'settings' | 'account')}
+                    destinations={[
+                      { id: 'stats', label: word('label_profile_tab_stats'), active: profileTab === 'stats' },
+                      { id: 'settings', label: word('label_profile_tab_settings'), active: profileTab === 'settings' },
+                      { id: 'account', label: word('label_profile_tab_account'), active: profileTab === 'account' },
+                    ]}
+                  />
+                  <div className="ringers-tab" hidden={profileTab !== 'stats'}>
+                  {(profile.played ?? 0) > 0 ? (
+                    <div className="ringers-card ringers-rate">
+                      <Ring
+                        value={(profile.won ?? 0) / (profile.played ?? 1)}
+                        figure={`${Math.round(((profile.won ?? 0) / (profile.played ?? 1)) * 100)}%`}
+                        caption={word('label_profile_win_rate')}
+                        label={word('label_profile_rounds_won', { won: profile.won ?? 0, played: profile.played ?? 0 })}
+                      />
+                      <p>{word('label_profile_rounds_won', { won: profile.won ?? 0, played: profile.played ?? 0 })}</p>
+                    </div>
+                  ) : null}
                   <dl className="ringers-stats">
                     <div><dt>{word('label_profile_played')}</dt><dd>{profile.played ?? 0}</dd></div>
                     <div><dt>{word('label_profile_won')}</dt><dd>{profile.won ?? 0}</dd></div>
@@ -795,18 +808,36 @@ export function App() {
                   {(profile.current_streak ?? 0) >= 2 ? (
                     <Streak value={profile.current_streak ?? 0} label={word('label_profile_streak')} />
                   ) : null}
-                  <Toggle
-                    label={word('label_sound')}
-                    checked={sound}
-                    onChange={(on) => {
-                      setSound(on)
-                      writeLocal(SOUND_KEY, on ? 'on' : 'off')
-                    }}
+                  </div>
+                  <div className="ringers-tab" hidden={profileTab !== 'settings'}>
+                  {/* One grouped list, as a settings screen draws it (GS-599). The
+                      client puts Privacy settings, and the copyright link under
+                      the group, into the slot row. */}
+                  <Preferences
+                    title={word('label_preferences_heading')}
+                    items={[
+                      {
+                        kind: 'toggle',
+                        id: 'sound',
+                        label: word('label_sound'),
+                        checked: sound,
+                        onChange: (on) => {
+                          setSound(on)
+                          writeLocal(SOUND_KEY, on ? 'on' : 'off')
+                        },
+                      },
+                      { kind: 'slot', id: 'privacy', slot: 'privacy-settings' },
+                      {
+                        kind: 'link',
+                        id: 'recovery',
+                        label: word('label_keep_title'),
+                        onOpen: () => setProfileTab('account'),
+                      },
+                    ]}
                   />
-                  {/* Where the client puts Privacy settings and the copyright
-                      link: in the flow of Profile, never over a control. */}
-                  <div className="ringers-privacy" data-gs-slot="privacy-settings" />
-                  <div className="ringers-card">
+                  </div>
+                  <div className="ringers-tab" hidden={profileTab !== 'account'}>
+                  <div className="ringers-card" id="ringers-keep">
                     <h3>{word('label_keep_title')}</h3>
                     <p>{word('label_keep_body')}</p>
                     {code ? (
@@ -844,6 +875,7 @@ export function App() {
                     <Button variant="secondary" disabled={!restoreText.trim()} onClick={() => void restore()}>
                       {word('label_restore_submit')}
                     </Button>
+                  </div>
                   </div>
                 </>
               )}
@@ -1023,7 +1055,7 @@ export function App() {
         <div className="ringers-toast-layer">
           {wrongFeedback.node}
 
-          <Toast open={Boolean(notice)} onDismiss={() => setNotice(null)}>
+          <Toast open={Boolean(notice) && !wrongFeedback.showing} onDismiss={() => setNotice(null)}>
             {notice}
           </Toast>
         </div>

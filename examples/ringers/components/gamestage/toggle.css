@@ -29,13 +29,24 @@
   padding: calc(var(--gs-space-1) / 2);
 
   border: var(--gs-stroke-ui) solid var(--gs-color-edge);
-  border-radius: var(--gs-radius-full);
-  background: var(--gs-color-edge);
+  border-radius: 999px;
+  /* Off is a neutral track and on is the accent, so on and off never read
+     alike: Tom, 2026-09-28, of a dark thumb on a dark track that looked the
+     same either way. */
+  background: var(--gs-color-surface-raised);
   cursor: pointer;
 }
 
+/* The tap target is 48px tall however thin the pill is drawn. */
+.gs-toggle__control::before {
+  content: '';
+  position: absolute;
+  inset: calc((var(--gs-size-touch-min) - var(--gs-size-control-small)) / -2) 0;
+}
+
 .gs-toggle[data-gs-active='true'] .gs-toggle__control {
-  background: var(--gs-color-positive);
+  background: var(--gs-color-interactive-solid);
+  border-color: var(--gs-color-interactive-solid);
 }
 
 /* The thumb. Its height is the pill's inner box and it is square, so it
@@ -66,12 +77,32 @@
   aspect-ratio: 1;
   flex: none;
 
+  position: relative;
   border: var(--gs-stroke-ui) solid var(--gs-color-edge);
-  border-radius: var(--gs-radius-full);
+  border-radius: 50%;
   background: var(--gs-color-ink);
 
   translate: 0;
   transition: translate var(--gs-motion-emphasis) var(--gs-motion-ease-pop);
+}
+
+/* On, the thumb is the accent's own ink with a tick in it, so the state
+   reads by the thumb's end, the fill and a mark: never by colour alone. */
+.gs-toggle[data-gs-active='true'] .gs-toggle__thumb {
+  background: var(--gs-color-on-accent);
+  border-color: var(--gs-color-on-accent);
+}
+
+.gs-toggle[data-gs-active='true'] .gs-toggle__thumb::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 22%;
+  inset-inline-start: 36%;
+  inline-size: 22%;
+  block-size: 40%;
+  border: solid var(--gs-color-interactive-solid);
+  border-width: 0 var(--gs-stroke-ui) var(--gs-stroke-ui) 0;
+  rotate: 45deg;
 }
 
 .gs-toggle[data-gs-active='true'] .gs-toggle__thumb {

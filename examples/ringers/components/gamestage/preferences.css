@@ -1,0 +1,141 @@
+/* Preferences. Every value comes from a token; nothing here is a literal
+   colour. One grouped list: the rows share one surface and one edge, joined
+   by a hairline, as a settings app draws them. */
+
+.gs-preferences {
+  display: grid;
+  gap: var(--gs-space-2);
+  min-inline-size: 0;
+}
+
+.gs-preferences__title {
+  margin: 0;
+  padding-inline: var(--gs-space-1);
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  color: var(--gs-color-ink-secondary);
+}
+
+/* One column that may be narrower than its longest row: without the
+   minmax a row's min-content sets the column, and at 320px on a wider
+   fallback face the rows ran 3px past the group's edge. */
+.gs-preferences__group {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: var(--gs-stroke-ui) solid var(--gs-color-edge);
+  border-radius: var(--gs-radius-lg);
+  background: var(--gs-color-surface);
+}
+
+.gs-preferences__item {
+  min-inline-size: 0;
+}
+
+.gs-preferences__item + .gs-preferences__item {
+  border-block-start: var(--gs-stroke-hairline) solid var(--gs-color-edge);
+}
+
+/* Inside the group a row is a line of the group, not a card of its own. */
+.gs-preferences__item > .gs-row {
+  inline-size: 100%;
+  min-block-size: var(--gs-size-touch-min);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.gs-preferences__chevron {
+  display: inline-flex;
+  color: var(--gs-color-ink-secondary);
+  font-size: var(--gs-size-icon-utility);
+}
+
+/* The client's Privacy settings control lands here: drawn as the row it sits
+   in, the whole width, with a chevron at its end. */
+.gs-preferences__slot:empty {
+  display: none;
+}
+
+/* Two classes, not one: the client injects its own one-class rules for these
+   links after this stylesheet (display: inline, a margin, its own padding),
+   and at equal weight the later rule won, so Privacy settings drew as inline
+   underlined text with the chevron collapsed to a bar beside it. */
+.gs-preferences .gs-preferences__slot > * {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  inline-size: 100%;
+  min-block-size: var(--gs-size-touch-min);
+  margin: 0;
+  padding: 0 var(--gs-space-3);
+  font: inherit;
+  /* The row label's type, so the client's control reads as one of the rows. */
+  font-family: var(--gs-type-label-font-family);
+  font-size: var(--gs-type-label-font-size);
+  font-weight: var(--gs-type-label-font-weight);
+  color: var(--gs-color-ink);
+  text-align: start;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.gs-preferences .gs-preferences__slot > *::after {
+  content: '';
+  inline-size: 0.5em;
+  block-size: 0.5em;
+  border: solid var(--gs-color-ink-secondary);
+  border-width: var(--gs-stroke-ui) var(--gs-stroke-ui) 0 0;
+  rotate: 45deg;
+  flex: none;
+}
+
+/* The client puts its copyright link in the same slot, after Privacy
+   settings. It is a caption under the group, not a row: small, secondary,
+   underlined, with no chevron. Tom, 2026-09-28. */
+.gs-preferences .gs-preferences__slot > [data-gs-part='copyright'] {
+  justify-content: flex-start;
+  min-block-size: var(--gs-size-touch-min);
+  margin-block-start: var(--gs-space-2);
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  color: var(--gs-color-ink-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  border-block-start: var(--gs-stroke-hairline) solid var(--gs-color-edge);
+}
+
+.gs-preferences .gs-preferences__slot > [data-gs-part='copyright']::after {
+  content: none;
+}
+
+.gs-preferences__footer {
+  justify-self: start;
+  min-block-size: var(--gs-size-touch-min);
+  padding: 0 var(--gs-space-1);
+  font-family: var(--gs-type-caption-font-family);
+  font-size: var(--gs-type-caption-font-size);
+  font-weight: var(--gs-type-caption-font-weight);
+  color: var(--gs-color-ink-secondary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.gs-preferences .gs-preferences__slot > *:focus-visible,
+.gs-preferences__footer:focus-visible {
+  outline: var(--gs-stroke-focus) solid var(--gs-color-selected);
+  outline-offset: -4px;
+}

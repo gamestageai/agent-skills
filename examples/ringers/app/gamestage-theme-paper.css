@@ -100,6 +100,7 @@
   --gs-type-eyebrow-font-family: var(--gs-type-font-family-interface);
   --gs-type-title-font-family: var(--gs-type-font-family-interface);
   --gs-type-action-font-family: var(--gs-type-font-family-interface);
+  --gs-type-action-font-family-primary: var(--gs-type-action-font-family);
   --gs-type-stat-font-family: var(--gs-type-font-family-display);
   --gs-type-figure-font-family: var(--gs-type-font-family-display);
   --gs-type-score-font-family: var(--gs-type-font-family-display);

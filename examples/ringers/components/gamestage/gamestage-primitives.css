@@ -120,6 +120,12 @@
       --gs-type-action-text-transform-primary,
       var(--gs-type-action-text-transform, none)
     );
+    /* And the theme's primary face, on the same element and no other. Arcade
+       sets this to Bungee, capitals only, Tom 2026-09-28; every other theme
+       aliases it to the action face, so nothing changes there. A locked
+       primary is excluded for the same reason as its case: it types "Level 8"
+       in sentence case, and Bungee would draw it in capitals. */
+    font-family: var(--gs-type-action-font-family-primary, var(--gs-type-action-font-family));
   }
 
   /* A locked primary is not the action the screen is built around while it

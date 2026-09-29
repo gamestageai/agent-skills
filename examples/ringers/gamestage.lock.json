@@ -15,25 +15,25 @@
       }
     },
     "button": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T22:54:49.761Z",
       "files": {
         "components/gamestage/button.tsx": "d39bdd1d843528687d7e4f1eb4b50ab3cf8950ce9f084895a5a2c91bb5791c99",
-        "components/gamestage/button.css": "bf836bb49d88326bba54eb988887b0616a31667b15e39651b3e2bf000475d067"
+        "components/gamestage/button.css": "bde4cf172f9e9b67a79ec4b94008302689368754765b1fd00c1b63b860c114d6"
       }
     },
     "choice": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T22:54:19.513Z",
       "files": {
         "components/gamestage/choice.tsx": "e256954257c587bc9dd0b95ec47cabc5a6a92857845697a7230a9a74f5ccd560",
-        "components/gamestage/choice.css": "e74c9fa49b5c79b07ae9bd1428d412cce4bd404486fa8ac68391bb3376620ee4"
+        "components/gamestage/choice.css": "d2e9357cf53ca4c25c5c35ce5194343c87993d336ed0d9b90e2e4b0dce79cce0"
       }
     },
     "code-entry": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-29T07:55:55.355Z",
       "files": {
         "components/gamestage/code-entry.tsx": "a58faab7455f2a5a61563c895505fdbca65188d36c16c9d4f1607bdc39206f37",
         "components/gamestage/code-entry.css": "55a1910226bb5cc43df4eee2607993e4832ed7df141dc4a9df6e27166edefb8e",
-        "components/gamestage/gamestage-primitives.css": "96cf3594f90396547ba151e49ef611fb8284436453e4ae54674a96a442c9b12e"
+        "components/gamestage/gamestage-primitives.css": "0d580219b7298ab75e8689647aad907ff0c9baa8a901f7266d2aaebebc10ef13"
       }
     },
     "consent": {
@@ -76,7 +76,7 @@
       }
     },
     "feel": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T22:54:49.761Z",
       "files": {
         "components/gamestage/feel.tsx": "a46771c89bbb71529991679e762cfb1452238b7d344c9a0ca890a508cc50d2d8"
       }
@@ -88,7 +88,7 @@
       }
     },
     "fonts": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T23:42:03.646Z",
       "files": {
         "app/gamestage-fonts.css": "4382d40fe95d0831fab12713b0fc233b31ff6206e8f9abe6cc134a3ca7c51a39",
         "app/gamestage-fonts/dm-sans-latin.woff2": "468d56b6b25b05b70190b6c233d773f6f1770e8579827ce022a57f03fa8002fb",
@@ -104,9 +104,9 @@
       }
     },
     "glyphs": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T23:42:03.648Z",
       "files": {
-        "components/gamestage/glyphs.tsx": "940272609f47f1d225a7f480ef1231a2c2282dd1667875c56755d196b4526417",
+        "components/gamestage/glyphs.tsx": "64eba8dda8c11c95d3368706061b99791e85838c9fe8408a46415776faff528b",
         "components/gamestage/glyphs.css": "853721cc73438c84fb53d1d6231a479e01d53899384f358bbec4c427f9ca05a6"
       }
     },
@@ -125,9 +125,9 @@
       }
     },
     "label-fit": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-29T07:55:55.356Z",
       "files": {
-        "components/gamestage/label-fit.tsx": "c95808442577c2d5a892d57292e5d08f189232ebc539184d8aa1722b002a0e45"
+        "components/gamestage/label-fit.tsx": "5fd413a4ae09720697adc471cf679d46b4218694e301a350d0fb9f231838cef9"
       }
     },
     "leaderboard": {
@@ -151,10 +151,10 @@
       }
     },
     "nav": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-29T07:55:55.356Z",
       "files": {
-        "components/gamestage/nav.tsx": "af2c4f2b103072f6ce29233ce1afbd6a2dbf8945a5b7657fa97dd3cbd8d033fa",
-        "components/gamestage/nav.css": "99ac71408a78d447b3c4335f46cdcfe45ef7f6d901c91f8a7061a50fd0213db7"
+        "components/gamestage/nav.tsx": "c34470803123c3eebbc25261d7278144c8f216148c1277287e1d60eb4887a9e9",
+        "components/gamestage/nav.css": "b5f6f076b4f63a8f6ed80a92f4a456393b5e31a395f8db2002675da030bffeb3"
       }
     },
     "podium": {
@@ -164,11 +164,25 @@
         "components/gamestage/podium.css": "7e101eee9000f99308ba1d6f9e9dc79302ff97fadd1527a4bf1917d8b9fac56a"
       }
     },
+    "preferences": {
+      "installed": "2026-09-28T23:42:03.648Z",
+      "files": {
+        "components/gamestage/preferences.tsx": "e04a8e990b1934b99d22169e37d06a5c2466f68ac40e122faa20648ff1821b49",
+        "components/gamestage/preferences.css": "d40ecb32dca2ea4ceae777e2eacdaf0259c173fa60725c199b645563b14b2766"
+      }
+    },
     "reward": {
       "installed": "2026-09-28T19:07:36.506Z",
       "files": {
         "components/gamestage/reward.tsx": "1d50790d915f2cb42a4dc8f6163f5c45784e633387902043dfa35bd718ceec11",
         "components/gamestage/reward.css": "13f479c73fdc86a38b26244e262cd439fc3043b3c10ef013ca2cc49a1f00cde5"
+      }
+    },
+    "row": {
+      "installed": "2026-09-28T23:42:03.648Z",
+      "files": {
+        "components/gamestage/row.tsx": "2b09f10a324cbb96e03ec3132c55e744af354c6e3680a0b998e2bc299d676313",
+        "components/gamestage/row.css": "f9088568e1cb36897b4c16fead44051eb9d3a3754553d9254e4030aeace47be3"
       }
     },
     "score": {
@@ -179,10 +193,10 @@
       }
     },
     "sheet": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-29T07:55:55.356Z",
       "files": {
         "components/gamestage/sheet.tsx": "ef2903d4f15d6e7dc76c2fdf91c7379ecc6f56d7799e2ba65b9e07a36ae7656e",
-        "components/gamestage/sheet.css": "aa468e551d1b0943c7731433e1bac401e2a305c6a2ccb9899600445d36536afb",
+        "components/gamestage/sheet.css": "05ba0febf3de91e85b8486246c6d7a41eb320505e38d8c006bb048471cb95047",
         "components/gamestage/trap.ts": "d9668c12959aa0b919b6d5b27906570608c2f9d3c31f10b9e90e8a3899083802"
       }
     },
@@ -209,15 +223,15 @@
       }
     },
     "strings": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T23:42:03.648Z",
       "files": {
         "components/gamestage/strings.ts": "e081439fb766f328915d84e261e62026ac4c03eae155e372da854fc7ccf0c28f"
       }
     },
     "theme-paper": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-29T07:55:55.356Z",
       "files": {
-        "app/gamestage-theme-paper.css": "d4337c48e04cb8a8ef7f8e646f4e695a817c1d26bfa703759fccc5993638dcab"
+        "app/gamestage-theme-paper.css": "26340e03854fba77eb184be603abc5dd9bc6fa5e662a2e4b814e15ab2422b102"
       }
     },
     "timer": {
@@ -227,25 +241,25 @@
       }
     },
     "toast": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T22:54:19.514Z",
       "files": {
-        "components/gamestage/toast.tsx": "3339debba285210e19c926bf3f56cdd0935f6c784b8fe0784cd83262c4550234",
-        "components/gamestage/toast.css": "017a93de4b52e9700ebe8e4c5b21b0f1cf8c59a395febe8114a33caa0a257586"
+        "components/gamestage/toast.tsx": "af82531f397c1f09f30eb0e05d5075d0d4360e9f666c3a5df5e679092b30e3f0",
+        "components/gamestage/toast.css": "7fb567432a0f3f00759520c2c482b249ddfc4fb5cd59ee02c81d49c713323ee7"
       }
     },
     "toggle": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-28T23:42:03.648Z",
       "files": {
         "components/gamestage/toggle.tsx": "ad7b7e1b56ef9cc098168e1f33d44e45ad44428a0f2cc12fffe313f8861cfe62",
-        "components/gamestage/toggle.css": "63f24270c52a51b2550a622523a5399dd080e54fd51ee145cd82e8e658ccf97c"
+        "components/gamestage/toggle.css": "c9e335a1fc5b19b40c420bf2170ac6783533346d15e4fcc51a19b51f9803ba89"
       }
     },
     "tokens": {
-      "installed": "2026-09-28T19:07:36.506Z",
+      "installed": "2026-09-29T07:55:55.356Z",
       "files": {
-        "app/gamestage-tokens.css": "c205d513683c9453c9eae3e5324116529832bc1f3198d0930d768d355f0dc7db",
+        "app/gamestage-tokens.css": "347fd555e99b2b87f3bee6fc0398f936134bd585a808c6ea30c395c98c71a104",
         "lib/gamestage-cues.json": "8bbcdafb39e316053ec5cbe75d0adec9e9c12ae9152980f34719565419b34d76",
-        "components/gamestage/gamestage-primitives.css": "96cf3594f90396547ba151e49ef611fb8284436453e4ae54674a96a442c9b12e",
+        "components/gamestage/gamestage-primitives.css": "0d580219b7298ab75e8689647aad907ff0c9baa8a901f7266d2aaebebc10ef13",
         "app/gamestage-motion.css": "c895aba9184256f3c6cbd63388aea2c7144632cf22a3dc1bdb98afeced0ff7c9"
       }
     }

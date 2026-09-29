@@ -37,6 +37,15 @@
   box-shadow: var(--gs-depth-floating);
 }
 
+/* Below the page's own top bar when it has one, fixed to the screen, so the
+   toast never covers the game's name (Tom, 2026-09-28). The component
+   measures the bar; a host can set --gs-toast-offset-top itself. */
+.gs-toast[data-gs-placement='top'] {
+  position: fixed;
+  top: calc(var(--gs-toast-offset-top, 0px) + var(--gs-space-2));
+  z-index: 60;
+}
+
 .gs-toast__label {
   overflow: hidden;
   text-overflow: ellipsis;

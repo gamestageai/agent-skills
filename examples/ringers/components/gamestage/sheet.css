@@ -12,7 +12,10 @@
 .gs-sheet {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  /* Above the floating nav, one layer up from it. A sheet covers the page it
+     opens over, and at 2 the pill (at --gs-layer-nav) drew over its foot, so
+     on a 360x640 phone it sat on the sheet's Save button. Tom, 2026-09-28. */
+  z-index: calc(var(--gs-layer-nav, 50) + 1);
 }
 
 /* The drawing writes its scrim as a navy at 60% inline; ours is the scrim token, which is

@@ -35,6 +35,28 @@ export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
 
 const DURATION = 3000
 
+/**
+ * The foot of the page's own top bar, if it has one: an element the host marks
+ * `data-gs-slot="header"`, or else the lowest edge of anything fixed or sticky
+ * at the top of the screen. The toast sits just below it, never over the
+ * game's name: Tom, 2026-09-28, "Pick a player first" drawn over POINTS.
+ */
+function headerFoot(self: HTMLElement | null): number | null {
+  if (typeof window === 'undefined') return null
+  const marked = document.querySelector<HTMLElement>('[data-gs-slot="header"]')
+  if (marked) return Math.round(marked.getBoundingClientRect().bottom)
+  let foot: number | null = null
+  for (const el of Array.from(document.body.querySelectorAll<HTMLElement>('*'))) {
+    if (self && (el === self || self.contains(el) || el.contains(self))) continue
+    const position = getComputedStyle(el).position
+    if (position !== 'fixed' && position !== 'sticky') continue
+    const box = el.getBoundingClientRect()
+    if (box.height === 0 || box.width < window.innerWidth / 2 || box.top > 8 || box.bottom > window.innerHeight / 3) continue
+    foot = Math.max(foot ?? 0, Math.round(box.bottom))
+  }
+  return foot
+}
+
 export function Toast({ open, onDismiss, duration = DURATION, glyph, className, children, ...rest }: ToastProps) {
   // The handler is read through a ref so the clock is set once per opening,
   // not restarted by every re-render of the host.
@@ -49,11 +71,22 @@ export function Toast({ open, onDismiss, duration = DURATION, glyph, className, 
     return () => window.clearTimeout(timer)
   }, [open, duration])
 
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [below, setBelow] = React.useState<number | null>(null)
+  React.useLayoutEffect(() => {
+    if (!open) return
+    setBelow(headerFoot(ref.current))
+  }, [open])
+
   if (!open) return null
+  const placed = below !== null
 
   return (
     <div
       {...rest}
+      ref={ref}
+      data-gs-placement={placed ? 'top' : undefined}
+      style={placed ? { ...rest.style, ['--gs-toast-offset-top' as string]: `${below}px` } : rest.style}
       className={['gs-toast', className].filter(Boolean).join(' ')}
       data-gs-component="toast"
       data-gs-motion="fade"
