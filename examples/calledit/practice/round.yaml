@@ -1,0 +1,21 @@
+# A practice round, for this laptop only. Fans never see it.
+#
+# Moved out of gamestage.yaml by GS-607: a manifest holds no round. gamestage
+# dev, verify and review play it; gamestage deploy never uploads this folder.
+# The live rounds are written in Monterosa Studio.
+archetype: predict
+number: 1
+prompt: Who wins the Champions League this season?
+options:
+  - key: real
+    label: Real Madrid
+  - key: city
+    label: Manchester City
+  - key: arsenal
+    label: Arsenal
+  - key: bayern
+    label: Bayern Munich
+  - key: psg
+    label: Paris Saint-Germain
+pointsForCorrect: 50
+open: true

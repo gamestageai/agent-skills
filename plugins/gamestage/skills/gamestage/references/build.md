@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-09-29-5. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-09-29-6. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 

@@ -29,14 +29,6 @@ studio_surface:
 backend:
   route: managed_runtime
   archetype: shoot
-  round:
-    archetype: shoot
-    number: 1
-    prompt: Five penalties. Three goals to win.
-    difficulty: balanced_v1
-    shotsAllowed: 5
-    goalsToWin: 3
-    pointsPerGoal: 100
   configuration: {}
   status: confirmed
   provenance:

@@ -30,23 +30,6 @@ backend:
   route: managed_runtime
   archetype: predict
   configuration: {}
-  round:
-    archetype: predict
-    number: 1
-    prompt: Who wins the Champions League this season?
-    options:
-      - key: real
-        label: Real Madrid
-      - key: city
-        label: Manchester City
-      - key: arsenal
-        label: Arsenal
-      - key: bayern
-        label: Bayern Munich
-      - key: psg
-        label: Paris Saint-Germain
-    pointsForCorrect: 50
-    open: true
   status: confirmed
   provenance:
     - kind: human_decision

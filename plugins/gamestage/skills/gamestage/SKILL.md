@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-09-29-5
+version: 2026-09-29-6
 ---
 
 # Gamestage
 
-Pack version 2026-09-29-5.
-Pack digest 1e70c5a1bc65c699.
+Pack version 2026-09-29-6.
+Pack digest 0465994dce88bef4.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -89,14 +89,16 @@ reader cannot invoke is a tool that does not exist.
 ```
 gamestage formats              what each format is, with a real game to play
 gamestage create               asks the format and the name, makes the game's folder
-gamestage dev --serve          plays a local sample round; nothing is published
+                               and writes a starter practice/round.yaml
+gamestage dev --serve          plays practice/round.yaml; nothing is published
 gamestage verify               proves the Engine decides the outcome, not the page
 gamestage deploy <game>        puts the game online, with no round yet
 gamestage open <game> studio   where a producer adds the real round
 ```
 
-The sample round sits in a local file that only `dev` reads, and a deploy never
-sends it. Real rounds are written in Monterosa Studio, where whoever runs the
+The practice round sits in `practice/round.yaml`, which `dev`, `verify` and
+`review` read and a deploy never uploads. A page playing it under `dev --serve`
+shows a "Practice round, not live" bar. Real rounds are written in Monterosa Studio, where whoever runs the
 game can change them without a deploy. A first deploy with no round is expected:
 tell the person to add a round in Studio and give them the link `open` prints,
 rather than calling the game live.
@@ -160,7 +162,7 @@ The shape of a migration:
 ```
 gamestage inspect .        read-only. reports what must move, with line numbers
    ↓ you edit            take the answers out of the page
-gamestage dev            plays a sample round through the real Engine
+gamestage dev            plays practice/round.yaml through the real Engine
    ↓ you play it         open it in a browser and make a play
 gamestage verify         proves the Engine decided the outcome, not the page
 gamestage deploy         publishes through Backstage, where one is available
@@ -196,11 +198,22 @@ either, because a manifest describes the game and carries no content.
 
 *Where the round lives.* A game's rounds are written in Monterosa Studio, where
 whoever runs the game changes them without a deploy, and the Engine reads them
-from there. To play the game before Studio holds a round, `gamestage dev` plays
-a local sample round of the game's format that a deploy never sends. A first
-deploy with no round is expected: it says "No round yet: add one in Studio" and
-prints the link, so tell the person that rather than calling the game live. To
-write a round into Studio from this machine, see `gamestage round push --help`.
+from there. On this machine the one round is `practice/round.yaml`, beside
+`gamestage.yaml`: `create` writes a starter one, `dev`, `verify` and `review`
+play it, and `deploy` never uploads the `practice/` folder. With no practice
+file they play a stand-in round of the game's format. Each names its round in
+one line, "Round: practice/round.yaml (on this laptop only, fans never see it)"
+or "Round: stand-in round". `gamestage round push <game>` copies the practice
+round into Studio; it is the only route from this machine into Studio.
+
+A manifest carrying `backend.round` is refused by every command with "Rounds
+don't go in gamestage.yaml. Put practice rounds in practice/round.yaml, and
+real ones in Studio." Move the block into `practice/round.yaml`, at the top
+level of the file.
+
+A first deploy with no round in Studio is expected: it says "No round yet: add
+one in Studio" and prints the link, so tell the person that rather than calling
+the game live. Once there is one it says "Round: Studio, edition <name>".
 
 **Never invent a player id.** An id a page picks for itself is one anybody can
 send on someone else's behalf. Anonymous play is supported and the Engine issues

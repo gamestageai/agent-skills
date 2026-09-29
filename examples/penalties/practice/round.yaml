@@ -1,0 +1,12 @@
+# A practice round, for this laptop only. Fans never see it.
+#
+# Moved out of gamestage.yaml by GS-607: a manifest holds no round. gamestage
+# dev, verify and review play it; gamestage deploy never uploads this folder.
+# The live rounds are written in Monterosa Studio.
+archetype: shoot
+number: 1
+prompt: Five penalties. Three goals to win.
+difficulty: balanced_v1
+shotsAllowed: 5
+goalsToWin: 3
+pointsPerGoal: 100

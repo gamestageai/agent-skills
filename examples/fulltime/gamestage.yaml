@@ -29,58 +29,6 @@ studio_surface:
 backend:
   route: managed_runtime
   archetype: bingo
-  round:
-    archetype: bingo
-    number: 1
-    prompt: Nine things that might happen. Shuffle until you like your board, then lock it in.
-    rows: 3
-    columns: 3
-    centreMode: free
-    lineTypes:
-      - row
-      - column
-      - diagonal
-      - full_board
-    pointsPerLine: 25
-    pointsForFullBoard: 100
-    shuffleAllowance: 3
-    cardPool:
-      - key: "Goal in the first 10"
-        label: "Goal in the first 10"
-      - key: "Penalty awarded"
-        label: "Penalty awarded"
-      - key: "Own goal"
-        label: "Own goal"
-      - key: "Red card"
-        label: "Red card"
-      - key: "Booked for dissent"
-        label: "Booked for dissent"
-      - key: "Header from a corner"
-        label: "Header from a corner"
-      - key: "Free kick on target"
-        label: "Free kick on target"
-      - key: "Off the woodwork"
-        label: "Off the woodwork"
-      - key: "Substitute scores"
-        label: "Substitute scores"
-      - key: "Goal from outside the box"
-        label: "Goal from outside the box"
-      - key: "VAR check"
-        label: "VAR check"
-      - key: "Offside flag in the first half"
-        label: "Offside flag in the first half"
-      - key: "Manager booked"
-        label: "Manager booked"
-      - key: "Goal in injury time"
-        label: "Goal in injury time"
-      - key: "Both teams score"
-        label: "Both teams score"
-      - key: "Corner in the first five"
-        label: "Corner in the first five"
-      - key: "Goalless at half time"
-        label: "Goalless at half time"
-      - key: "Three goals or more"
-        label: "Three goals or more"
   configuration: {}
   status: confirmed
   provenance:
