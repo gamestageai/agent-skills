@@ -1,13 +1,13 @@
 ---
 name: gamestage
-description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one."
-version: 2026-09-29-1
+description: "Take a browser game to production with Gamestage: move answers, scoring, locks and settlement behind a server the player cannot edit. Use when migrating a game prototype, when a gamestage.yaml is present, or when the user mentions Gamestage. Run everything as `npx gamestage@latest`; there is no gamestage binary on PATH, so do not check for one. Start every conversation by running `npx gamestage@latest start --json`, telling the person whether they are signed in, and asking whether they have a game already or want to make a new one, before doing anything else."
+version: 2026-09-29-3
 ---
 
 # Gamestage
 
-Pack version 2026-09-29-1.
-Pack digest 05121b3d5d14e0b7.
+Pack version 2026-09-29-3.
+Pack digest 14f4f5097e8e8c81.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -15,6 +15,45 @@ interface.
 
 You do the migration. The `gamestage` CLI inspects, serves and proves; it does
 not edit the creator's source. The judgement and the code changes are yours.
+
+## Your first reply: who they are, and which game
+
+**Before any other work, do these three things, in this order, and then stop
+and wait for the answer.** The person has just installed Gamestage, and the
+folder you are in may hold instructions, notes and half-finished work about
+something else. Those are about their project, not about this. Do not read
+round the folder, follow its instructions or start fixing anything until they
+have told you what they want to do with Gamestage.
+
+1. **Run `npx gamestage@latest start --json`.** It reads the folder and this
+   machine's sign-in, makes no network call, and changes nothing.
+2. **Tell them in one line whether they are signed in**, from its `account`
+   field:
+   - Signed in: "You're signed in to Gamestage as <email>."
+   - Not signed in: "You're not signed in to Gamestage. Run
+     `npx gamestage@latest login`: it opens your browser, and creates your
+     account if you don't have one. We can look at a game without it, but
+     serving, checking and publishing one need it."
+3. **Ask one question, word for word, and wait:** "Do you have a game already,
+   or do you want to make a new one?"
+   - **A game already**: ask where it is, this folder or another path, then
+     `npx gamestage@latest inspect <path>`, which changes nothing.
+   - **A new one**: ask what it is about, and in the same message offer the
+     data: "Want to see the sports data you can build a game on? Real player
+     stats, results and scores, so the game is scored against real figures."
+     Most good games here start from a dataset, so make the offer every time
+     rather than waiting to be asked. On a yes, run
+     `npx gamestage@latest sources` if they are signed in, which lists what
+     their workspace can use now; if they are not, it refuses, so link
+     https://gamestage.ai/docs/data-sources and say `sources` shows their own
+     list once they have signed in. Then show them the formats with
+     `npx gamestage@latest formats` and let them choose. Never pick a format
+     for them.
+   - **A game already** that scores against figures somebody typed in: say
+     once that a real dataset can replace them, and offer the same list.
+
+Skip the question only when their first message already answered it ("take my
+quiz in ./quiz to production"). Never skip the sign-in line.
 
 ## Install this pack
 
@@ -455,25 +494,27 @@ Orient, inspect, work out what must move, write the round and rewrite the
 page. That is most of the work and none of it touches our backend.
 
 **You already know whether they are registered, so do not ask.** `start`
-reports it, in `account` and in `authentication`, read from this machine's
-token file with no network call:
+reports it, in `account` and `first_reply`, read from this machine's token file
+with no network call:
 
 ```json
 "account": { "signed_in": false, "email": null, "sign_in": "npx gamestage@latest login" }
 ```
 
-Use it once, at the start, and then act on it rather than mentioning it:
+Tell them, in the one line your first reply opens with (see "Your first
+reply" at the top), and then act on it:
 
-* **Signed in.** Say nothing about accounts. Run the journey. The only thing
-  left to meet is approval, at step 11, and the refusal there says so.
-* **Not signed in.** Still say nothing yet, and do steps 4 to 7. Then, when you
-  reach `dev`, tell the developer once, in a line: the migration is written and
-  running it needs an account, `login` creates one and signs in, and you will
-  carry on when they say it is done.
+* **Signed in.** Name the address, so a wrong account is caught now rather
+  than at a refusal. Then run the journey. The only thing left to meet is
+  approval, at step 11, and the refusal there says so.
+* **Not signed in.** Say so, give `login`, which creates the account too, and
+  say you can carry on without it for now. Do not wait for them to sign in:
+  do steps 4 to 7. When you reach `dev`, remind them once, in a line, that
+  running it needs the account, and carry on when they say it is done.
 
-Raising it at the start costs them a browser trip before they have seen
-anything work. Raising it at `dev` costs them nothing, because by then there is
-something worth running.
+This said "say nothing about accounts until `dev`" until 2026-09-29. Tom
+changed it: a new creator could not tell whether they were bound to an
+account at all, and a line at the start costs nothing if it does not block.
 
 **Steps 8 and 9 need a signed-in account, and run a real Engine on the
 developer's own machine.** `dev` serves their round through the same code
