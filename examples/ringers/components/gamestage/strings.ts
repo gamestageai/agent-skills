@@ -140,6 +140,7 @@ export const defaultStrings = {
   'media-frame.empty': 'nothing here yet',
   'loading.label': 'Loading',
   'loading.progress': (percent: number) => `Loading, ${percent}%`,
+  'loading.poweredBy': 'Powered by Gamestage by Monterosa',
 
   'media-frame.loading': 'Loading',
   'media-frame.loadingLabel': (loading: string, label: string) => `${loading} ${label}`,
