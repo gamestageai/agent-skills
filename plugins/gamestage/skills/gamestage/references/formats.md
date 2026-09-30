@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-09-30. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-09-30-1. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -171,6 +171,11 @@ sources are in the Game design chapter (https://gamestage.ai/docs/game-design).
    beneath it, quieter.
 3. **Reveal the answer after every round.** The story, if any, is 1 to 3 slides
    (the answer, the closest miss, one fact) and opens only when the fan taps it.
+   Revealing the moment a fan finishes is right for a puzzle whose answer is
+   known in advance and is the same for everyone (hunt, push): delaying it
+   spoils the game and protects little, because once anyone solves a shared
+   puzzle the answer spreads anyway. Bingo and predict have nothing to reveal
+   early, because their answer does not exist until the real event happens.
 4. **Design the scoring so ties are rare.** Score by closeness, fewer guesses or
    speed rather than pass or fail, and let the leaderboard rank the week's total.
 5. **Give fans a reason to come back.** A round a day or per fixture, the same
@@ -181,6 +186,13 @@ sources are in the Game design chapter (https://gamestage.ai/docs/game-design).
 8. **Nothing manipulative.** No lives or energy that stop play, no offers at the
    moment of failure, no paid random rewards, no guilt notifications. Many fans
    are children and the rights holder carries the reputation.
+
+**Ask the creator: "Will this game carry a prize?"** If it will, the
+leaderboard is worth cheating, and sessions are free: a fan can use a spare one
+to see the answer and then score perfectly on another. So a prize game takes
+entries only from signed-in fans, counts each account's first play of a round,
+and its producer watches for perfect first-try plays from brand-new sessions.
+Say this to the creator before they announce a prize, not after.
 
 **Run `gamestage review` before `gamestage deploy`.** It plays the built game
 against a real Engine and reports advice against these rules, each with a fix.

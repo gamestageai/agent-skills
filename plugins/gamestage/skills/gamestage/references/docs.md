@@ -1,6 +1,6 @@
 # Where the facts are
 
-Part of the Gamestage skill, pack version 2026-09-30. Read it when the person asks something with a definite answer: which formats exist, what a command or field does.
+Part of the Gamestage skill, pack version 2026-09-30-1. Read it when the person asks something with a definite answer: which formats exist, what a command or field does.
 
 ## A factual question is answered by the hosted doc, in one hop
 
