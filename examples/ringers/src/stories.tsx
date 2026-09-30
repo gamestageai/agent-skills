@@ -46,7 +46,7 @@ export function Stories(props: {
   React.useEffect(() => {
     if (still || held) return
     let started: number | null = null
-    let from = progress
+    const from = progress
     let raf = 0
     const tick = (now: number) => {
       if (started === null) started = now
