@@ -1,6 +1,6 @@
 /** Readable defaults, overridden by the same runtime display channel as the shell. */
 export const defaults = {
-  title: 'ELEVEN.', goals: 'goals', score: 'Points', scoreLabel: 'Shootout score', pitchLabel: 'Penalty pitch',
+  title: 'Penalties', goals: 'goals', score: 'Points', scoreLabel: 'Shootout score', pitchLabel: 'Penalty pitch',
   pitchHelp: '',
   soundOn: 'Turn sound on', soundOff: 'Turn sound off', help: '',
   results: 'Penalty results', controls: 'Shot controls', instruction: '',

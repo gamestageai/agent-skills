@@ -6,7 +6,7 @@ app:
   # Change this. `gamestage create` generates an id, and ids are not
   # workspace-scoped yet, so deploying this one verbatim collides.
   id: penalties-example
-  title: ELEVEN
+  title: Penalties
   owners: {}
   status: confirmed
   provenance:
