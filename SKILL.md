@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-09-29-6
+version: 2026-09-30
 ---
 
 # Gamestage
 
-Pack version 2026-09-29-6.
-Pack digest 0465994dce88bef4.
+Pack version 2026-09-30.
+Pack digest cad2c2d1d5d424a2.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -148,7 +148,7 @@ gamestage create               asks the format and the name, makes the game's fo
                                and writes a starter practice/round.yaml
 gamestage dev --serve          plays practice/round.yaml; nothing is published
 gamestage verify               proves the Engine decides the outcome, not the page
-gamestage deploy <game>        puts the game online, with no round yet
+gamestage deploy <game> --dir .  puts this folder online, with no round yet
 gamestage open <game> studio   where a producer adds the real round
 ```
 
@@ -1295,6 +1295,12 @@ shut. The route runs on the CLI's own default with nothing to configure. Read
 what the command said, tell the developer what it was, and stop. Never report a
 deploy, or a hosted game, on the strength of a command you did not run to
 completion.
+
+A playground link that answers 403 AccessDenied means the page's files were
+never uploaded, not that the game is waiting for approval. `gamestage promote`
+will not fix it: promote moves the game from dev to prod and has nothing to do
+with whether its page loads. Redeploy from the game's folder with
+`gamestage deploy <game> --dir .`, then open the link again.
 
 ## Where the detail is
 

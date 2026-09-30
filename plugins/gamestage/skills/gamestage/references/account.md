@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-09-29-6. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-09-30. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 
@@ -162,3 +162,9 @@ shut. The route runs on the CLI's own default with nothing to configure. Read
 what the command said, tell the developer what it was, and stop. Never report a
 deploy, or a hosted game, on the strength of a command you did not run to
 completion.
+
+A playground link that answers 403 AccessDenied means the page's files were
+never uploaded, not that the game is waiting for approval. `gamestage promote`
+will not fix it: promote moves the game from dev to prod and has nothing to do
+with whether its page loads. Redeploy from the game's folder with
+`gamestage deploy <game> --dir .`, then open the link again.
