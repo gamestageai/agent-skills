@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-09-30-1
+version: 2026-09-30-2
 ---
 
 # Gamestage
 
-Pack version 2026-09-30-1.
-Pack digest a7b2cb63e27c183f.
+Pack version 2026-09-30-2.
+Pack digest 905467fdd5d5aca2.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -214,6 +214,10 @@ level of the file.
 A first deploy with no round in Studio is expected: it says "No round yet: add
 one in Studio" and prints the link, so tell the person that rather than calling
 the game live. Once there is one it says "Round: Studio, edition <name>".
+
+Put tomorrow's round in tomorrow's edition, never as a draft inside today's.
+The Engine serves no round before its edition opens, so a future edition is the
+way to prepare a round without fans seeing it.
 
 **Never invent a player id.** An id a page picks for itself is one anybody can
 send on someone else's behalf. Anonymous play is supported and the Engine issues
