@@ -1,6 +1,8 @@
-/** Readable defaults, overridden by the same runtime display channel as the shell. */
+/** Readable defaults, overridden by the same runtime display channel as the shell.
+ * The game's name is not one of them: title is empty because the name is
+ * Studio's display_name, which game.js writes over it. GS-570. */
 export const defaults = {
-  title: 'Penalties', goals: 'goals', score: 'Points', scoreLabel: 'Shootout score', pitchLabel: 'Penalty pitch',
+  title: '', goals: 'goals', score: 'Points', scoreLabel: 'Shootout score', pitchLabel: 'Penalty pitch',
   pitchHelp: '',
   soundOn: 'Turn sound on', soundOff: 'Turn sound off', help: '',
   results: 'Penalty results', controls: 'Shot controls', instruction: '',
