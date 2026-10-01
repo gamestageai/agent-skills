@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-09-30-2
+version: 2026-10-01
 ---
 
 # Gamestage
 
-Pack version 2026-09-30-2.
-Pack digest 905467fdd5d5aca2.
+Pack version 2026-10-01.
+Pack digest 1abdbfe8d2b0e4f2.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -627,9 +627,13 @@ either, because a manifest describes the game and carries no content.
 whoever runs the game changes them without a deploy, and the Engine reads them
 from there. On this machine the one round is `practice/round.yaml`, beside
 `gamestage.yaml`: `create` writes a starter one, `dev`, `verify` and `review`
-play it, and `deploy` never uploads the `practice/` folder. With no practice
+play it on the deployed Engine as test plays that reach no leaderboard, and
+`deploy` never uploads the `practice/` folder. Those three need a network
+connection. If they say they cannot reach the Engine, that is an outage or no
+network, not a fault in the game: tell the human, and never build a local
+Engine or edit the manifest to get past it. With no practice
 file they play a stand-in round of the game's format. Each names its round in
-one line, "Round: practice/round.yaml (on this laptop only, fans never see it)"
+one line, "Round: practice/round.yaml (practice only, fans never see it)"
 or "Round: stand-in round". `gamestage round push <game>` copies the practice
 round into Studio; it is the only route from this machine into Studio.
 
@@ -653,8 +657,8 @@ issuer and JWKS in the manifest and the Engine validates the token the
 creator's own login system already gives them. Gamestage ships no identity
 provider at any plan.
 
-That identified-player route is proved by the shared validator and local
-`dev --as` harness. On a deployed game it needs the issuer and keys configured
+That identified-player route is proved by the shared validator. On a deployed
+game it needs the issuer and keys configured
 on that deployment, which Monterosa sets: do not tell a developer identified
 play works on their deployment unless you know that has been configured.
 
