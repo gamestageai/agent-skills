@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5186",
-    "build": "vite build && cp gamestage.js gamestage-player.js favicon.svg gamestage.yaml gamestage.settings.json dist/"
+    "build": "vite build && cp gamestage.js gamestage-player.js taster-labels.js favicon.svg gamestage.yaml gamestage.settings.json dist/"
   },
   "dependencies": {
     "react": "^19.0.0",
