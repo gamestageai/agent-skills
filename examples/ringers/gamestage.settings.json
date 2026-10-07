@@ -215,5 +215,8 @@
   "label_profile_tab_settings": "Settings",
   "label_profile_tab_account": "Account",
   "label_profile_win_rate": "Win rate",
-  "label_profile_rounds_won": "Rounds won: {won} of {played}."
+  "label_profile_rounds_won": "Rounds won: {won} of {played}.",
+  "signin_play_as_label": "Play as {name}",
+  "signin_detail": "Your scores in this game count on your Gamestage account.",
+  "signin_dismiss_label": "Not now"
 }

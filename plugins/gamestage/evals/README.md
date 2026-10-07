@@ -18,6 +18,7 @@ money and is not part of `./qa`.
 | `hosted-login-no-terminal` | In a host with no terminal, the agent signs the person in itself and never asks them to run a command |
 | `first-reply-two-questions` | A new-game request gets at most two questions, no format table, and no "do you have a game already?" |
 | `consent-reads-reference` | A consent question reads `references/compliance.md` rather than answering from the core file |
+| `asks-with-buttons` | With `AskUserQuestion` available, "do you have a game already?" is asked with it rather than in text. GS-688 |
 
 The same folder is copied into the published plugin as `evals/`, so anybody can
 run `claude plugin eval plugins/gamestage` against what they installed.

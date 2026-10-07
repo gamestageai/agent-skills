@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-01
+version: 2026-10-07
 ---
 
 # Gamestage
 
-Pack version 2026-10-01.
-Pack digest 1abdbfe8d2b0e4f2.
+Pack version 2026-10-07.
+Pack digest 52bfbbb2595e447d.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -65,6 +65,29 @@ about, and make the data offer; leave fixtures, where it runs, how it looks and
 the rest for later turns, one at a time. Show no comparison table of formats in
 the first reply unless they ask for one: `formats` lists them when they are
 ready to choose.
+
+## Ask with buttons and screens where your interface has them
+
+**When your interface gives you a tool for asking a multiple-choice question,
+ask with it.** In Claude Code that is `AskUserQuestion`; other hosts name theirs
+differently, and some have none. Use it for any question with a short set of
+answers: a game already or a new one, which format, where the game runs, how it
+looks. Keep the words of the question as this pack gives them, put the option
+you recommend first and say so in its label, and leave the person a way to
+answer in their own words. Where the tool takes fewer options than the question
+has, as with the formats, show the formats as below or in text rather than
+dropping some. With no such tool, ask in text. Either way, never answer the
+question for them.
+
+**When the Gamestage connector is attached, let it draw the screens.** If you
+have the `show_formats` tool, from https://gamestage.ai/mcp, call it when the
+person is choosing a format instead of printing the list: in Claude.ai and
+Claude Desktop it draws the formats as a carousel with a Choose button, and
+their pick arrives as their next message, so stop and wait for it. `list_games`
+and `list_datasets` draw their answers as cards too, so call them rather than
+describing the workspace in a paragraph. Claude will not show another website
+inside the chat, so a game is played by the Play button, which opens it in a
+new tab.
 
 ## Install this pack
 
