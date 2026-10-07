@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "gamestage": {
+      "type": "http",
+      "url": "https://gamestage.ai/mcp"
+    }
+  }
+}

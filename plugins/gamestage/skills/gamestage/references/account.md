@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-10-07. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-10-07-1. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 

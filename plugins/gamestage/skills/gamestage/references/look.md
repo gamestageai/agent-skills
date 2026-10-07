@@ -1,6 +1,6 @@
 # Look and assets
 
-Part of the Gamestage skill, pack version 2026-10-07. Read it before you build or restyle the interface, or draw any asset.
+Part of the Gamestage skill, pack version 2026-10-07-1. Read it before you build or restyle the interface, or draw any asset.
 
 ## Ask how the game should look, when you are building its interface
 

@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-07
+version: 2026-10-07-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-07.
-Pack digest 52bfbbb2595e447d.
+Pack version 2026-10-07-1.
+Pack digest 6f0a9cbd9ed4ad78.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -68,26 +68,21 @@ ready to choose.
 
 ## Ask with buttons and screens where your interface has them
 
-**When your interface gives you a tool for asking a multiple-choice question,
-ask with it.** In Claude Code that is `AskUserQuestion`; other hosts name theirs
-differently, and some have none. Use it for any question with a short set of
-answers: a game already or a new one, which format, where the game runs, how it
-looks. Keep the words of the question as this pack gives them, put the option
-you recommend first and say so in its label, and leave the person a way to
-answer in their own words. Where the tool takes fewer options than the question
-has, as with the formats, show the formats as below or in text rather than
-dropping some. With no such tool, ask in text. Either way, never answer the
-question for them.
+**Ask with a multiple-choice tool when your interface has one**:
+`AskUserQuestion` in Claude Code; other hosts name theirs differently or have
+none. Use it for questions with a short set of answers (a game already or a new
+one, format, where it runs, how it looks), keep this pack's wording, put the
+option you recommend first and say so, and leave room for their own words. If
+it takes fewer options than the question has, as with the formats, show the
+formats below or in text. Without one, ask in text. Never answer for them.
 
-**When the Gamestage connector is attached, let it draw the screens.** If you
-have the `show_formats` tool, from https://gamestage.ai/mcp, call it when the
-person is choosing a format instead of printing the list: in Claude.ai and
-Claude Desktop it draws the formats as a carousel with a Choose button, and
-their pick arrives as their next message, so stop and wait for it. `list_games`
-and `list_datasets` draw their answers as cards too, so call them rather than
-describing the workspace in a paragraph. Claude will not show another website
-inside the chat, so a game is played by the Play button, which opens it in a
-new tab.
+**With the Gamestage connector attached, let it draw the screens.** The Claude
+Code plugin brings it, and asks the person to sign in in their browser the
+first time a tool is called (`/mcp` signs in sooner). Call `show_formats` when
+they are choosing a format: in Claude.ai and Claude Desktop it draws a carousel
+whose pick arrives as their next message, so wait for it. Call `list_games`
+and `list_datasets` rather than describing the workspace. A game is played by
+its Play button, in a new tab: Claude shows no other site inside the chat.
 
 ## Install this pack
 
