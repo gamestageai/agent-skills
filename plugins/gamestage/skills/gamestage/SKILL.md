@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-08
+version: 2026-10-08-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-08.
-Pack digest 0f03ce17c64524cb.
+Pack version 2026-10-08-1.
+Pack digest 21ec90f3a46a0889.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -28,10 +28,10 @@ not edit the creator's source. The judgement and the code changes are yours.
   sandbox there blocks the network, so `login`, `dev`, `verify` and `deploy`
   cannot reach Gamestage. **Never ask the person to allow a domain or change a
   network setting.** The connector needs neither.
-- **A chat with no connector**: ask them to add it. In Claude.ai that is
-  Settings, then Connectors, then Add custom connector with the URL
-  `https://gamestage.ai/mcp`, then Connect to sign in. Wait for them, and do
-  not fall back to the CLI.
+- **A chat with no connector**: ask them to add the Gamestage plugin, which
+  brings the connector and this pack, or the connector alone if they cannot add
+  plugins: `https://gamestage.ai/mcp`. The steps are under "Install this pack".
+  Wait for them, and do not fall back to the CLI.
 
 The connector is attached when `list_games` and `show_formats` are among your
 tools. If you have both a shell and the connector, as in Claude Code with the
@@ -41,7 +41,7 @@ Each step, in a shell and in a chat:
 
 | Step | In a shell | In a chat |
 | --- | --- | --- |
-| Sign in | `login` | none: they sign in when they add the connector |
+| Sign in | `login` | none: they sign in to Gamestage when Claude asks |
 | See who they are and their games | `start --json` | `list_games`, then `get_game` |
 | Read a game they already have | `inspect <path>` | read the files they attach to the chat |
 | Choose a format | `formats` | `show_formats`, then wait for their pick |

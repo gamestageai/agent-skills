@@ -1,6 +1,6 @@
 # Installing and staying current
 
-Part of the Gamestage skill, pack version 2026-10-08. Read it when the person asks how to install or update Gamestage, or this copy may be stale.
+Part of the Gamestage skill, pack version 2026-10-08-1. Read it when the person asks how to install or update Gamestage, or this copy may be stale.
 
 ## Install this pack
 
@@ -10,6 +10,24 @@ npx skills add https://gamestage.ai/skill
 
 This writes the current Gamestage instructions for the coding agent. It
 installs nothing globally. Then orient with `npx gamestage start`.
+
+**In the Claude app**, on the web or the desktop, there is no terminal: the
+person adds the Gamestage plugin, which brings this pack and the connector
+together. If you are in that chat and `list_games` is among your tools, they
+have it already: install nothing.
+
+1. In Claude, open Customize, then Plugins, then Add marketplace, then Add from
+   a repository.
+2. Paste `gamestageai/agent-skills`, press Sync, then install Gamestage.
+3. Start a new chat. They sign in to Gamestage when Claude asks.
+
+If Gamestage cannot make games in Claude, their copy of the plugin may be out of
+date: Customize, then Plugins, then Add, then Manage marketplaces, then Check
+for updates beside agent-skills.
+
+If they cannot add plugins, the connector alone gives Claude the tools but not
+this pack, so it guesses more: Customize, then Connectors, add
+`https://gamestage.ai/mcp`. Custom connectors need a paid Claude plan.
 
 ## First, check this pack is current
 

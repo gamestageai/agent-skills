@@ -1,6 +1,6 @@
 # Consent, measurement and checks
 
-Part of the Gamestage skill, pack version 2026-10-08. Read it before the game records anything, and before you call it finished.
+Part of the Gamestage skill, pack version 2026-10-08-1. Read it before the game records anything, and before you call it finished.
 
 ## Name the four moments worth measuring, and nothing else
 
