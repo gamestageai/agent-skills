@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-10-07-1. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-10-07-2. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 
@@ -110,7 +110,8 @@ Four things you must not do, in the order you are most likely to be tempted:
 said this machine is not signed in. Running it beats handing over a command to
 type: it is a few seconds of the developer's attention instead of a
 conversation to resume. It is still their approval, though, so you run the
-command and they do the approving.
+command and they do the approving. In a chat with the connector there is no
+`login` to run: they signed in when they added the connector.
 
 What it does, and the part you must not skip. It emits a JSON notice **on
 standard error** with `status: "awaiting_approval"`, a `verification_uri_complete`

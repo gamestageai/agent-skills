@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-07-1
+version: 2026-10-07-2
 ---
 
 # Gamestage
 
-Pack version 2026-10-07-1.
-Pack digest 6f0a9cbd9ed4ad78.
+Pack version 2026-10-07-2.
+Pack digest d410f86f5e57bcce.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -15,6 +15,66 @@ interface.
 
 You do the migration. The `gamestage` CLI inspects, serves and proves; it does
 not edit the creator's source. The judgement and the code changes are yours.
+
+## First, work out where you are running
+
+**Decide this before your first reply. It decides which tools you use.**
+
+- **A shell that reaches the internet**, as in Claude Code, Codex, Cursor or a
+  terminal on the person's machine: use the `gamestage` CLI, as the rest of
+  this pack describes.
+- **A chat with the Gamestage connector**, as in Claude.ai, Claude Desktop or
+  Cowork: use the connector's tools and run no `gamestage` command. The code
+  sandbox there blocks the network, so `login`, `dev`, `verify` and `deploy`
+  cannot reach Gamestage. **Never ask the person to allow a domain or change a
+  network setting.** The connector needs neither.
+- **A chat with no connector**: ask them to add it. In Claude.ai that is
+  Settings, then Connectors, then Add custom connector with the URL
+  `https://gamestage.ai/mcp`, then Connect to sign in. Wait for them, and do
+  not fall back to the CLI.
+
+The connector is attached when `list_games` and `show_formats` are among your
+tools. If you have both a shell and the connector, as in Claude Code with the
+plugin, do the work with the CLI and let the connector draw the screens.
+
+Each step, in a shell and in a chat:
+
+| Step | In a shell | In a chat |
+| --- | --- | --- |
+| Sign in | `login` | none: they sign in when they add the connector |
+| See who they are and their games | `start --json` | `list_games`, then `get_game` |
+| Read a game they already have | `inspect <path>` | read the files they attach to the chat |
+| Choose a format | `formats` | `show_formats`, then wait for their pick |
+| See the data | `sources` | `list_datasets` |
+| Start a game | `create` | write the files, then `create_game` with the gamestage.yaml |
+| Play it before it is live | `dev --serve` | `preview_game`, which shows the game playing in a screen in the chat |
+| Put it online | `deploy <game> --dir .` | `deploy_game`, the files as arguments: about 3 MB a call, 20 MB and 300 files in all |
+| Add a round | `round push <game>` | `push_round`, which replaces the round in Studio |
+| Set its words and colours | `gamestage.settings.json`, then deploy | `set_settings`, which fills only fields empty in Studio |
+| Get the files back | they are on disk | `download_game` |
+| Find out what failed | `logs <game>` | `get_game_logs` |
+| Answer a factual question | fetch the hosted doc | `search_documentation`, `read_documentation` |
+
+`verify` has no chat route: `deploy_game` runs the server-side checks only. To
+let them play first, call `preview_game` with the files and the practice round:
+the game plays in a screen in the chat with the Engine inside the page. You get
+one sentence back, not the page, so copy nothing into an artifact; call it again
+after each change. It publishes nothing and needs no approval. To share the
+game, deploy it and give them the playground link `deploy_game` returns.
+
+**A game bigger than about 3 MB goes up in parts**, because one call is capped
+at 4.5 MB and base64 adds a third. Send the pictures, sounds, video and fonts
+first with `stage: true`, under 3 MB a part and one part after another, each
+with the `staging` id the last one returned. Then send index.html, the scripts,
+styles, gamestage.yaml and gamestage.settings.json with the last `staging` id
+and no `stage`: that call checks every file and publishes them as one deploy.
+Nothing is live until it does, and a staging id lasts an hour.
+
+An account Monterosa has not approved cannot deploy by either route:
+`deploy_game` refuses it, so tell them they have to apply for access and wait,
+pass on what the refusal says, and stop. The chat's sandbox keeps nothing
+between conversations; the game is kept in Gamestage, and `download_game`
+brings its files back.
 
 ## Your first reply: who they are, and which game
 
@@ -34,10 +94,9 @@ have told you what they want to do with Gamestage.
      `npx gamestage@latest login`: it opens your browser, and creates your
      account if you don't have one. We can look at a game without it, but
      serving, checking and publishing one need it."
-   - Not signed in, and you are in Claude.ai, Claude Desktop or Cowork: they
-     have no terminal, so never ask them to run a command. Offer to sign them
-     in, and when they agree run `npx gamestage@latest login` yourself and give
-     them the address and code it prints (see **In Claude.ai or Claude Desktop**).
+   - In a chat with the connector, call `list_games` instead of steps 1 and 2.
+     If it answers, say "You're signed in to Gamestage, workspace <name>."
+     Never ask a person in a chat to run a command.
 3. **Ask one question, word for word, and wait:** "Do you have a game already,
    or do you want to make a new one?"
    - **A game already**: ask where it is, this folder or another path, then
@@ -58,7 +117,8 @@ have told you what they want to do with Gamestage.
 
 Skip the question only when their first message already answered it ("take my
 quiz in ./quiz to production", or "I want to make a game", which is a new one).
-Never skip the sign-in line.
+Never skip the sign-in line. In a chat, swap each command this section names
+for its connector tool in the table above.
 
 **Keep the first reply short: at most two questions.** Ask what the game is
 about, and make the data offer; leave fixtures, where it runs, how it looks and
@@ -77,12 +137,11 @@ it takes fewer options than the question has, as with the formats, show the
 formats below or in text. Without one, ask in text. Never answer for them.
 
 **With the Gamestage connector attached, let it draw the screens.** The Claude
-Code plugin brings it, and asks the person to sign in in their browser the
-first time a tool is called (`/mcp` signs in sooner). Call `show_formats` when
-they are choosing a format: in Claude.ai and Claude Desktop it draws a carousel
-whose pick arrives as their next message, so wait for it. Call `list_games`
-and `list_datasets` rather than describing the workspace. A game is played by
-its Play button, in a new tab: Claude shows no other site inside the chat.
+Code plugin brings it and asks the person to sign in the first time a tool is
+called (`/mcp` signs in sooner). `show_formats` draws a carousel whose pick
+arrives as their next message, so wait for it. Call `list_games` and
+`list_datasets` rather than describing the workspace. A game is played by its
+Play button, in a new tab: Claude shows no other site inside the chat.
 
 ## Running the CLI
 
@@ -120,28 +179,6 @@ shows a "Practice round, not live" bar. Real rounds are written in Monterosa Stu
 game can change them without a deploy. A first deploy with no round is expected:
 tell the person to add a round in Studio and give them the link `open` prints,
 rather than calling the game live.
-
-## In Claude.ai or Claude Desktop
-
-When you run in a hosted sandbox rather than on the person's own machine, three
-things change.
-
-1. **They cannot open a local address.** `dev --serve` runs inside your sandbox,
-   so its URL means nothing on their screen. To let them see the game, deploy it
-   and give them the playground link, after fetching it yourself. A new account
-   cannot deploy until Monterosa approves its workspace, so say that before they
-   expect a link.
-2. **You run `login`; they open a link.** They have no terminal, so never tell
-   them to run a command. Run `npx gamestage@latest login` yourself: it prints
-   an address and a code on standard error. Put both in front of them straight
-   away; they open the address on their own device and approve, and the command
-   returns signed in. The browser it tries to open is inside the sandbox and
-   they will never see it. **Human handoffs** in the account reference has the
-   rest. This route has not yet been proven end to end in Claude.ai: if `login`
-   fails there, say what it printed and stop.
-3. **Nothing persists.** The sandbox may be new each conversation, so a sign-in
-   and any files can be gone next time. Run `start --json` first every time, as
-   above.
 
 ## How to work
 
