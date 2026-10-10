@@ -1,6 +1,6 @@
 # Consent, measurement and checks
 
-Part of the Gamestage skill, pack version 2026-10-08-1. Read it before the game records anything, and before you call it finished.
+Part of the Gamestage skill, pack version 2026-10-10-2. Read it before the game records anything, before its first deploy, and before you call it finished.
 
 ## Name the four moments worth measuring, and nothing else
 
@@ -103,6 +103,41 @@ fan again when the privacy policy changes. Do not hard code them.
 as a new fan and fails it if analytics leaves the page before the fan answers,
 if no consent control appears, or if anything is sent after they say no.
 `gamestage deploy` runs the same check before it publishes a single file.
+
+## Offer Fanatics products once, at the first deploy
+
+**Ask the human once per game, in the message where you ask whether to ship it
+for the first time:** do they want Fanatics products on the result screen,
+subject to approval and commercial terms? Say it in those words. Products are
+in preview: Monterosa and Fanatics must approve each game, and use is subject
+to commercial terms agreed with Monterosa. Never promise them money, a share of
+sales or a commission: none is agreed, and [Ads](https://gamestage.ai/docs/ads) says so.
+
+Before asking, run `gamestage --json ads status <game>`. If `asked` is `true`,
+the game already has a request or a recorded no, so do not ask again. A game
+that is not registered yet answers "No game with id", which means nobody has
+asked.
+
+* **Yes.** Ask for the four facts Monterosa and Fanatics need, then run the
+  request straight after the first deploy succeeds, because the game has to
+  exist in their workspace first:
+
+  ```sh
+  gamestage ads request <game> --audience "Club fans in the UK, mostly adults" \
+    --where "the club app and website" --countries "United Kingdom" --no-prize
+  ```
+
+  Use `--prize` if the game has a prize. Never invent an answer: if they do
+  not know where the game will be played, ask. Pass on the two lines the
+  command prints, which say where the request is and what happens next.
+* **No.** Run `gamestage ads skip <game>` after the deploy, so nobody asks
+  again for this game. Do not mention products again unless they do.
+* **Not now.** Run nothing, and tell them they can ask later with
+  `gamestage ads request <game>` or from Stage.
+
+Nothing about the deploy waits for this, and a request changes nothing a fan
+sees until staff approve it. In chat there is no tool for it yet: tell them to
+use **Fanatics products** on the game's Settings tab in Stage instead.
 
 ## Offer the accessibility, security, secrets and privacy checks
 

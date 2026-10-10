@@ -1,6 +1,6 @@
 {
   "name": "gamestage",
-  "version": "2026-10-08-1",
+  "version": "2026-10-10-2",
   "description": "Take a browser game to production with Gamestage: the answers, scoring and settlement move behind a server the player cannot edit.",
   "author": {
     "name": "Monterosa",

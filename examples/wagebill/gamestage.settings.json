@@ -94,5 +94,11 @@
   "consent_choose_label": "Manage preferences",
   "signin_play_as_label": "Play as {name}",
   "signin_detail": "Your scores in this game count on your Gamestage account.",
-  "signin_dismiss_label": "Not now"
+  "signin_dismiss_label": "Not now",
+  "label_taster_shop_heading": "From the Fanatics shop",
+  "label_taster_shop_badge": "Ad",
+  "label_taster_shop_disclosure": "Affiliate links: we may earn a commission if you buy.",
+  "label_taster_shop_button": "View on Fanatics",
+  "label_taster_shop_link_description": "{name}, {price}. Opens Fanatics in a new tab.",
+  "label_taster_shop_competition": "Premier League"
 }

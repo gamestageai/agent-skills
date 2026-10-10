@@ -83,5 +83,11 @@ export const TASTER_LABELS = [
   "label_taster_notify_mock_note",
   "label_taster_notify_field_label",
   "label_taster_notify_submit",
-  "label_taster_notify_done"
+  "label_taster_notify_done",
+  "label_taster_shop_heading",
+  "label_taster_shop_badge",
+  "label_taster_shop_disclosure",
+  "label_taster_shop_button",
+  "label_taster_shop_link_description",
+  "label_taster_shop_competition"
 ];

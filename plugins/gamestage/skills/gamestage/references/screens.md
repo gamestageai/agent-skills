@@ -1,6 +1,6 @@
 # Big screens
 
-Part of the Gamestage skill, pack version 2026-10-08-1. Read it when the leaderboard or a graphic goes on a screen a crowd can see.
+Part of the Gamestage skill, pack version 2026-10-10-2. Read it when the leaderboard or a graphic goes on a screen a crowd can see.
 
 ## Put the leaderboard on a screen a crowd can see
 
@@ -49,3 +49,30 @@ a graphic type or move a column. What you can change is the styling:
 against a made-up board, and `gamestage graphic push <game>` hands a producer
 the published address of the stylesheet. See
 `https://gamestage.ai/docs/live-graphics.md`.
+
+## Put a live contest into the game
+
+Live data puts a real contest into a game as it happens, in any sport: the
+score, the clock, each side's numbers and every moment, seconds after it
+happens. Offer it when the game is about a contest that is being played: a
+prediction that settles itself, a scoreboard, a momentum chart. Say contest,
+moment and side; never match or goal in anything the developer's fans read,
+because the same game may follow a race.
+
+```
+npx gamestage@latest live on
+npx gamestage@latest deploy <game> --dir .
+```
+
+`live on` adds `live: { provider: sportmonks }` to `gamestage.yaml` and changes
+nothing else. After the deploy, each edition has a **Live contest** setting in
+Studio, where a producer types the provider's id for the contest. In the page,
+`game.live()` hands it over: `contest.on("state", draw)` for the contest so far
+and every change, `contest.on("moment", celebrate)` for what happens from now
+on, and `contest.onStatus(badge)` for the connection. Draw a moment that
+arrived as part of the contest so far in the score; never celebrate it.
+
+`gamestage dev --serve` plays a made-up contest, so build and test it locally
+with no key. Live data is open to Monterosa workspaces today, and a deploy from
+any other is refused with `live_not_enabled`: say so plainly and offer the game
+without it. See `https://gamestage.ai/docs/live-data.md`.

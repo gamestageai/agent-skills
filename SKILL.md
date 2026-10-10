@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-08-1
+version: 2026-10-10-2
 ---
 
 # Gamestage
 
-Pack version 2026-10-08-1.
-Pack digest 21ec90f3a46a0889.
+Pack version 2026-10-10-2.
+Pack digest 3bba8290cde4dab6.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1259,6 +1259,41 @@ as a new fan and fails it if analytics leaves the page before the fan answers,
 if no consent control appears, or if anything is sent after they say no.
 `gamestage deploy` runs the same check before it publishes a single file.
 
+## Offer Fanatics products once, at the first deploy
+
+**Ask the human once per game, in the message where you ask whether to ship it
+for the first time:** do they want Fanatics products on the result screen,
+subject to approval and commercial terms? Say it in those words. Products are
+in preview: Monterosa and Fanatics must approve each game, and use is subject
+to commercial terms agreed with Monterosa. Never promise them money, a share of
+sales or a commission: none is agreed, and [Ads](https://gamestage.ai/docs/ads) says so.
+
+Before asking, run `gamestage --json ads status <game>`. If `asked` is `true`,
+the game already has a request or a recorded no, so do not ask again. A game
+that is not registered yet answers "No game with id", which means nobody has
+asked.
+
+* **Yes.** Ask for the four facts Monterosa and Fanatics need, then run the
+  request straight after the first deploy succeeds, because the game has to
+  exist in their workspace first:
+
+  ```sh
+  gamestage ads request <game> --audience "Club fans in the UK, mostly adults" \
+    --where "the club app and website" --countries "United Kingdom" --no-prize
+  ```
+
+  Use `--prize` if the game has a prize. Never invent an answer: if they do
+  not know where the game will be played, ask. Pass on the two lines the
+  command prints, which say where the request is and what happens next.
+* **No.** Run `gamestage ads skip <game>` after the deploy, so nobody asks
+  again for this game. Do not mention products again unless they do.
+* **Not now.** Run nothing, and tell them they can ask later with
+  `gamestage ads request <game>` or from Stage.
+
+Nothing about the deploy waits for this, and a request changes nothing a fan
+sees until staff approve it. In chat there is no tool for it yet: tell them to
+use **Fanatics products** on the game's Settings tab in Stage instead.
+
 ## Offer the accessibility, security, secrets and privacy checks
 
 Gamestage does not test a game's accessibility, security or privacy, and does
@@ -1329,6 +1364,33 @@ a graphic type or move a column. What you can change is the styling:
 against a made-up board, and `gamestage graphic push <game>` hands a producer
 the published address of the stylesheet. See
 `https://gamestage.ai/docs/live-graphics.md`.
+
+## Put a live contest into the game
+
+Live data puts a real contest into a game as it happens, in any sport: the
+score, the clock, each side's numbers and every moment, seconds after it
+happens. Offer it when the game is about a contest that is being played: a
+prediction that settles itself, a scoreboard, a momentum chart. Say contest,
+moment and side; never match or goal in anything the developer's fans read,
+because the same game may follow a race.
+
+```
+npx gamestage@latest live on
+npx gamestage@latest deploy <game> --dir .
+```
+
+`live on` adds `live: { provider: sportmonks }` to `gamestage.yaml` and changes
+nothing else. After the deploy, each edition has a **Live contest** setting in
+Studio, where a producer types the provider's id for the contest. In the page,
+`game.live()` hands it over: `contest.on("state", draw)` for the contest so far
+and every change, `contest.on("moment", celebrate)` for what happens from now
+on, and `contest.onStatus(badge)` for the connection. Draw a moment that
+arrived as part of the contest so far in the score; never celebrate it.
+
+`gamestage dev --serve` plays a made-up contest, so build and test it locally
+with no key. Live data is open to Monterosa workspaces today, and a deploy from
+any other is refused with `live_not_enabled`: say so plainly and offer the game
+without it. See `https://gamestage.ai/docs/live-data.md`.
 
 ## Human handoffs
 
