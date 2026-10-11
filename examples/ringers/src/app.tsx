@@ -49,7 +49,7 @@ type RoundState = {
   finished?: boolean
   outcome?: string
   score?: number
-  progress?: { solved?: string[]; answer?: string[] }
+  progress?: { solved?: string[]; answer?: string[]; ruled_out?: string[] }
   started_at?: string
 }
 type Presentation = Record<string, any> & { labels?: Record<string, string> }
@@ -583,7 +583,7 @@ export function App() {
   // short line under the name. New selections stop at what is left to find.
   const boardOptions = board.map((name) => {
     const isFound = solved.includes(name)
-    const isMissed = missed.includes(name)
+    const isMissed = missed.includes(name) || Boolean(state?.progress?.ruled_out?.includes(name))
     const full = chosen.length >= remaining && !chosen.includes(name)
     // A person's name on two lines, given above family: from the producer's
     // own given and family names when the round carries them, otherwise the
@@ -946,7 +946,7 @@ export function App() {
                     }}
                     commit={(control) => (
                       <Button {...control} size="large" disabled={chosen.length === 0 || sending} onClick={() => void lockIn()}>
-                        {presentation.playButtonLabel || ''}
+                        {sending ? word('label_taster_hunt_checking') : chosen.length === 0 ? word('label_taster_hunt_choose_label') : fill(presentation.playButtonLabel || '', { n: chosen.length, unit: chosen.length === 1 ? word('label_taster_hunt_name_one') : word('label_taster_hunt_name_many') })}
                       </Button>
                     )}
                   />

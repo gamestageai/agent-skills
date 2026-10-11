@@ -94,5 +94,11 @@ export const TASTER_LABELS = [
   "label_taster_bingo_one_away_label",
   "label_taster_bingo_line_label",
   "label_taster_bingo_called_label",
-  "label_taster_bingo_free_label"
+  "label_taster_bingo_free_label",
+  "label_taster_bingo_choose_note",
+  "label_taster_bingo_watch_note",
+  "label_taster_bingo_result_note",
+  "label_taster_bingo_hit_label",
+  "label_taster_bingo_miss_label",
+  "label_taster_bingo_details_label"
 ];
