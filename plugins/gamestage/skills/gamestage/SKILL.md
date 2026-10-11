@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-10-2
+version: 2026-10-11-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-10-2.
-Pack digest 3bba8290cde4dab6.
+Pack version 2026-10-11-1.
+Pack digest 766669366dfc625b.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -155,11 +155,11 @@ gamestage@latest`, or once per session:
 alias gamestage="npx gamestage@latest"
 ```
 
-Written because this page said `gamestage start` a dozen times and never said
-where the binary comes from. On 2026-08-12 an agent built a whole game, checked
-it, and then stopped at "the `gamestage` executable is not currently available on
-the shell's PATH" — one line from the thing it had been asked to do. A tool a
-reader cannot invoke is a tool that does not exist.
+Written because an agent once built a whole game and stopped at "the `gamestage`
+executable is not currently available on the shell's PATH".
+
+**An answer with `update`, or an error coded `update_required`, means this CLI
+is stale:** say so in one line, then rerun through `npx gamestage@latest`.
 
 ## Start a new game: create, dev, deploy, Studio
 
