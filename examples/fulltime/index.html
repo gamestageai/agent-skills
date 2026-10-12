@@ -6,13 +6,19 @@
 <title>Full Time Bingo</title>
 <style>
   /**
-   * The site's palette, so a creator's first game looks like the product they
-   * just chose. Same values as the other three scaffolds; see hunt.html for
-   * why they are hex rather than the site's oklch.
+   * Defaults, not the look. Every colour reads the producer's Studio palette as
+   * a `--gs-*` custom property with the value here as the fallback; hunt.html
+   * carries the full note. Bingo's tally-running-now colour is the brand
+   * accent, so its token is `--highlight`; there is no wrong-answer red here.
    */
   :root {
-    --bg: #FCFBFB; --surface: #F4F2F2; --line: #D3CFCE;
-    --text: #232020; --muted: #6B6462; --red: #E2483A; --green: #2E7D51;
+    --bg: var(--gs-backgroundContainerColour);
+    --surface: var(--gs-backgroundMainColour);
+    --line: color-mix(in srgb, var(--gs-onBackgroundColour) 18%, transparent);
+    --text: var(--gs-onBackgroundColour);
+    --muted: color-mix(in srgb, var(--gs-onBackgroundColour) 66%, var(--gs-backgroundContainerColour));
+    --highlight: var(--gs-highlightMainColour);
+    --positive: var(--gs-positiveMainColour);
   }
   * { box-sizing: border-box; }
   body {
@@ -26,7 +32,9 @@
   .strapline { margin: 6px 0 0; color: var(--muted); }
   .strapline[hidden] { display: none; }
   .board {
-    display: grid; gap: 8px;
+    /* Square and height-limited, so a 5x5 card fits under the header on a short
+       screen instead of pushing the controls below it. GS-561. */
+    display: grid; gap: 8px; width: min(100%, 52dvh); margin-inline: auto;
   }
   .cell {
     aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
@@ -46,7 +54,7 @@
      smaller and left-aligned, and it scrolls rather than bursting the grid. */
   /* A card that came in. Red is "a tally running now", which is what this is. */
   .cell[data-mark="correct"] {
-    background: var(--red); border-color: var(--red); color: #fff; font-weight: 700;
+    background: var(--highlight); border-color: var(--highlight); color: var(--gs-onHighlightColour); font-weight: 700;
   }
   /* One that did not. Faded rather than struck through: it is still a card on
      their board and it still says what it says, it just cannot help now. */
@@ -56,16 +64,16 @@
      outline rather than fill, so it reads as "yours already" and stops
      competing with the cards a fan is watching. Tom, 2026-08-28. */
   .cell.centre[data-mark="correct"] {
-    background: color-mix(in srgb, var(--red) 12%, var(--surface));
-    border-color: var(--red); color: var(--red);
+    background: color-mix(in srgb, var(--highlight) 12%, var(--surface));
+    border-color: var(--highlight); color: var(--highlight);
   }
   /* The card a fan is waiting on. A steady outline rather than a pulse: a
      nine-cell grid with something throbbing in it is a page a fan closes. */
   .cell[data-awaited] {
-    border-color: var(--red); border-width: 2.5px;
+    border-color: var(--highlight); border-width: 2.5px;
   }
   /* A line that has landed, lifted clear of the cards that merely came in. */
-  .cell[data-in-line] { box-shadow: inset 0 0 0 2px #fff; }
+  .cell[data-in-line] { box-shadow: inset 0 0 0 2px var(--gs-onHighlightColour); }
   /* A card turning over. GS-419. A half turn each way: to edge-on, where the
      words are swapped, and back. `TURN_MS` below is this duration and the
      swap happens at its midpoint, so the two have to stay in step.
@@ -90,8 +98,8 @@
   }
   .watch[hidden] { display: none; }
   .watch strong { font-size: 15px; color: var(--text); }
-  .watch[data-close], .watch[data-landed] { border-color: #d81f2a; }
-  .watch[data-close] strong, .watch[data-landed] strong { color: #d81f2a; }
+  .watch[data-close], .watch[data-landed] { border-color: var(--highlight, #d81f2a); }
+  .watch[data-close] strong, .watch[data-landed] strong { color: var(--highlight, #d81f2a); }
   /* A round past its own lock, said before a fan presses anything. GS-461. */
   .locked {
     margin: 0 0 12px; padding: 10px 14px;
@@ -106,7 +114,7 @@
   .confetti { position: fixed; inset: 0; z-index: 60; overflow: hidden; pointer-events: none; }
   .confetti span {
     position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px;
-    background: #d81f2a; animation: fall 1.6s cubic-bezier(.3,.7,.6,1) forwards;
+    background: var(--highlight, #d81f2a); animation: fall 1.6s cubic-bezier(.3,.7,.6,1) forwards;
   }
   .confetti span:nth-child(3n) { background: var(--text); }
   @keyframes fall {
@@ -140,26 +148,93 @@
   }
   button.option {
     padding: 10px 14px; border: 1.5px solid var(--line); border-radius: 999px;
-    background: var(--surface); color: var(--text); font: inherit; font-size: 14px;
+    background: var(--gs-tertiaryContainerColour, var(--surface));
+    color: var(--gs-onTertiaryContainerColour, var(--text)); font: inherit; font-size: 14px;
     cursor: pointer; text-transform: capitalize;
   }
-  button.option[aria-pressed="true"] { border-color: var(--text); background: var(--text); color: #fff; }
+  button.option[aria-pressed="true"] { border-color: var(--gs-highlightMainColour, var(--text)); background: var(--gs-highlightMainColour, var(--text)); color: var(--gs-onHighlightColour); }
   .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
   button.primary, button.secondary {
     padding: 14px 22px; border-radius: 999px; font: inherit; font-weight: 650; cursor: pointer;
   }
-  button.primary { border: 0; background: var(--gamestage-primary, var(--red)); color: #fff; }
-  button.secondary { border: 1.5px solid var(--line); background: var(--surface); color: var(--text); }
+  button.primary { border: 0; background: var(--gs-highlightMainColour, var(--gamestage-primary)); color: var(--gs-onHighlightColour); }
+  button.secondary { border: 1.5px solid var(--gs-secondaryMainColour, var(--line)); background: var(--gs-secondaryContainerColour, var(--surface)); color: var(--gs-onSecondaryContainerColour, var(--text)); }
   button.primary:disabled, button.secondary:disabled { opacity: .4; cursor: not-allowed; }
   .state { display: flex; gap: 22px; color: var(--muted); font-size: 15px; }
   .state b { color: var(--text); font-variant-numeric: tabular-nums; }
   .verdict { margin: 0; min-height: 1.5em; }
   .notice {
-    margin: 0; padding: 12px 14px; border: 1.5px solid var(--red);
-    border-radius: 12px; color: var(--text); background: var(--surface);
+    margin: 0; padding: 12px 14px; border: 1.5px solid var(--gs-negativeMainColour);
+    border-radius: 12px; color: var(--gs-onNegativeContainerColour, var(--text)); background: var(--gs-negativeContainerColour, var(--surface));
   }
   .notice[hidden] { display: none; }
   footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 16px; }
+
+  /*
+   * One readable playing column with clear selection and watch states.
+   * 2026-10-11, from the Full Time taster: the rules fold away, the board is
+   * hidden until a fan has boards to choose from, and a card that came in or
+   * did not carries a tick or a dash as well as a colour, so the mark does not
+   * rest on colour alone. Before the screen layout below, so its short-screen
+   * sizes still win.
+   */
+  main { width: min(100%, 480px); gap: 16px; }
+  h1 { font-size: 32px; line-height: 1.15; }
+  .rules { margin: 16px 0 0; font-size: 14px; }
+  .rules[hidden] { display: none; }
+  .rules summary { cursor: pointer; min-height: 32px; font-weight: 600; }
+  .rules p { line-height: 1.6; }
+  .prompt { font-size: 16px; margin-top: 12px; }
+  .prompt[hidden] { display: none; }
+  .phase-note { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .phase-note:empty, .verdict:empty { display: none; }
+  .verdict[data-result] { margin: 8px 0 0; font-size: 28px; font-weight: 700; line-height: 1.2; }
+  .board[hidden] { display: none; }
+  .cell { position: relative; border: 0; border-radius: 12px; font-size: 15px; padding: 8px 10px; text-transform: none; }
+  /* The awaited card's outline as a shadow, because the cells have no border
+     left to colour. */
+  .cell[data-awaited] { box-shadow: inset 0 0 0 2.5px var(--highlight); }
+  .cell[data-mark="incorrect"] { opacity: 1; color: var(--muted); }
+  .cell[data-mark="incorrect"]::after { content: ""; width: 12px; height: 2px; background: currentColor; position: absolute; top: 12px; right: 10px; }
+  .cell[data-mark="correct"]::after { content: ""; width: 9px; height: 5px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); position: absolute; top: 10px; right: 10px; }
+  .cell[data-flipped] { font-size: 13px; line-height: 1.5; padding: 12px; }
+  .detail-hint { margin: 0; color: var(--muted); font-size: 13px; text-align: center; }
+  .detail-hint[hidden] { display: none; }
+  button.step { width: 44px; height: 44px; border: 0; }
+  .actions { justify-content: space-between; }
+  button.primary, button.secondary { border-radius: 12px; min-height: 48px; border: 0; }
+  button.secondary { background: var(--text); color: var(--bg); }
+  .watch { padding: 16px; border: 0; }
+  .watch[data-close], .watch[data-landed] { box-shadow: inset 0 0 0 1.5px var(--highlight); }
+  :where(button, summary):focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+  @media (max-width: 560px) { h1 { font-size: 28px; } .cell { font-size: 12px; padding: 6px; } .board { gap: 6px; } }
+
+  /*
+   * The screen layout: the page never scrolls. GS-561.
+   *
+   * These scaffolds were laid out as documents, with generous padding in the
+   * page's own flow, so on a phone held sideways every one of them scrolled,
+   * and shoot and bingo scrolled even on a laptop. Every creator's game starts
+   * here and inherited it. Now the page is exactly the screen: the content
+   * area takes what is left, tightens its spacing on a short screen, and only
+   * scrolls inside itself when a screen is genuinely too short to hold it,
+   * never the page, so a swipe on the board can't drag the game around.
+   */
+  html, body { height: 100%; }
+  body {
+    min-height: 0; height: 100dvh; overflow: hidden; overscroll-behavior: none;
+    padding: 0; place-items: stretch center;
+  }
+  main {
+    height: 100dvh; overflow-y: auto; overscroll-behavior: contain;
+    padding: max(20px, env(safe-area-inset-top)) 16px max(20px, env(safe-area-inset-bottom));
+  }
+  /* Children keep their size: a fixed-height column would otherwise squash
+     them to fit (the shoot pitch collapsed to a line), when the right answer
+     on a too-short screen is to scroll inside the game. */
+  main > * { flex-shrink: 0; }
+  @media (max-height: 700px) { main { gap: 14px; } h1 { font-size: 26px; } }
+  @media (max-height: 480px) { main { gap: 10px; padding-top: 12px; padding-bottom: 12px; } h1 { font-size: 22px; } }
 
 /* gs-press-rules: a tap presses a control and never selects its words. Zero specificity, so a page's own press rule wins. iOS Safari
    selected "Player" on a long press and showed its text handles instead of
@@ -178,6 +253,21 @@
 @media (prefers-reduced-motion: reduce) {
   :where(button:not(:disabled):active, [role="button"]:not([aria-disabled="true"]):active) { transform: none; filter: brightness(0.92); }
 }
+  /* The end of a round: Play next as the one main action, or Come back
+     tomorrow in the same place when the pool is empty. GS-597. */
+  .end-card { display: grid; gap: 12px; margin: 8px 0 0; }
+  .end-card[hidden] { display: none; }
+  .end-card .streak { margin: 0; font-weight: 650; }
+  button.play-next {
+    width: 100%; min-height: 56px; border: 0; border-radius: 999px;
+    background: var(--gs-highlightMainColour, var(--gamestage-primary)); color: var(--gs-onHighlightColour);
+    font: inherit; font-size: 1.125rem; font-weight: 700; cursor: pointer;
+  }
+  button.play-next:disabled { opacity: .45; cursor: not-allowed; }
+  button.share-result {
+    width: 100%; min-height: 44px; border: 1px solid var(--line, currentColor); border-radius: 999px;
+    background: transparent; color: inherit; font: inherit; font-weight: 600; cursor: pointer;
+  }
 
   /* Loading, drawn rather than written. GS-594: the words stay for screen
      readers; the mark only appears after 300ms so a fast load never flashes. */
@@ -188,36 +278,6 @@
   @keyframes gs-spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .gs-spin { animation: gs-spin-in 0s linear 300ms forwards, gs-pulse 1.6s ease-in-out infinite; border-right-color: currentColor; } }
   @keyframes gs-pulse { 50% { opacity: 0.25; } }
-
-  /* One readable playing column with clear selection and watch states. */
-  body { padding: 44px 20px 40px; }
-  main { width: min(100%, 480px); gap: 16px; }
-  h1 { font-size: 32px; line-height: 1.15; }
-  .rules { margin: 16px 0; font-size: 14px; }
-  .rules summary { cursor: pointer; min-height: 32px; font-weight: 600; }
-  .rules p { line-height: 1.6; }
-  .prompt { font-size: 16px; margin-top: 12px; }
-  .phase-note { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
-  .phase-note:empty, .verdict:empty { display: none; }
-  .verdict[data-result] { margin: 8px 0 0; font-size: 28px; font-weight: 700; line-height: 1.2; }
-  .board[hidden] { display: none; }
-  .cell { position: relative; border: 0; border-radius: 12px; font-size: 15px; padding: 20px 10px; text-transform: none; }
-  .cell.centre { border: 0; }
-  .cell[data-mark="correct"] { background: #B93228; }
-  .cell.centre[data-mark="correct"] { background: #f2dedb; color: #922820; }
-  button.primary { background: #B93228; }
-  .cell[data-mark="incorrect"] { opacity: 1; color: var(--muted); }
-  .cell[data-mark="incorrect"]::after { content: ""; width: 12px; height: 2px; background: currentColor; position: absolute; top: 12px; right: 10px; }
-  .cell[data-mark="correct"]::after { content: ""; width: 9px; height: 5px; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); position: absolute; top: 10px; right: 10px; }
-  .cell[data-flipped] { font-size: 13px; line-height: 1.5; padding: 12px; }
-  .detail-hint { margin: 0; color: var(--muted); font-size: 13px; text-align: center; }
-  button.step { width: 44px; height: 44px; border: 0; }
-  .actions { justify-content: space-between; }
-  button.primary, button.secondary { border-radius: 12px; min-height: 48px; border: 0; }
-  button.secondary { background: var(--text); color: white; }
-  .watch { padding: 16px; border: 0; border-radius: 12px; background: var(--surface); }
-  :where(button, summary):focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
-  @media (max-width: 560px) { body { padding-inline: 16px; } h1 { font-size: 28px; } .cell { font-size: 12px; padding: 18px 7px; } .board { gap: 6px; } }
 </style>
 </head>
 <body>
@@ -227,7 +287,9 @@
     <p class="strapline" id="strapline" hidden></p>
     <p class="strapline" id="edition-name" hidden></p>
     <p class="strapline" id="edition-strapline" hidden></p>
-    <details class="rules"><summary data-gs-word="tab_how"></summary><p class="strapline" id="how-to-play" hidden></p></details>
+    <!-- The rules fold away, so the board is on the first screen. Hidden with
+         the paragraph inside it until a producer has written some. -->
+    <details class="rules" id="rules" hidden><summary data-gs-word="label_tab_how"></summary><p class="strapline" id="how-to-play" hidden></p></details>
     <p class="prompt" id="prompt"><span class="gs-spin-wrap" aria-hidden="true"><span class="gs-spin"></span></span><span class="gs-visually-hidden">Loading the round…</span></p>
   </div>
 
@@ -243,12 +305,14 @@
        until this line existed the only thing that ever happened was a cell
        quietly changing colour. Three facts, all off the Engine's own marks
        and lines, so nothing here can say something the scoring does not.
-       `role="status"` so a fan not looking at the screen is told. -->
+       `role="status"` so a fan not looking at the screen is told. The verdict
+       sits above it, so the result is the first thing read once it is in. -->
   <p class="verdict" id="verdict" role="status"></p>
   <p class="watch" id="watch" role="status" hidden></p>
+  <!-- What to do now, one sentence per phase: choosing, watching, full time. -->
   <p class="phase-note" id="phase-note"></p>
-  <div class="board" id="board"></div>
-  <p class="detail-hint" id="detail-hint" hidden data-gs-word="bingo_flip_hint"></p>
+  <div class="board" id="board" hidden></div>
+  <p class="detail-hint" id="detail-hint" hidden data-gs-word="label_bingo_flip_hint"></p>
 
   <!-- Shown only while the centre is a choice and none has been made yet. -->
   <div class="centre-picker" id="centre-picker" hidden></div>
@@ -257,28 +321,36 @@
        alternative and a fan cannot count dots at a glance, nor can a screen
        reader read them. "Board 2 of 4" works in both directions. -->
   <div class="carousel" id="carousel" hidden>
-    <button class="step" id="previous-board" data-gs-aria="bingo_previous_label">&lsaquo;</button>
+    <button class="step" id="previous-board" data-gs-aria="label_bingo_previous_label">&lsaquo;</button>
     <span class="which" id="which-board"></span>
-    <button class="step" id="next-board" data-gs-aria="bingo_next_label">&rsaquo;</button>
+    <button class="step" id="next-board" data-gs-aria="label_bingo_next_label">&rsaquo;</button>
   </div>
 
   <!-- The round's own lock has passed. Shown before a fan presses anything,
        beside the control it disables, and it is also what a refused deal
-       says. A default rather than a producer's field: no App Spec setting
-       carries this sentence yet, so `applyPresentation` leaves it alone. -->
-  <p class="locked" id="locked" role="status" hidden data-gs-word="round_locked_label"></p>
+       says. -->
+  <p class="locked" id="locked" role="status" hidden data-gs-word="label_round_locked_label"></p>
 
   <div class="actions">
-    <button class="secondary" id="shuffle" hidden data-gs-word="bingo_deal_label"></button>
+    <button class="secondary" id="shuffle" hidden data-gs-word="label_bingo_deal_label"></button>
     <button class="primary" id="lock" disabled hidden></button>
     <span class="state">
-      <span><span data-gs-word="score_label"></span> <b id="score">0</b></span>
+      <span><span data-gs-word="label_score_label"></span> <b id="score">0</b></span>
     </span>
   </div>
 
+  <!-- Play next, or Come back tomorrow: the one main action once a round is
+       over. The words are Studio's. GS-597. -->
+  <div class="end-card" id="end-card" hidden>
+    <p class="streak" id="streak" hidden></p>
+    <button class="play-next" id="play-next" type="button"></button>
+    <button class="share-result" id="share-result" type="button"></button>
+  </div>
 
-
-
+  <!-- The fan's way back to their progress on another device. GS-568. -->
+  <footer>
+    <p class="progress-link" id="progress"></p>
+  </footer>
 </main>
 
 <script>
@@ -300,7 +372,7 @@ window.addEventListener(
 );
 </script>
 <script type="module">
-import { applyPresentation, start } from "https://gamestage.ai/client/0.78.0/gamestage.js";
+import { applyPresentation, mountRecovery, start } from "https://gamestage.ai/client/0.78.0/gamestage.js";
 
 const el = (id) => document.getElementById(id);
 let chosenCentre;
@@ -333,14 +405,41 @@ const PENDING_POLL_MS = 5000;
 let seenLines;
 let game;
 
-// The words this page shares with the gamestage.ai taster, from Studio's
-// label_taster_* settings. The page keeps none of its own. GS-580.
-function word(key) {
-  return game?.presentation?.labels?.[`taster_${key}`] ?? "";
+/**
+ * A word from Studio, named by its whole setting key. The page keeps none of
+ * its own. GS-570.
+ *
+ * Named in full, as `label("label_bingo_deal_label")`, because the full key
+ * in the source is how a deploy finds the words this page reads and gives a
+ * producer a box for each. GS-541.
+ *
+ * **This page is also the Full Time taster on gamestage.ai** (GS-705), and
+ * that game's words already live in Studio under the taster's own keys, the
+ * same name with `taster_` after the `label_`, because the taster's shell on
+ * the site draws them too. So the taster's key is read first and the plain one
+ * second: the taster keeps one box per word, and a game made with `gamestage
+ * create` has only the plain keys. `labelsReadBy` offers a producer the plain
+ * box only where the taster's is not already read, so neither game sees both.
+ */
+function label(key) {
+  const labels = game?.presentation?.labels ?? {};
+  const own = key.slice("label_".length);
+  return labels[`taster_${own}`] ?? labels[own] ?? "";
 }
+
+/** Every word the markup names with `data-gs-word`, and every `data-gs-aria`. */
 function applyWords() {
-  for (const node of document.querySelectorAll("[data-gs-word]")) node.textContent = word(node.dataset.gsWord);
-  for (const node of document.querySelectorAll("[data-gs-aria]")) node.setAttribute("aria-label", word(node.dataset.gsAria));
+  for (const node of document.querySelectorAll("[data-gs-word]")) node.textContent = label(node.dataset.gsWord);
+  for (const node of document.querySelectorAll("[data-gs-aria]")) node.setAttribute("aria-label", label(node.dataset.gsAria));
+}
+
+/**
+ * The folded rules, shown only when a producer has written some. Read off the
+ * paragraph `applyPresentation` fills, so an empty how to play leaves no
+ * heading over nothing.
+ */
+function showRules() {
+  el("rules").hidden = el("how-to-play").hidden;
 }
 let currentState;
 /**
@@ -364,7 +463,10 @@ function connectionNotice(text) {
 
 const developing =
   location.protocol === "file:" ||
-  ["localhost", "127.0.0.1", "[::1]", "::1", ""].includes(location.hostname);
+  ["localhost", "127.0.0.1", "[::1]", "::1", ""].includes(location.hostname) ||
+  // A preview in a chat plays on the Engine inside the page, on an address
+  // that is not localhost, and is still a game being built.
+  window.GAMESTAGE_PREVIEW === true;
 
 const presentationTargets = {
   displayName: el("game-name"),
@@ -416,7 +518,69 @@ function layout(challenge, board) {
   return cells;
 }
 
+
+/**
+ * The end of a round, the way the Game design chapter asks for it. GS-597.
+ *
+ * Once a round is over the one thing a fan should see is **Play next**, and
+ * when the pool is empty the same button, greyed, saying when to come back. It
+ * is decided before it is drawn, from the Engine, so a fan never taps and is
+ * refused. A streak shows from two days, which is the reason to come back.
+ * Every word is Studio's: `play_again_label`, `label_come_back` and
+ * `label_streak_days`.
+ */
+let endCardWatching = false;
+async function showEndCard(state) {
+  const card = el("end-card");
+  if (!card || !game) return;
+  if (!endCardWatching) {
+    endCardWatching = true;
+    game.onRoundChanged(() => { card.hidden = true; });
+  }
+  if (!state?.finished) { card.hidden = true; return; }
+  const button = el("play-next");
+  const next = await game.client.getNextRound().catch(() => null);
+  if (next?.status === "ready") {
+    button.disabled = false;
+    button.removeAttribute("aria-disabled");
+    button.textContent = game.presentation.playAgainLabel ?? "";
+    button.onclick = async () => {
+      button.disabled = true;
+      const moved = await game.playNext().catch(() => "exhausted");
+      if (moved !== "ready") void showEndCard(state);
+    };
+  } else {
+    button.disabled = true;
+    button.setAttribute("aria-disabled", "true");
+    button.textContent = label("label_come_back");
+    button.onclick = null;
+  }
+  // Share the result, never the answer: the game's name, the score and the
+  // link. The words and the button's label are Studio's.
+  const share = el("share-result");
+  share.textContent = game.presentation.shareButtonLabel ?? "";
+  share.onclick = async () => {
+    const text = label("label_share_text")
+      .replace("{game}", game.presentation.displayName ?? game.deployedName ?? "")
+      .replace("{score}", String(state.score ?? 0));
+    const url = location.href.split("#")[0];
+    try {
+      if (navigator.share) await navigator.share({ text, url });
+      else await navigator.clipboard.writeText(`${text} ${url}`);
+    } catch {
+      // A fan who closed the share sheet has not failed at anything.
+    }
+  };
+  card.hidden = false;
+  const profile = await game.client.getProfile().catch(() => null);
+  const days = profile?.day_streak ?? profile?.current_streak ?? 0;
+  const line = el("streak");
+  line.hidden = days < 2;
+  line.textContent = label("label_streak_days").replace("{days}", String(days));
+}
+
 function renderState(state) {
+  void showEndCard(state);
   if (!state) return;
   /**
    * No attempts counter, because a carousel has nothing to count. GS-311.
@@ -432,6 +596,8 @@ function renderState(state) {
   el("score").textContent = state.score;
   finished = Boolean(state.finished);
   outcome = state.outcome;
+  // Once a board is locked the round's prompt has done its job, and the
+  // result reads as a headline rather than a line of body text.
   el("prompt").hidden = finished;
   el("verdict").toggleAttribute("data-result", finished && outcome !== "pending");
 
@@ -455,23 +621,20 @@ function renderState(state) {
      */
     el("verdict").textContent =
       state.outcome === "pending" ? "" :
-      state.outcome === "won" ? word("won_label") : word("finished_label");
+      state.outcome === "won" ? label("label_won_label") : label("label_finished_label");
   }
 }
 
 function renderBoard() {
   const challenge = game.round.challenge;
   /**
-   * The producer's line, or a default that says what to do. GS-311.
+   * The producer's line for this round. GS-311.
    *
-   * "Fill a line before the pool decides" was the old one and Tom was right
-   * that it makes no sense: a fan fills nothing, the match does, and "the
-   * pool" is our word for a thing they never see. What a fan actually does
-   * here is choose between boards.
+   * No default of the page's own any more (GS-705): what to do in each phase
+   * is the phase note under it, which is Studio's, so a round without a prompt
+   * still tells a fan what to do once they have boards.
    */
-  el("prompt").textContent =
-    challenge.prompt ||
-    "Pick the board you fancy. It marks itself as things happen in the match.";
+  el("prompt").textContent = challenge.prompt ?? "";
 
   const progress = currentState?.progress ?? {};
   /** The words for this fan's own dealt cards, keyed by card id. */
@@ -536,8 +699,10 @@ function renderBoard() {
   const watch = el("watch");
   const watching = finished && outcome === "pending";
   el("phase-note").textContent = !dealt ? "" : finished
-    ? (watching ? word("bingo_watch_note") : word("bingo_result_note").replace("{n}", completeLines))
-    : word("bingo_choose_note");
+    ? (watching ? label("label_bingo_watch_note") : label("label_bingo_result_note").replace("{n}", completeLines))
+    : label("label_bingo_choose_note");
+  // No grid until there are boards: an empty grid before the deal reads as a
+  // board that failed to load.
   el("board").hidden = !dealt;
   el("detail-hint").hidden = !dealt || !Object.keys(notes).length;
   watch.hidden = !watching;
@@ -546,10 +711,11 @@ function renderBoard() {
     watch.toggleAttribute("data-close", completeLines === 0 && oneAway);
     watch.replaceChildren();
     const said = document.createElement("strong");
-    said.textContent =
-      completeLines > 0 ? word("bingo_line_label") : oneAway ? word("bingo_one_away_label") : word("bingo_watching_label");
+    said.textContent = completeLines > 0
+      ? label("label_bingo_line_label")
+      : oneAway ? label("label_bingo_one_away_label") : label("label_bingo_watching_label");
     const count = document.createElement("span");
-    count.textContent = word("bingo_called_label").replace("{n}", called).replace("{of}", own.length);
+    count.textContent = label("label_bingo_called_label").replace("{n}", called).replace("{of}", own.length);
     watch.append(said, count);
   }
 
@@ -594,7 +760,7 @@ function renderBoard() {
        */
       const cardWord = key === undefined ? undefined : (words[key] ?? key);
       const face = centre
-        ? (cardWord ?? (challenge.centre_mode === "free" ? word("bingo_free_label") : "?"))
+        ? (cardWord ?? (challenge.centre_mode === "free" ? label("label_bingo_free_label") : "?"))
         : (cardWord ?? "");
       cell.textContent = face;
 
@@ -616,7 +782,7 @@ function renderBoard() {
             : undefined;
       if (mark) {
         cell.dataset.mark = mark;
-        cell.setAttribute("title", mark === "correct" ? word("bingo_hit_label") : word("bingo_miss_label"));
+        cell.setAttribute("title", mark === "correct" ? label("label_bingo_hit_label") : label("label_bingo_miss_label"));
       }
       if (key !== undefined && inLine.has(key)) cell.dataset.inLine = "true";
       if (key !== undefined && awaited.has(key)) cell.dataset.awaited = "true";
@@ -628,7 +794,7 @@ function renderBoard() {
         cell.setAttribute("role", "button");
         cell.tabIndex = 0;
         cell.setAttribute("aria-pressed", "false");
-        cell.setAttribute("aria-label", `${face}. ${word("bingo_flip_hint")}`);
+        cell.setAttribute("aria-label", `${face}. ${label("label_bingo_flip_hint")}`);
         /**
          * Turn the card over, and let the rotation carry the change. GS-419.
          *
@@ -647,7 +813,7 @@ function renderBoard() {
           if (showing) cell.removeAttribute("data-flipped");
           else cell.dataset.flipped = "true";
           cell.textContent = showing ? face : note;
-          cell.setAttribute("aria-label", `${face}. ${showing ? word("bingo_flip_hint") : note}`);
+          cell.setAttribute("aria-label", `${face}. ${showing ? label("label_bingo_flip_hint") : note}`);
           cell.setAttribute("aria-pressed", String(!showing));
         };
         const turn = () => {
@@ -693,7 +859,9 @@ function renderBoard() {
 
   el("carousel").hidden = finished || !dealt;
   if (dealt && !finished) {
-    el("which-board").textContent = word("bingo_which_label").replace("{n}", showing + 1).replace("{of}", boards.length);
+    el("which-board").textContent = label("label_bingo_which_label")
+      .replace("{n}", showing + 1)
+      .replace("{of}", boards.length);
     el("previous-board").disabled = showing === 0;
     el("next-board").disabled = showing >= boards.length - 1;
   }
@@ -750,17 +918,19 @@ async function operate(op, board) {
     });
 
     if (result.outcome === "stale") {
-      el("verdict").textContent = "The round moved on. Try again.";
+      el("verdict").textContent = label("label_refused_moved");
       return;
     }
     if (result.outcome === "rejected") {
       // The round's own lock is the one refusal a fan can meet without
       // having done anything wrong, so it gets the sentence the board
-      // already shows rather than the Engine's enum. GS-461.
+      // already shows rather than the Engine's enum. GS-461. Any other
+      // refusal gets Studio's sentence, never the enum: `result.reason` is
+      // for the logs, not for a fan.
       el("verdict").textContent =
         result.reason === "lock_deadline_passed"
           ? el("locked").textContent
-          : `Refused: ${result.reason}`;
+          : label("label_refused");
       return;
     }
 
@@ -778,21 +948,58 @@ async function operate(op, board) {
   }
 }
 
+/**
+ * A deployed game with no round on yet: before a producer writes the first
+ * one in Studio, or between editions. Said in Studio's own words, the
+ * come-back line, rather than as the connection failure it used to show:
+ * "The game didn't load. Check your connection" was wrong about the cause.
+ * The play area is hidden; the header, the footer and anything the library
+ * draws (its classes start `gs-`) stay. GS-534.
+ */
+function showNoRound() {
+  const prompt = el("prompt");
+  prompt.textContent = label("label_come_back");
+  for (const node of document.body.children) {
+    if (node.contains(prompt) || node.id === "connection") continue;
+    if (node.tagName === "FOOTER" || node.tagName === "SCRIPT") continue;
+    if ([...node.classList].some((c) => c.startsWith("gs-"))) continue;
+    node.hidden = true;
+  }
+  // The first round a producer puts on arrives over the live connection, and
+  // the page starts again to draw it.
+  game.onRoundChanged(() => location.reload());
+}
+
 async function main() {
   game = await start({
     identity: () => window.GAMESTAGE_TOKEN,
   });
+
   applyWords();
-
-
   applyPresentation(game.presentation, presentationTargets, {
     displayName: game.deployedName,
   });
+  showRules();
+
+  // No round on yet is a state of the game, not a failure. GS-534.
+  if (!game.round) {
+    showNoRound();
+    return;
+  }
+
+  // A fan's way back to their progress on another device: a code shown once,
+  // and "I've played before" to restore it. It opens as a dialog, so it adds
+  // nothing to the page until asked. The words are Studio's. GS-568.
+  mountRecovery(game, el("progress"), { onRestored: () => location.reload() });
   game.onPresentationChanged((presentation) => {
     applyWords();
     applyPresentation(presentation, presentationTargets, {
       displayName: game.deployedName,
     });
+    showRules();
+    // The words drawn from state, such as the phase note and which board,
+    // change with a producer's edit too.
+    if (currentState) renderBoard();
   });
 
   if (game.platform === "local" && !developing) {
@@ -891,9 +1098,15 @@ addEventListener("online", async () => {
   }
 });
 
-main().catch((error) => {
-  el("prompt").textContent = `Could not load the round: ${error.message}`;
-});
+main()
+  .catch((error) => {
+    // The intro screen shows its error state, not its Play button. GS-564.
+    window.gamestageReady?.({ failed: true });
+    el("prompt").textContent = `Could not load the round: ${error.message}`;
+  })
+  // The loading state goes once the round is drawn or has failed, never before,
+  // so a fan never meets a half-built board or a blank page. GS-537.
+  .finally(() => window.gamestageReady?.());
 </script>
 <script>/* gs-press-rules: iOS Safari applies :active only once the page listens for touches. */document.addEventListener('touchstart', function () {}, { passive: true });</script>
 </body>
