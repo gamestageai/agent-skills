@@ -83,5 +83,4 @@ Documentation: <https://gamestage.ai/docs>
 
 ---
 
-Pack version 2026-10-11-1. Built from the Gamestage monorepo by
-`scripts/build-public-repo.mjs`. Do not edit this repository by hand.
+Pack version 2026-10-11-1.
