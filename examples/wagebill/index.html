@@ -228,7 +228,10 @@ function renderState(state) {
   el("taken").replaceChildren(
     ...(progress.picks ?? []).map((taken) => {
       const item = document.createElement("li");
-      item.innerHTML = `${taken.label} <b>+${money(taken.value)}</b>`;
+      item.textContent = `${taken.label} `;
+      const value = document.createElement("b");
+      value.textContent = `+${money(taken.value)}`;
+      item.append(value);
       return item;
     }),
   );
