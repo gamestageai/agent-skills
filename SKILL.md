@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-13-1
+version: 2026-10-13-2
 ---
 
 # Gamestage
 
-Pack version 2026-10-13-1.
-Pack digest 27ff64466078c467.
+Pack version 2026-10-13-2.
+Pack digest 87fc26e2759bd064.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -157,14 +157,13 @@ person adds the Gamestage plugin, which brings this pack and the connector
 together. If you are in that chat and `list_games` is among your tools, they
 have it already: install nothing.
 
-1. In Claude, open Customize, then Plugins, then Add marketplace, then Add from
-   a repository.
+1. In Claude, open Customize, then Plugins, then Add, then Add marketplace.
 2. Paste `gamestageai/agent-skills`, press Sync, then install Gamestage.
 3. Start a new chat. They sign in to Gamestage when Claude asks.
 
 If Gamestage cannot make games in Claude, their copy of the plugin may be out of
-date: Customize, then Plugins, then Add, then Manage marketplaces, then Check
-for updates beside agent-skills.
+date: remove Gamestage under Customize, then Plugins, and install it again from
+the marketplace.
 
 If they cannot add plugins, the connector alone gives Claude the tools but not
 this pack, so it guesses more: Customize, then Connectors, add
