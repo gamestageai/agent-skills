@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-11-1
+version: 2026-10-13-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-11-1.
-Pack digest 766669366dfc625b.
+Pack version 2026-10-13-1.
+Pack digest 27ff64466078c467.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -241,7 +241,7 @@ is stale:** say so in one line, then rerun through `npx gamestage@latest`.
 gamestage formats              what each format is, with a real game to play
 gamestage create               asks the format and the name, makes the game's folder
                                and writes a starter practice/round.yaml
-gamestage dev --serve          plays practice/round.yaml; nothing is published
+gamestage dev --serve          plays practice/round.yaml; then `look --tap "Play"` screenshots it
 gamestage verify               proves the Engine decides the outcome, not the page
 gamestage deploy <game> --dir .  puts this folder online, with no round yet
 gamestage open <game> studio   where a producer adds the real round
@@ -314,7 +314,7 @@ The shape of a migration:
 gamestage inspect .        read-only. reports what must move, with line numbers
    ↓ you edit            take the answers out of the page
 gamestage dev            plays practice/round.yaml through the real Engine
-   ↓ you play it         open it in a browser and make a play
+   ↓ you play it         gamestage look --tap "Play", then open .gamestage/look.png
 gamestage verify         proves the Engine decided the outcome, not the page
 gamestage deploy         publishes through Backstage, where one is available
 ```
