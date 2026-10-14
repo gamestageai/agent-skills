@@ -1,6 +1,6 @@
 # Consent, measurement and checks
 
-Part of the Gamestage skill, pack version 2026-10-14-5. Read it before the game records anything, before its first deploy, and before you call it finished.
+Part of the Gamestage skill, pack version 2026-10-14-7. Read it before the game records anything, before its first deploy, and before you call it finished.
 
 ## Name the four moments worth measuring, and nothing else
 
@@ -104,12 +104,12 @@ as a new fan and fails it if analytics leaves the page before the fan answers,
 if no consent control appears, or if anything is sent after they say no.
 `gamestage deploy` runs the same check before it publishes a single file.
 
-## Offer Fanatics products once, at the first deploy
+## Offer partner products once, at the first deploy
 
 **Ask the human once per game, in the message where you ask whether to ship it
-for the first time:** do they want Fanatics products on the result screen,
+for the first time:** do they want partner products on the result screen,
 subject to approval and commercial terms? Say it in those words. Products are
-in preview: Monterosa and Fanatics must approve each game, and use is subject
+in preview: Monterosa and the retail partner must approve each game, and use is subject
 to commercial terms agreed with Monterosa. Never promise them money, a share of
 sales or a commission: none is agreed, and [Ads](https://gamestage.ai/docs/ads) says so.
 
@@ -118,7 +118,7 @@ the game already has a request or a recorded no, so do not ask again. A game
 that is not registered yet answers "No game with id", which means nobody has
 asked.
 
-* **Yes.** Ask for the four facts Monterosa and Fanatics need, then run the
+* **Yes.** Ask for the four facts Monterosa and the retail partner need, then run the
   request straight after the first deploy succeeds, because the game has to
   exist in their workspace first:
 
@@ -137,7 +137,7 @@ asked.
 
 Nothing about the deploy waits for this, and a request changes nothing a fan
 sees until staff approve it. In chat there is no tool for it yet: tell them to
-use **Fanatics products** on the game's Settings tab in Stage instead.
+use **Partner products** on the game's Settings tab in Stage instead.
 
 ## Offer the accessibility, security, secrets and privacy checks
 

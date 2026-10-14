@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-14-5
+version: 2026-10-14-7
 ---
 
 # Gamestage
 
-Pack version 2026-10-14-5.
-Pack digest 7b611e47ee447c1f.
+Pack version 2026-10-14-7.
+Pack digest 8f9253fcc92673e7.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -512,8 +512,10 @@ you, and Monterosa never sees their Figma.
    `data-gs-theme="<name>"` on `<html>`, and `gamestage verify`.
 
 **Fonts are the client's, from the client's host.** List each font in
-`theme.json` with the address it is served from on the client's own domain or a
-font service they use. Gamestage never hosts a client's font. `publish` asks the
+`theme.json` with the address it is served from on the client's own domain.
+Not a font service such as Google Fonts or Adobe Fonts: those see every fan's
+address before any consent banner can ask, so `publish` refuses them and the
+client must host the file themselves. Gamestage never hosts a client's font. `publish` asks the
 person to declare that the client may use each font in web games; ask the
 client, never answer for them, and pass `--declare-fonts` only once they have
 said yes. A font that is not on the web yet must be put there by the client
@@ -1345,12 +1347,12 @@ as a new fan and fails it if analytics leaves the page before the fan answers,
 if no consent control appears, or if anything is sent after they say no.
 `gamestage deploy` runs the same check before it publishes a single file.
 
-## Offer Fanatics products once, at the first deploy
+## Offer partner products once, at the first deploy
 
 **Ask the human once per game, in the message where you ask whether to ship it
-for the first time:** do they want Fanatics products on the result screen,
+for the first time:** do they want partner products on the result screen,
 subject to approval and commercial terms? Say it in those words. Products are
-in preview: Monterosa and Fanatics must approve each game, and use is subject
+in preview: Monterosa and the retail partner must approve each game, and use is subject
 to commercial terms agreed with Monterosa. Never promise them money, a share of
 sales or a commission: none is agreed, and [Ads](https://gamestage.ai/docs/ads) says so.
 
@@ -1359,7 +1361,7 @@ the game already has a request or a recorded no, so do not ask again. A game
 that is not registered yet answers "No game with id", which means nobody has
 asked.
 
-* **Yes.** Ask for the four facts Monterosa and Fanatics need, then run the
+* **Yes.** Ask for the four facts Monterosa and the retail partner need, then run the
   request straight after the first deploy succeeds, because the game has to
   exist in their workspace first:
 
@@ -1378,7 +1380,7 @@ asked.
 
 Nothing about the deploy waits for this, and a request changes nothing a fan
 sees until staff approve it. In chat there is no tool for it yet: tell them to
-use **Fanatics products** on the game's Settings tab in Stage instead.
+use **Partner products** on the game's Settings tab in Stage instead.
 
 ## Offer the accessibility, security, secrets and privacy checks
 

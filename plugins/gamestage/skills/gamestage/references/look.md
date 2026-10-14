@@ -1,6 +1,6 @@
 # Look and assets
 
-Part of the Gamestage skill, pack version 2026-10-14-5. Read it before you build or restyle the interface, or draw any asset.
+Part of the Gamestage skill, pack version 2026-10-14-7. Read it before you build or restyle the interface, or draw any asset.
 
 ## Ask how the game should look, when you are building its interface
 
@@ -73,8 +73,10 @@ you, and Monterosa never sees their Figma.
    `data-gs-theme="<name>"` on `<html>`, and `gamestage verify`.
 
 **Fonts are the client's, from the client's host.** List each font in
-`theme.json` with the address it is served from on the client's own domain or a
-font service they use. Gamestage never hosts a client's font. `publish` asks the
+`theme.json` with the address it is served from on the client's own domain.
+Not a font service such as Google Fonts or Adobe Fonts: those see every fan's
+address before any consent banner can ask, so `publish` refuses them and the
+client must host the file themselves. Gamestage never hosts a client's font. `publish` asks the
 person to declare that the client may use each font in web games; ask the
 client, never answer for them, and pass `--declare-fonts` only once they have
 said yes. A font that is not on the web yet must be put there by the client
