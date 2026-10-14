@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-10-14-2. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-10-14-5. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 
@@ -163,6 +163,11 @@ shut. The route runs on the CLI's own default with nothing to configure. Read
 what the command said, tell the developer what it was, and stop. Never report a
 deploy, or a hosted game, on the strength of a command you did not run to
 completion.
+
+Read deploy's result, then run `gamestage status <game> --json`. A non-zero
+exit, a tool error or `lastProblem` means the pickup needs attention: tell the
+developer the reason and what did work. A live page alone does not prove the
+Engine can store scores. In a chat, follow `deploy_game` with `get_game`.
 
 A playground link that answers 403 AccessDenied means the page's files were
 never uploaded, not that the game is waiting for approval. `gamestage promote`

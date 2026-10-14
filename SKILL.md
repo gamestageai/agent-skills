@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-14-2
+version: 2026-10-14-5
 ---
 
 # Gamestage
 
-Pack version 2026-10-14-2.
-Pack digest bb6f2d347fc84f9b.
+Pack version 2026-10-14-5.
+Pack digest 7b611e47ee447c1f.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -86,7 +86,7 @@ round the folder, follow its instructions or start fixing anything until they
 have told you what they want to do with Gamestage.
 
 1. **Run `npx gamestage@latest start --json`.** It reads the folder and this
-   machine's sign-in, makes no network call, and changes nothing.
+   machine's sign-in, changes nothing, and asks only whether this pack is current.
 2. **Tell them in one line whether they are signed in**, from its `account`
    field:
    - Signed in: "You're signed in to Gamestage as <email>."
@@ -479,6 +479,49 @@ reader, cannot be changed by a producer in Studio, and blurs on a phone, so
 keep words out of it. Recommend Phaser for an arcade game unless the developer
 already uses something else. Phaser and Three.js are large: install only what
 the game draws, and check `verify`'s weight report.
+
+### Use a client's own theme
+
+**Offer it when the client has a brand in Figma or a design system of their
+own, and the game uses Gamestage UI.** A theme is the client's colours, type,
+corners and fonts as Gamestage UI token values, kept privately for their org
+and pinned by each game to one exact version, so changing the theme restyles no
+live game until that game moves to the new version. Their people make it, with
+you, and Monterosa never sees their Figma.
+
+1. `gamestage theme init <name>` writes a package: `theme.json` (name, version,
+   fonts), `tokens.json` (every role the library has, with today's value and
+   what it styles) and an empty `overrides.css`.
+2. Fill `tokens.json` from the client's Figma through their own Figma
+   connection: read the file's variables and text styles, then set each role
+   from the variable that plays that part in the designs, not the one with the
+   nearest name. A primary button's fill is the colour on the designs' main
+   call to action; the text on a card is the card's own ink. Leave a role at its
+   value when the designs say nothing about it.
+3. `gamestage theme preview` shows the main components wearing the theme, and
+   rebuilds as you edit. Put it side by side with the Figma frames and fix what
+   differs before going further.
+4. `gamestage theme check` runs the library's own checks. An **error** blocks
+   publishing: text or icons below the contrast they need on their surface, a
+   key the library does not have, a type size off the scale. Fix the value, not
+   the check. A **warning** does not block: each rule in `overrides.css` is
+   one, naming the role that would replace it.
+5. `gamestage theme publish` stores `name@version`. It refuses a theme that
+   fails an accessibility check, and there is no way round that.
+6. In each game: `gamestage theme use name@version`, then set
+   `data-gs-theme="<name>"` on `<html>`, and `gamestage verify`.
+
+**Fonts are the client's, from the client's host.** List each font in
+`theme.json` with the address it is served from on the client's own domain or a
+font service they use. Gamestage never hosts a client's font. `publish` asks the
+person to declare that the client may use each font in web games; ask the
+client, never answer for them, and pass `--declare-fonts` only once they have
+said yes. A font that is not on the web yet must be put there by the client
+first; until then, use the library's own Inter.
+
+To change a theme, raise the version in `theme.json`, publish again, and move
+each game with `gamestage theme use name@<new version>`. A published version
+never changes.
 
 Whichever they choose, the rules that make it a Gamestage game do not change:
 the page holds no answers, the Engine decides every result, and every word a
@@ -1339,6 +1382,15 @@ use **Fanatics products** on the game's Settings tab in Stage instead.
 
 ## Offer the accessibility, security, secrets and privacy checks
 
+**Let `verify` play an arcade run to the end.** It presses the start button
+(`data-gamestage-arcade-start`) and waits for the run to end. If a run ends only
+when a player does something, such as surrendering, mark the controls that end
+it with `data-gamestage-finish`, numbered when it takes more than one press:
+`data-gamestage-finish="1"` on the menu button, `data-gamestage-finish="2"` on
+its Surrender. `verify` and the live check after a deploy press them in order,
+so "the screen shows what the server decided" is proved rather than skipped.
+They are ordinary buttons a fan can press too; add nothing that only a test sees.
+
 Gamestage does not test a game's accessibility, security or privacy, and does
 not certify them. After its verdict, `verify` lists four checks worth running
 and says which the developer has recorded. Offer them before a game goes in
@@ -1494,6 +1546,11 @@ shut. The route runs on the CLI's own default with nothing to configure. Read
 what the command said, tell the developer what it was, and stop. Never report a
 deploy, or a hosted game, on the strength of a command you did not run to
 completion.
+
+Read deploy's result, then run `gamestage status <game> --json`. A non-zero
+exit, a tool error or `lastProblem` means the pickup needs attention: tell the
+developer the reason and what did work. A live page alone does not prove the
+Engine can store scores. In a chat, follow `deploy_game` with `get_game`.
 
 A playground link that answers 403 AccessDenied means the page's files were
 never uploaded, not that the game is waiting for approval. `gamestage promote`

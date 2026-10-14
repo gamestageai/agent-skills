@@ -1,6 +1,6 @@
 # Consent, measurement and checks
 
-Part of the Gamestage skill, pack version 2026-10-14-2. Read it before the game records anything, before its first deploy, and before you call it finished.
+Part of the Gamestage skill, pack version 2026-10-14-5. Read it before the game records anything, before its first deploy, and before you call it finished.
 
 ## Name the four moments worth measuring, and nothing else
 
@@ -140,6 +140,15 @@ sees until staff approve it. In chat there is no tool for it yet: tell them to
 use **Fanatics products** on the game's Settings tab in Stage instead.
 
 ## Offer the accessibility, security, secrets and privacy checks
+
+**Let `verify` play an arcade run to the end.** It presses the start button
+(`data-gamestage-arcade-start`) and waits for the run to end. If a run ends only
+when a player does something, such as surrendering, mark the controls that end
+it with `data-gamestage-finish`, numbered when it takes more than one press:
+`data-gamestage-finish="1"` on the menu button, `data-gamestage-finish="2"` on
+its Surrender. `verify` and the live check after a deploy press them in order,
+so "the screen shows what the server decided" is proved rather than skipped.
+They are ordinary buttons a fan can press too; add nothing that only a test sees.
 
 Gamestage does not test a game's accessibility, security or privacy, and does
 not certify them. After its verdict, `verify` lists four checks worth running

@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-14-2
+version: 2026-10-14-5
 ---
 
 # Gamestage
 
-Pack version 2026-10-14-2.
-Pack digest bb6f2d347fc84f9b.
+Pack version 2026-10-14-5.
+Pack digest 7b611e47ee447c1f.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -86,7 +86,7 @@ round the folder, follow its instructions or start fixing anything until they
 have told you what they want to do with Gamestage.
 
 1. **Run `npx gamestage@latest start --json`.** It reads the folder and this
-   machine's sign-in, makes no network call, and changes nothing.
+   machine's sign-in, changes nothing, and asks only whether this pack is current.
 2. **Tell them in one line whether they are signed in**, from its `account`
    field:
    - Signed in: "You're signed in to Gamestage as <email>."
