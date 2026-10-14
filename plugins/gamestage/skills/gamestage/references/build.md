@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-10-13-2. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-10-14-1. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 
@@ -28,6 +28,36 @@ advice, and `docs/layout-and-loading` is the chapter to point them at.
 **Build for the layout you chose.** A `screen` game fits 360×640, 390×844 and
 landscape without the page scrolling; if a list must scroll, it scrolls inside
 the game. `verify` measures this and warns.
+
+**A game that needs the phone held sideways says so.** Most fans hold a phone
+upright and do not turn it unless asked. Prefer a design that plays upright.
+When the play area is wider than it is tall (an artillery or worms game, a
+side-scroller, a racing track, a pitch seen from the side), do all of these:
+
+1. **Ask before you build it** whether it must be landscape, and say what an
+   upright fan will see.
+2. **Show a "turn your phone sideways" screen when the phone is upright**:
+   full screen, a rotating-phone picture, one short line, and nothing to tap.
+   Detect it with `matchMedia("(orientation: portrait)")` and listen for the
+   change, so the screen goes the moment the phone turns. Do not rely on
+   `screen.orientation.lock()`: iPhones refuse it, and Android allows it only
+   in full screen. The line is a Studio setting like every other word, in
+   `gamestage.settings.json`, never written into the page.
+3. **Pause while it shows.** A turn timer, a clock or a run must not count
+   down behind it, and a fan who turns back finds the game where they left it.
+4. **Never shrink a landscape game into an upright screen.** A wide play area
+   drawn across the middle of an upright phone, with black above and below, is
+   the failure this rule exists for. Its text ends up too small to read and the
+   targets too small to hit.
+5. **Keep text readable at 640×360**, the smallest landscape phone: at least
+   12px for anything a fan reads, including names, health bars and the turn
+   clock, and 44px for anything they tap.
+6. **Check both ways round before calling it done**: upright at 390×844, where
+   the sideways screen shows and the game is paused, then landscape at 844×390
+   and 640×360, where it plays with every word readable.
+
+Learned on 14 October from an Arcade game that, upright on a phone, drew
+the match as a thin strip with unreadable text and no hint to turn the phone.
 
 **Load smoothly. Do this without being asked:**
 
