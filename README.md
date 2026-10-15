@@ -59,7 +59,7 @@ copy one.
   from, and ids are not scoped to a workspace yet, so an unchanged copy points at
   a game that is not yours. `npx gamestage create` writes you a new one.
 * **The client library is not in this repository.** Each page loads it from
-  `gamestage.ai/client/0.80.0/gamestage.js`, which is what a real
+  `gamestage.ai/client/0.81.0/gamestage.js`, which is what a real
   deploy writes. That way your game cannot end up running a library older than the
   service it is talking to.
 
@@ -83,4 +83,4 @@ Documentation: <https://gamestage.ai/docs>
 
 ---
 
-Pack version 2026-10-14-7.
+Pack version 2026-10-15-1.

@@ -1,6 +1,6 @@
 # Consent, measurement and checks
 
-Part of the Gamestage skill, pack version 2026-10-14-7. Read it before the game records anything, before its first deploy, and before you call it finished.
+Part of the Gamestage skill, pack version 2026-10-15-1. Read it before the game records anything, before its first deploy, and before you call it finished.
 
 ## Name the four moments worth measuring, and nothing else
 
@@ -134,6 +134,13 @@ asked.
   again for this game. Do not mention products again unless they do.
 * **Not now.** Run nothing, and tell them they can ask later with
   `gamestage ads request <game>` or from Stage.
+
+**Products follow the teams the round names**, by full name (`team:Buffalo
+Bills`, not `BUF`), at most five per request. Teams outside the Premier League,
+such as NFL and NBA teams, work too: request with `--countries "United States"`
+and they are searched in the US catalogue only. A team the game has never named
+shows products from the night after it first asks, because the catalogue is
+searched overnight.
 
 Nothing about the deploy waits for this, and a request changes nothing a fan
 sees until staff approve it. In chat there is no tool for it yet: tell them to

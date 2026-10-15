@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-14-7
+version: 2026-10-15-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-14-7.
-Pack digest 8f9253fcc92673e7.
+Pack version 2026-10-15-1.
+Pack digest 70d66ca5c61b18b1.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1377,6 +1377,13 @@ asked.
   again for this game. Do not mention products again unless they do.
 * **Not now.** Run nothing, and tell them they can ask later with
   `gamestage ads request <game>` or from Stage.
+
+**Products follow the teams the round names**, by full name (`team:Buffalo
+Bills`, not `BUF`), at most five per request. Teams outside the Premier League,
+such as NFL and NBA teams, work too: request with `--countries "United States"`
+and they are searched in the US catalogue only. A team the game has never named
+shows products from the night after it first asks, because the catalogue is
+searched overnight.
 
 Nothing about the deploy waits for this, and a request changes nothing a fan
 sees until staff approve it. In chat there is no tool for it yet: tell them to
