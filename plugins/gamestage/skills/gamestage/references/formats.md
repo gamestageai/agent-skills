@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-10-15-1. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-10-16-1. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -28,8 +28,7 @@ it was written. The list the tool prints is the one that cannot go stale:
 `gamestage start` in an empty folder shows the current formats, and
 `gamestage create` with no format shows the same menu. Trust those over this
 table when they disagree. `gamestage formats <format>` (or `--json formats`)
-says what each one keeps secret, what a producer writes in Studio, and names a
-deployed game of that kind the developer can play before choosing.
+says what each one keeps secret and what a producer writes in Studio.
 
 `create` makes a folder named after the game when the current folder holds
 other things and no `index.html`; `--json` reports it as `directory`, so work

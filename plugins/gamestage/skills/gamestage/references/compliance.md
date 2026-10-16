@@ -1,6 +1,6 @@
 # Consent, measurement and checks
 
-Part of the Gamestage skill, pack version 2026-10-15-1. Read it before the game records anything, before its first deploy, and before you call it finished.
+Part of the Gamestage skill, pack version 2026-10-16-1. Read it before the game records anything, before its first deploy, and before you call it finished.
 
 ## Name the four moments worth measuring, and nothing else
 
@@ -59,9 +59,9 @@ code.
 `gamestage.settings.json`**: the brand the banner names as asking
 (`consent_brand_name`, e.g. "Arsenal"), and the address of their privacy
 policy (`privacy_policy_url`, https). `verify` fails and `deploy` refuses
-while either is empty. Never invent either one, and never copy "Monterosa"
-from a Gamestage sample: that name and https://monterosa.co/privacy-policy are
-right only on Monterosa's own games.
+while either is empty. Never invent either one. Monterosa's name and a
+monterosa.co privacy policy belong only to Monterosa's own games, and `verify`
+and `deploy` refuse them on any other.
 
 ```js
 const game = await gamestage.start({

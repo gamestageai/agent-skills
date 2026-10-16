@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-15-1
+version: 2026-10-16-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-15-1.
-Pack digest 70d66ca5c61b18b1.
+Pack version 2026-10-16-1.
+Pack digest 98b8f0274bdd4c43.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -237,7 +237,7 @@ is stale:** say so in one line, then rerun through `npx gamestage@latest`.
 ## Start a new game: create, dev, deploy, Studio
 
 ```
-gamestage formats              what each format is, with a real game to play
+gamestage formats              what each format is and what it keeps secret
 gamestage create               asks the format and the name, makes the game's folder
                                and writes a starter practice/round.yaml
 gamestage dev --serve          plays practice/round.yaml; then `look --tap "Play"` screenshots it
@@ -252,6 +252,10 @@ shows a "Practice round, not live" bar. Real rounds are written in Monterosa Stu
 game can change them without a deploy. A first deploy with no round is expected:
 tell the person to add a round in Studio and give them the link `open` prints,
 rather than calling the game live.
+
+**Start from `gamestage create` and from nothing else.** The games on
+gamestage.ai are Monterosa's, not templates: never fetch, read or copy their
+pages, settings or ids, even when the developer likes one. `verify` refuses a copy.
 
 ## A factual question is answered by the hosted doc, in one hop
 
@@ -344,8 +348,7 @@ it was written. The list the tool prints is the one that cannot go stale:
 `gamestage start` in an empty folder shows the current formats, and
 `gamestage create` with no format shows the same menu. Trust those over this
 table when they disagree. `gamestage formats <format>` (or `--json formats`)
-says what each one keeps secret, what a producer writes in Studio, and names a
-deployed game of that kind the developer can play before choosing.
+says what each one keeps secret and what a producer writes in Studio.
 
 `create` makes a folder named after the game when the current folder holds
 other things and no `index.html`; `--json` reports it as `directory`, so work
@@ -1302,9 +1305,9 @@ code.
 `gamestage.settings.json`**: the brand the banner names as asking
 (`consent_brand_name`, e.g. "Arsenal"), and the address of their privacy
 policy (`privacy_policy_url`, https). `verify` fails and `deploy` refuses
-while either is empty. Never invent either one, and never copy "Monterosa"
-from a Gamestage sample: that name and https://monterosa.co/privacy-policy are
-right only on Monterosa's own games.
+while either is empty. Never invent either one. Monterosa's name and a
+monterosa.co privacy policy belong only to Monterosa's own games, and `verify`
+and `deploy` refuse them on any other.
 
 ```js
 const game = await gamestage.start({
