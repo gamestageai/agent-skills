@@ -1,6 +1,6 @@
 # Look and assets
 
-Part of the Gamestage skill, pack version 2026-10-16-1. Read it before you build or restyle the interface, or draw any asset.
+Part of the Gamestage skill, pack version 2026-10-17-1. Read it before you build or restyle the interface, or draw any asset.
 
 ## Ask how the game should look, when you are building its interface
 
@@ -89,6 +89,69 @@ never changes.
 Whichever they choose, the rules that make it a Gamestage game do not change:
 the page holds no answers, the Engine decides every result, and every word a
 fan reads can be changed by a producer.
+
+## Make every play feel like something happened
+
+**A tap the game does not answer feels broken, even when it worked.** A fan
+cannot see the Engine; they see the screen. So every act gets an answer they
+can see straight away, the same act gets the same answer every time, and a
+settled outcome gets a moment of its own. Build this in from the first round,
+not as polish at the end: a flat game reads as a cheap one.
+
+**Answer every tap within 100ms, before the Engine replies.** Press the control
+down on pointerdown and show the pick as chosen at once, then wait for the
+Engine. Never hold the press until the network answers: the fan reads a late
+response as a missed tap and taps again.
+
+**Give a settled outcome its own moment, in one place.** With Gamestage UI
+that is `feedback`, which you install with `npx gamestage-ui add feedback`:
+
+```tsx
+<Feedback variant="correct" delta={100} onDismiss={next} />
+<Feedback variant="wrong" message={reason} onDismiss={next} />
+<Feedback variant="score" delta={50} />
+<Feedback variant="reward" label={rewardName} onDismiss={close} />
+```
+
+Render it the moment the Engine settles the play, from the Engine's answer
+and never from the page's guess, in one slot in the stage's overlay, one at a
+time. A right answer pops, a wrong one shakes, points float up beside the
+score they changed, and a reward slams in and stays until tapped. Every word
+it shows comes from Studio like every other word. Without Gamestage UI, build
+the same four moments yourself and keep them as consistent as these.
+
+**Wrap the game in `GameFeelProvider` so the cues play.** `choice`, `button`,
+`score`, `streak`, `timer` and `feedback` already ask for their own sound and
+haptic cues; nothing plays them until the host installs the runtime:
+
+```sh
+npx gamestage-ui add cues
+```
+
+```tsx
+<GameFeelProvider muted={soundOff} juice="standard">
+  <Game />
+</GameFeelProvider>
+```
+
+`juice` is `none`, `reduced`, `standard` or `maximum`. A lower level trims the
+celebration first and never the confirmation of what the fan just did. Give
+the fan a sound switch and pass it as `muted`, and never start a sound before
+the fan's first tap.
+
+**Say plainly what the fan will hear today.** Gamestage UI's cues are named and
+gated, and the sound files are not in it yet, so every cue is silent until they
+arrive; vibration works where the browser allows it, which an iPhone does not.
+Tell the developer that, and do not add your own sound files to fill the gap
+unless they ask: the cue names stay the same when the sounds arrive, so a game
+wired to `GameFeelProvider` gets them by running `npx gamestage-ui update`.
+
+**Every outcome reads without motion or sound.** A fan with reduced motion, the
+sound off or colour blindness must still tell right from wrong. `feedback`
+changes the word, the mark and the colour as well as the movement, and keeps
+the word and the mark under reduced motion. Do the same in anything you build
+yourself: honour `prefers-reduced-motion`, and never carry a result on colour
+or sound alone.
 
 ## Before you draw an asset, check the third-party registry
 
