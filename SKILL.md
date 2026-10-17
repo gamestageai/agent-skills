@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-17-1
+version: 2026-10-17-2
 ---
 
 # Gamestage
 
-Pack version 2026-10-17-1.
-Pack digest 07797df54c68dcf2.
+Pack version 2026-10-17-2.
+Pack digest c0a7015b18df5d0d.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -567,26 +567,39 @@ the same four moments yourself and keep them as consistent as these.
 haptic cues; nothing plays them until the host installs the runtime:
 
 ```sh
-npx gamestage-ui add cues
+npx gamestage-ui add cues sounds
 ```
 
 ```tsx
-<GameFeelProvider muted={soundOff} juice="standard">
+import { createDefaultSoundAdapter } from './components/gamestage/sound-set'
+
+const cueSounds = createDefaultSoundAdapter()
+
+<GameFeelProvider sound={cueSounds} muted={soundOff} juice="standard">
   <Game />
 </GameFeelProvider>
 ```
+
+`sounds` copies Gamestage UI's own set into `public/gamestage/sfx/`: one sound
+per cue, about 150 KB in all, each fetched the first time it plays. Five cues
+have three takes (`correct`, `countdown`, `rankUp`, `reward`, `xp`); a game
+keeps the first, picks another with `createDefaultSoundAdapter({ pick: {
+rankUp: 2 } })`, or rotates them with `{ vary: true }` so a sound heard every
+round does not repeat itself exactly. To use the game's own sounds, replace a
+file with one of the same name.
 
 `juice` is `none`, `reduced`, `standard` or `maximum`. A lower level trims the
 celebration first and never the confirmation of what the fan just did. Give
 the fan a sound switch and pass it as `muted`, and never start a sound before
 the fan's first tap.
 
-**Say plainly what the fan will hear today.** Gamestage UI's cues are named and
-gated, and the sound files are not in it yet, so every cue is silent until they
-arrive; vibration works where the browser allows it, which an iPhone does not.
-Tell the developer that, and do not add your own sound files to fill the gap
-unless they ask: the cue names stay the same when the sounds arrive, so a game
-wired to `GameFeelProvider` gets them by running `npx gamestage-ui update`.
+**Without `sounds`, the cues are silent.** The provider plays nothing it has no
+file for, so a game that installs only `cues` moves and vibrates but makes no
+sound. Vibration works where the browser allows it, which an iPhone does not,
+so on an iPhone sound is the only thing a fan feels. A game without Gamestage
+UI can still take sounds from the Sound effects group in
+[Third-party tools and assets](https://gamestage.ai/docs/third-party), each
+with its licence and any credit it needs.
 
 **Every outcome reads without motion or sound.** A fan with reduced motion, the
 sound off or colour blindness must still tell right from wrong. `feedback`

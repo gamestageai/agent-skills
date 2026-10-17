@@ -19,7 +19,7 @@ money and is not part of `./qa`.
 | `first-reply-two-questions` | A new-game request gets at most two questions, no format table, and no "do you have a game already?" |
 | `consent-reads-reference` | A consent question reads `references/compliance.md` rather than answering from the core file |
 | `asks-with-buttons` | With `AskUserQuestion` available, "do you have a game already?" is asked with it rather than in text. GS-688 |
-| `game-feel-reads-look` | "The right-or-wrong moment feels flat" reads `references/look.md` and answers with `feedback`, `GameFeelProvider`, and the fact that there is no sound yet. GS-796 |
+| `game-feel-reads-look` | "The right-or-wrong moment feels flat" reads `references/look.md` and answers with `feedback`, `GameFeelProvider` and the `sounds` item. GS-796 |
 
 The same folder is copied into the published plugin as `evals/`, so anybody can
 run `claude plugin eval plugins/gamestage` against what they installed.
