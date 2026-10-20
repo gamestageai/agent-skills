@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-17-2
+version: 2026-10-20-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-17-2.
-Pack digest c0a7015b18df5d0d.
+Pack version 2026-10-20-1.
+Pack digest 003f08f7e5464bb3.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -114,6 +114,9 @@ have told you what they want to do with Gamestage.
      for them.
    - **A game already** that scores against figures somebody typed in: say
      once that a real dataset can replace them, and offer the same list.
+   - **Once you know which game, and before you build anything**, run
+     `npx gamestage@latest org context` and build the way it says (see "Read
+     your organisation's integration context first" below).
 
 Skip the question only when their first message already answered it ("take my
 quiz in ./quiz to production", or "I want to make a game", which is a new one).
@@ -237,6 +240,7 @@ is stale:** say so in one line, then rerun through `npx gamestage@latest`.
 ## Start a new game: create, dev, deploy, Studio
 
 ```
+gamestage org context          your organisation's integration context: read it first
 gamestage formats              what each format is and what it keeps secret
 gamestage create               asks the format and the name, makes the game's folder
                                and writes a starter practice/round.yaml
@@ -252,6 +256,14 @@ shows a "Practice round, not live" bar. Real rounds are written in Monterosa Stu
 game can change them without a deploy. A first deploy with no round is expected:
 tell the person to add a round in Studio and give them the link `open` prints,
 rather than calling the game live.
+
+**Read your organisation's integration context first.** Run
+`gamestage org context`, or read `integration.md` in the game's folder. If
+there is one, build the way it says: SDK version, sign-in, analytics, consent,
+libraries. Where it and this skill disagree about how the game fits the
+customer's app, the context wins; on what Gamestage requires (the Engine owns
+the answers, consent, `verify`), this skill wins. If there is none, carry on.
+A chat with the connector has no tool for it yet, so skip it there.
 
 **Start from `gamestage create` and from nothing else.** The games on
 gamestage.ai are Monterosa's, not templates: never fetch, read or copy their
