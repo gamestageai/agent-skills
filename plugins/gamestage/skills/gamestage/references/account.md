@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-10-21-2. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-10-21-4. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 
@@ -68,8 +68,10 @@ is wrong.
 
 Before approval an account can register three games and play each practice
 round up to 100 times a day. If `create` or `manifest register` refuses
-because the account already has three games, tell the developer to archive one
-or to wait for approval; do not delete anything to make room.
+because the account already has three games, run `gamestage status --json`:
+its `games` lists the ones registered and `gameLimit` says how many of the three
+are used. Tell the developer which they could archive, or to wait for approval;
+do not delete anything to make room.
 
 **Step 11 is the first one that needs an approved account.** `deploy` is the
 moment the game becomes something a fan can reach, and that is ours to allow.

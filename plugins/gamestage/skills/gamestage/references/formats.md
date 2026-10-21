@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-10-21-2. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-10-21-4. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -10,24 +10,25 @@ an assumption you record in the summary. A format decides how the game is
 played and what the Engine marks, so choosing it for someone is choosing their
 game for them.
 
-There are six, and one question covers all of it. **Show the developer this
+There are nine, and one question covers all of it. **Show the developer this
 list when you ask**, so they choose from what exists rather than describing a
 game and hoping:
 
 | Format | What a fan does |
 | --- | --- |
-| `hunt` | finds hidden things in a board, with a limited number of tries |
-| `push` | goes as far as they dare against a hidden limit, and busts if they pass it |
-| `group` | sorts a set of items into the groups they belong to |
-| `predict` | calls what will happen before the world decides |
-| `bingo` | fills their own board from a shared pool, racing for a line |
-| `shoot` | aims and shoots a penalty; the Engine plays the keeper and decides it |
+| `hunt` | Search: finds hidden things in a board, with a limited number of tries |
+| `push` | Push Your Luck: goes as far as they dare against a hidden limit, and busts if they pass it |
+| `group` | Find the Groups: sorts a set of items into the groups they belong to |
+| `predict` | Predict: calls what will happen before the world decides |
+| `bingo` | Bingo: fills their own board from a shared pool, racing for a line |
+| `shoot` | Kicker: aims and shoots a penalty; the Engine plays the keeper and decides it |
+| `place` | Place the Face: places a dealt card in a category it fits |
+| `mystery` | Mystery: finds a hidden player by asking yes-or-no questions |
+| `arcade` | Arcade: plays in real time in the browser; the server times runs and checks submitted scores |
 
-This table said four until 2026-09-03, missing `bingo`, and was wrong the day
-it was written. The list the tool prints is the one that cannot go stale:
 `gamestage start` in an empty folder shows the current formats, and
-`gamestage create` with no format shows the same menu. Trust those over this
-table when they disagree. `gamestage formats <format>` (or `--json formats`)
+`gamestage create` with no format shows the same menu.
+`gamestage formats <format>` (or `--json formats`)
 says what each one keeps secret and what a producer writes in Studio.
 
 `create` makes a folder named after the game when the current folder holds
@@ -111,8 +112,8 @@ fan pushes for a high total under a hidden ceiling.
 plain sentence, then carry on. They have not read this page and should not have
 to.
 
-- **Engine**: our server. It holds the answers and decides the outcome, so the
-  page in front of a fan cannot be edited into a win.
+- **Engine**: the server that marks play and records accepted scores. For games
+  with a correct answer, the answer and marking sit on the server, not in the page.
 - **Format**: the mechanic a game runs on, chosen from the list above.
 - **Archetype**: the same thing under its key name. `archetype:` in the
   manifest holds the format, and the wider list of values in our published
