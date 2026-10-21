@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-10-20-1. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-10-21-2. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 
@@ -56,14 +56,20 @@ This said "say nothing about accounts until `dev`" until 2026-09-29. Tom
 changed it: a new creator could not tell whether they were bound to an
 account at all, and a line at the start costs nothing if it does not block.
 
-**Steps 8 and 9 need a signed-in account, and run a real Engine on the
-developer's own machine.** `dev` serves their round through the same code
-that will serve it in the cloud, and `verify` marks a play with it. Neither
-makes a network call to the control plane and neither needs the account
-*approved*, only signed in: `gamestage login` registers and signs in in one
-step, so if the developer has never run it, that is the whole ask. If `dev` or
-`verify` refuses with "You are not signed in", that is the entire fix; nothing
-about the migration itself is wrong.
+**Steps 8 and 9 need a signed-in account, and play on the deployed Engine.**
+`dev` puts the practice round on the same Engine a fan will play, under a
+practice name of its own, and serves the page through a small proxy on
+`localhost`; `verify` marks a play with it. Nothing reaches fans, Studio or
+the game's leaderboard. Neither needs the account *approved*, only signed in:
+`gamestage login` registers and signs in in one step, so if the developer has
+never run it, that is the whole ask. If `dev` or `verify` refuses with "You
+are not signed in", that is the entire fix; nothing about the migration itself
+is wrong.
+
+Before approval an account can register three games and play each practice
+round up to 100 times a day. If `create` or `manifest register` refuses
+because the account already has three games, tell the developer to archive one
+or to wait for approval; do not delete anything to make room.
 
 **Step 11 is the first one that needs an approved account.** `deploy` is the
 moment the game becomes something a fan can reach, and that is ours to allow.

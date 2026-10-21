@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-20-1
+version: 2026-10-21-2
 ---
 
 # Gamestage
 
-Pack version 2026-10-20-1.
-Pack digest 003f08f7e5464bb3.
+Pack version 2026-10-21-2.
+Pack digest f9562aa80d6290fa.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -265,9 +265,13 @@ customer's app, the context wins; on what Gamestage requires (the Engine owns
 the answers, consent, `verify`), this skill wins. If there is none, carry on.
 A chat with the connector has no tool for it yet, so skip it there.
 
-**Start from `gamestage create` and from nothing else.** The games on
-gamestage.ai are Monterosa's, not templates: never fetch, read or copy their
-pages, settings or ids, even when the developer likes one. `verify` refuses a copy.
+**If the organisation has starters, start from one** (`gamestage org starter list`,
+then `create --starter <name>`), and say which one you used. If `create` names several, ask which.
+
+**Start from `gamestage create` and from nothing else**, with or without your
+organisation's starter. The games on gamestage.ai are Monterosa's, not templates:
+never fetch, read or copy their pages, settings or ids, even when the developer
+likes one. `verify` refuses a copy.
 
 ## A factual question is answered by the hosted doc, in one hop
 
@@ -790,14 +794,20 @@ This said "say nothing about accounts until `dev`" until 2026-09-29. Tom
 changed it: a new creator could not tell whether they were bound to an
 account at all, and a line at the start costs nothing if it does not block.
 
-**Steps 8 and 9 need a signed-in account, and run a real Engine on the
-developer's own machine.** `dev` serves their round through the same code
-that will serve it in the cloud, and `verify` marks a play with it. Neither
-makes a network call to the control plane and neither needs the account
-*approved*, only signed in: `gamestage login` registers and signs in in one
-step, so if the developer has never run it, that is the whole ask. If `dev` or
-`verify` refuses with "You are not signed in", that is the entire fix; nothing
-about the migration itself is wrong.
+**Steps 8 and 9 need a signed-in account, and play on the deployed Engine.**
+`dev` puts the practice round on the same Engine a fan will play, under a
+practice name of its own, and serves the page through a small proxy on
+`localhost`; `verify` marks a play with it. Nothing reaches fans, Studio or
+the game's leaderboard. Neither needs the account *approved*, only signed in:
+`gamestage login` registers and signs in in one step, so if the developer has
+never run it, that is the whole ask. If `dev` or `verify` refuses with "You
+are not signed in", that is the entire fix; nothing about the migration itself
+is wrong.
+
+Before approval an account can register three games and play each practice
+round up to 100 times a day. If `create` or `manifest register` refuses
+because the account already has three games, tell the developer to archive one
+or to wait for approval; do not delete anything to make room.
 
 **Step 11 is the first one that needs an approved account.** `deploy` is the
 moment the game becomes something a fan can reach, and that is ours to allow.
@@ -1338,11 +1348,13 @@ human what you left and why.
 
 ## Name the four moments worth measuring, and nothing else
 
-Analytics needs no work from you. **Monterosa Analytics is on by default and
-captures a fan's activity without a single line in the game**: clicks, views and
-submissions are trapped from the page itself and translated, so a game that
-never calls anything still reports. Do not add a tracking library, and do not
-ask the human for an analytics account.
+Analytics needs no work from you. **On the Publisher and Enterprise plans,
+Monterosa Analytics captures a fan's activity without a single line in the
+game**: clicks, views and submissions are trapped from the page itself and
+translated, so a game that never calls anything still reports. It is not part
+of Starter: the plan decides, on our server, so there is nothing to switch on
+in the game. Do not add a tracking library, and do not ask the human for an
+analytics account.
 
 What that gives them is activity. What it cannot give them is meaning. A trapped
 click knows a button was pressed and its label; it does not know the fan went

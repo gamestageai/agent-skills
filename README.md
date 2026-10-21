@@ -1,13 +1,40 @@
 # Gamestage
 
-Gamestage stops players cheating a browser game. Anyone can open the developer
-console and read what the page knows, so the answers and the marking move to a
-server instead. Your agent does the moving, and your page keeps its own look and
-its own code.
+Gamestage provides game engines, hosting and tools for browser games. Build with your preferred coding agent, use your own design and content, and connect the game to Gamestage for data, scoring and live operation.
+
+For games with a correct answer, the answer and marking sit on the server,
+not in the page. This is designed to stop a player reading the answer from
+the page or editing their score.
+
+Most arcade games rely on gameplay in the browser. There is no correct answer
+to hold back, so the Arcade Engine applies mitigations that make the game more
+secure: it starts and times runs on its own clock, issues a seed, accepts one
+score per run, refuses reused runs and scores without runs, and checks scores
+against run length and configured limits. Runs per fan per day can be capped,
+limits stay fixed for an edition, and moderators can void runs. A fair-looking
+score inside the limits is accepted. Use checked boards without prizes until
+planned server replay ships. See [Arcade](https://gamestage.ai/docs/game-formats#arcade).
+
+Monterosa makes reasonable efforts to prevent common forms of cheating, gives
+no guarantee, and the [terms](https://gamestage.ai/terms) apply.
 
 This repository holds the instructions your coding agent reads.
 
 ## Install the instructions
+
+In Claude Code, add the marketplace:
+
+```text
+/plugin marketplace add gamestageai/agent-skills
+```
+
+Then install the plugin from your terminal:
+
+```sh
+claude plugin install gamestage@gamestage
+```
+
+Or install the skill for your coding agent:
 
 ```sh
 npx skills add gamestageai/agent-skills
@@ -23,22 +50,25 @@ npx skills add https://gamestage.ai/skill
 Then start:
 
 ```sh
-npx gamestage start
+npx gamestage@latest start
 ```
 
-There is no `gamestage` command on your PATH. Everything runs through `npx`, so
-you get the current version each time.
+Use Node 22.13 or later. Start with `npx gamestage@latest`, then pin a version
+for reproducible builds in CI, for example `npx gamestage@0.52.0 --json manifest validate gamestage.yaml`.
 
 ## Migrate a game
 
 Hand your agent the game you already have. It reads the instructions, looks at
-what you built, and moves the answers and the scoring onto the Gamestage Engine.
+what you built, and connects it to the Engine for its format.
 Your page keeps its own look and its own code.
 
 The command line tool reports what it finds and checks the result, and it never
 edits your source. Your agent makes the changes.
 
 ## Start a new game
+
+Formats: Search, Push Your Luck, Find the Groups, Predict, Bingo, Kicker, Place the Face, Mystery, Arcade.
+Word guess, number guess and phrase solve are Search variants, not separate formats.
 
 ```sh
 npx gamestage create
@@ -67,4 +97,4 @@ Documentation: <https://gamestage.ai/docs>
 
 ---
 
-Pack version 2026-10-20-1.
+Pack version 2026-10-21-2.

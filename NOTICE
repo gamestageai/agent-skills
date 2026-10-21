@@ -1,0 +1,5 @@
+This licence covers this repository: the Gamestage agent instructions
+(SKILL.md) and the plugin. It does not cover the Gamestage service, the
+`gamestage` npm package, the client library served from gamestage.ai/client,
+or any other Monterosa Productions Limited software, all of which remain
+proprietary.

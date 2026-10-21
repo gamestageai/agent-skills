@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-This licence covers this repository: the Gamestage agent instructions
-(SKILL.md) and the plugin. It does not cover the Gamestage service, the
-`gamestage` npm package, the client library served from gamestage.ai/client,
-or any other Monterosa Productions Limited software, all of which remain
-proprietary.

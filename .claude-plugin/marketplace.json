@@ -9,7 +9,7 @@
     {
       "name": "gamestage",
       "source": "./plugins/gamestage",
-      "description": "Take a browser game to production with Gamestage: the answers, scoring and settlement move behind a server the player cannot edit."
+      "description": "Build browser games with Gamestage Engines, hosting and tools for data, scoring and live operation."
     }
   ]
 }
