@@ -1,15 +1,16 @@
 # Consent, measurement and checks
 
-Part of the Gamestage skill, pack version 2026-10-21-4. Read it before the game records anything, before its first deploy, and before you call it finished.
+Part of the Gamestage skill, pack version 2026-10-22-1. Read it before the game records anything, before its first deploy, and before you call it finished.
 
 ## Name the four moments worth measuring, and nothing else
 
 Analytics needs no work from you. **On the Publisher and Enterprise plans,
-Monterosa Analytics captures a fan's activity without a single line in the
-game**: clicks, views and submissions are trapped from the page itself and
-translated, so a game that never calls anything still reports. It is not part
-of Starter: the plan decides, on our server, so there is nothing to switch on
-in the game. Do not add a tracking library, and do not ask the human for an
+once the workspace's Signal switch is on, Monterosa Analytics captures a fan's
+activity without a single line in the game**: clicks, views and submissions are
+trapped from the page itself and translated, so a game that never calls
+anything still reports. The switch is on Stage's Analytics page, and a paid
+plan leaves it off until somebody turns it on. It is not part of Starter. There
+is nothing to switch on in the game. Do not add a tracking library, and do not ask the human for an
 analytics account.
 
 What that gives them is activity. What it cannot give them is meaning. A trapped

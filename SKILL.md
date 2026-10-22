@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-21-4
+version: 2026-10-22-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-21-4.
-Pack digest 9c8cb733693bce12.
+Pack version 2026-10-22-1.
+Pack digest 79bfabf84ab46e77.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1352,11 +1352,12 @@ human what you left and why.
 ## Name the four moments worth measuring, and nothing else
 
 Analytics needs no work from you. **On the Publisher and Enterprise plans,
-Monterosa Analytics captures a fan's activity without a single line in the
-game**: clicks, views and submissions are trapped from the page itself and
-translated, so a game that never calls anything still reports. It is not part
-of Starter: the plan decides, on our server, so there is nothing to switch on
-in the game. Do not add a tracking library, and do not ask the human for an
+once the workspace's Signal switch is on, Monterosa Analytics captures a fan's
+activity without a single line in the game**: clicks, views and submissions are
+trapped from the page itself and translated, so a game that never calls
+anything still reports. The switch is on Stage's Analytics page, and a paid
+plan leaves it off until somebody turns it on. It is not part of Starter. There
+is nothing to switch on in the game. Do not add a tracking library, and do not ask the human for an
 analytics account.
 
 What that gives them is activity. What it cannot give them is meaning. A trapped

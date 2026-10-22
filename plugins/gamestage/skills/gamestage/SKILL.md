@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-21-4
+version: 2026-10-22-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-21-4.
-Pack digest 9c8cb733693bce12.
+Pack version 2026-10-22-1.
+Pack digest 79bfabf84ab46e77.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
