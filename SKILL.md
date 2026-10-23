@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-23-1
+version: 2026-10-23-3
 ---
 
 # Gamestage
 
-Pack version 2026-10-23-1.
-Pack digest 56a4b2d041b876f2.
+Pack version 2026-10-23-3.
+Pack digest 8b62106592bda616.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1001,7 +1001,10 @@ You do not build this; call `gamestageReady()` correctly and it appears. Pass
 error state and a retry button). Wait for `window.gamestageStart` or the
 `gamestage:start` event before opening anything that asks the fan something,
 such as How to play: the tap on Play is what unlocks sound and starts the
-game. Its colours and words are the game's Brand and Wording settings in
+game. **A `layout: card` game has no intro and no Play**: it shows a small
+progress bar, starts as soon as `gamestageReady()` is called (so
+`gamestageStart` resolves without a tap), and unlocks sound on the fan's first
+touch inside the box. Its colours and words are the game's Brand and Wording settings in
 Studio (`title_font`, `logo_text`, `splash_gradient_start` and the rest); see
 `docs/layout-and-loading` for the full list.
 
@@ -1360,7 +1363,7 @@ Analytics needs no work from you. **On the Publisher and Enterprise plans,
 once the workspace's Signal switch is on, Monterosa Analytics captures a fan's
 activity without a single line in the game**: clicks, views and submissions are
 trapped from the page itself and translated, so a game that never calls
-anything still reports. The switch is on Stage's Analytics page, and a paid
+anything still reports. The switch is on Stage's Analytics page, or `gamestage workspace signal on`, and a paid
 plan leaves it off until somebody turns it on. It is not part of Starter. There
 is nothing to switch on in the game. Do not add a tracking library, and do not ask the human for an
 analytics account.

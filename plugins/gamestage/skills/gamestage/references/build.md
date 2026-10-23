@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-10-23-1. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-10-23-3. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 
@@ -82,7 +82,10 @@ You do not build this; call `gamestageReady()` correctly and it appears. Pass
 error state and a retry button). Wait for `window.gamestageStart` or the
 `gamestage:start` event before opening anything that asks the fan something,
 such as How to play: the tap on Play is what unlocks sound and starts the
-game. Its colours and words are the game's Brand and Wording settings in
+game. **A `layout: card` game has no intro and no Play**: it shows a small
+progress bar, starts as soon as `gamestageReady()` is called (so
+`gamestageStart` resolves without a tap), and unlocks sound on the fan's first
+touch inside the box. Its colours and words are the game's Brand and Wording settings in
 Studio (`title_font`, `logo_text`, `splash_gradient_start` and the rest); see
 `docs/layout-and-loading` for the full list.
 
