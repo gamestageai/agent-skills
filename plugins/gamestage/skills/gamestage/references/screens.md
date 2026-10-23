@@ -1,6 +1,6 @@
 # Big screens
 
-Part of the Gamestage skill, pack version 2026-10-22-1. Read it when the leaderboard or a graphic goes on a screen a crowd can see.
+Part of the Gamestage skill, pack version 2026-10-23-1. Read it when the leaderboard or a graphic goes on a screen a crowd can see.
 
 ## Put the leaderboard on a screen a crowd can see
 

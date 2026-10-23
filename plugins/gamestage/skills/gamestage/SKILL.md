@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-22-1
+version: 2026-10-23-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-22-1.
-Pack digest 79bfabf84ab46e77.
+Pack version 2026-10-23-1.
+Pack digest 56a4b2d041b876f2.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -193,7 +193,7 @@ the answers, consent, `verify`), this skill wins. If there is none, carry on.
 A chat with the connector has no tool for it yet, so skip it there.
 
 **If the organisation has starters, start from one** (`gamestage org starter list`,
-then `create --starter <name>`), and say which one you used. If `create` names several, ask which.
+then `create --starter <name>`), and say which one you used. If `create` names several, ask which. Pick a format the list says it plays: `create` refuses any other.
 
 **Start from `gamestage create` and from nothing else**, with or without your
 organisation's starter. The games on gamestage.ai are Monterosa's, not templates:
