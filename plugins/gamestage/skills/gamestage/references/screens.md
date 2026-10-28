@@ -1,6 +1,6 @@
 # Big screens
 
-Part of the Gamestage skill, pack version 2026-10-23-3. Read it when the leaderboard or a graphic goes on a screen a crowd can see.
+Part of the Gamestage skill, pack version 2026-10-28-1. Read it when the leaderboard or a graphic goes on a screen a crowd can see.
 
 ## Put the leaderboard on a screen a crowd can see
 
@@ -54,8 +54,10 @@ the published address of the stylesheet. See
 
 Live data puts a real contest into a game as it happens, in any sport: the
 score, the clock, each side's numbers and every moment, seconds after it
-happens. Offer it when the game is about a contest that is being played: a
-prediction that settles itself, a scoreboard, a momentum chart. Say contest,
+happens. It is one way: offer it only to show a contest that is being played,
+such as a scoreboard, a momentum chart, a stadium screen or a TV graphic.
+Never offer it to score plays or settle predictions; nothing a fan's result
+depends on comes from live data. Say contest,
 moment and side; never match or goal in anything the developer's fans read,
 because the same game may follow a race.
 
@@ -73,6 +75,9 @@ on, and `contest.onStatus(badge)` for the connection. Draw a moment that
 arrived as part of the contest so far in the score; never celebrate it.
 
 `gamestage dev --serve` plays a made-up contest, so build and test it locally
-with no key. Live data is open to Monterosa workspaces today, and a deploy from
+with no key. To rehearse the deployed game, `gamestage live simulate` starts a
+made-up contest on the deployed feed and prints an id: tell the developer to put
+it in the edition's **Live contest** in Studio. `live list`, `live pause <id>`,
+`live play <id>` and `live stop <id>` control it. Live data is open to Monterosa workspaces today, and a deploy from
 any other is refused with `live_not_enabled`: say so plainly and offer the game
 without it. See `https://gamestage.ai/docs/live-data.md`.

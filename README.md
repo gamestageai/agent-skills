@@ -67,8 +67,8 @@ edits your source. Your agent makes the changes.
 
 ## Start a new game
 
-Formats: Search, Push Your Luck, Find the Groups, Predict, Bingo, Kicker, Place the Face, Mystery, Arcade.
-Word guess, number guess and phrase solve are Search variants, not separate formats.
+Formats: Solve, Push Your Luck, Find the Groups, Predict, Bingo, Kicker, Place the Face, Mystery, Arcade.
+Word guess, number guess and phrase solve are Solve variants, not separate formats.
 
 ```sh
 npx gamestage create
@@ -97,4 +97,4 @@ Documentation: <https://gamestage.ai/docs>
 
 ---
 
-Pack version 2026-10-23-3.
+Pack version 2026-10-28-1.

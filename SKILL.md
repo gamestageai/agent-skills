@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-23-3
+version: 2026-10-28-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-23-3.
-Pack digest 8b62106592bda616.
+Pack version 2026-10-28-1.
+Pack digest 13ed2f72fef8a0cd.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -352,7 +352,7 @@ game and hoping:
 
 | Format | What a fan does |
 | --- | --- |
-| `hunt` | Search: finds hidden things in a board, with a limited number of tries |
+| `hunt` | Solve: finds hidden things in a board, with a limited number of tries |
 | `push` | Push Your Luck: goes as far as they dare against a hidden limit, and busts if they pass it |
 | `group` | Find the Groups: sorts a set of items into the groups they belong to |
 | `predict` | Predict: calls what will happen before the world decides |
@@ -1588,8 +1588,10 @@ the published address of the stylesheet. See
 
 Live data puts a real contest into a game as it happens, in any sport: the
 score, the clock, each side's numbers and every moment, seconds after it
-happens. Offer it when the game is about a contest that is being played: a
-prediction that settles itself, a scoreboard, a momentum chart. Say contest,
+happens. It is one way: offer it only to show a contest that is being played,
+such as a scoreboard, a momentum chart, a stadium screen or a TV graphic.
+Never offer it to score plays or settle predictions; nothing a fan's result
+depends on comes from live data. Say contest,
 moment and side; never match or goal in anything the developer's fans read,
 because the same game may follow a race.
 
@@ -1607,7 +1609,10 @@ on, and `contest.onStatus(badge)` for the connection. Draw a moment that
 arrived as part of the contest so far in the score; never celebrate it.
 
 `gamestage dev --serve` plays a made-up contest, so build and test it locally
-with no key. Live data is open to Monterosa workspaces today, and a deploy from
+with no key. To rehearse the deployed game, `gamestage live simulate` starts a
+made-up contest on the deployed feed and prints an id: tell the developer to put
+it in the edition's **Live contest** in Studio. `live list`, `live pause <id>`,
+`live play <id>` and `live stop <id>` control it. Live data is open to Monterosa workspaces today, and a deploy from
 any other is refused with `live_not_enabled`: say so plainly and offer the game
 without it. See `https://gamestage.ai/docs/live-data.md`.
 

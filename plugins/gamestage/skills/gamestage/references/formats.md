@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-10-23-3. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-10-28-1. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -16,7 +16,7 @@ game and hoping:
 
 | Format | What a fan does |
 | --- | --- |
-| `hunt` | Search: finds hidden things in a board, with a limited number of tries |
+| `hunt` | Solve: finds hidden things in a board, with a limited number of tries |
 | `push` | Push Your Luck: goes as far as they dare against a hidden limit, and busts if they pass it |
 | `group` | Find the Groups: sorts a set of items into the groups they belong to |
 | `predict` | Predict: calls what will happen before the world decides |
