@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-10-28-1. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-10-29-1. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -10,7 +10,7 @@ an assumption you record in the summary. A format decides how the game is
 played and what the Engine marks, so choosing it for someone is choosing their
 game for them.
 
-There are nine, and one question covers all of it. **Show the developer this
+There are ten, and one question covers all of it. **Show the developer this
 list when you ask**, so they choose from what exists rather than describing a
 game and hoping:
 
@@ -25,6 +25,7 @@ game and hoping:
 | `place` | Place the Face: places a dealt card in a category it fits |
 | `mystery` | Mystery: finds a hidden player by asking yes-or-no questions |
 | `arcade` | Arcade: plays in real time in the browser; the server times runs and checks submitted scores |
+| `quiz` | Quiz: answers a set of questions and gets one score for the set; the server holds each right answer and marks every answer |
 
 `gamestage start` in an empty folder shows the current formats, and
 `gamestage create` with no format shows the same menu.

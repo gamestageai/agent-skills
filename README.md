@@ -67,7 +67,7 @@ edits your source. Your agent makes the changes.
 
 ## Start a new game
 
-Formats: Solve, Push Your Luck, Find the Groups, Predict, Bingo, Kicker, Place the Face, Mystery, Arcade.
+Formats: Solve, Push Your Luck, Find the Groups, Predict, Bingo, Kicker, Place the Face, Mystery, Arcade, Quiz.
 Word guess, number guess and phrase solve are Solve variants, not separate formats.
 
 ```sh
@@ -97,4 +97,4 @@ Documentation: <https://gamestage.ai/docs>
 
 ---
 
-Pack version 2026-10-28-1.
+Pack version 2026-10-29-1.

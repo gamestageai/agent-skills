@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-28-1
+version: 2026-10-29-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-28-1.
-Pack digest 13ed2f72fef8a0cd.
+Pack version 2026-10-29-1.
+Pack digest 6b9c961d1e70df78.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -346,7 +346,7 @@ an assumption you record in the summary. A format decides how the game is
 played and what the Engine marks, so choosing it for someone is choosing their
 game for them.
 
-There are nine, and one question covers all of it. **Show the developer this
+There are ten, and one question covers all of it. **Show the developer this
 list when you ask**, so they choose from what exists rather than describing a
 game and hoping:
 
@@ -361,6 +361,7 @@ game and hoping:
 | `place` | Place the Face: places a dealt card in a category it fits |
 | `mystery` | Mystery: finds a hidden player by asking yes-or-no questions |
 | `arcade` | Arcade: plays in real time in the browser; the server times runs and checks submitted scores |
+| `quiz` | Quiz: answers a set of questions and gets one score for the set; the server holds each right answer and marks every answer |
 
 `gamestage start` in an empty folder shows the current formats, and
 `gamestage create` with no format shows the same menu.
