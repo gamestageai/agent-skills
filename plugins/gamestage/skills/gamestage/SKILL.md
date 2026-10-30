@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-30-1
+version: 2026-10-30-3
 ---
 
 # Gamestage
 
-Pack version 2026-10-30-1.
-Pack digest 9113639bd476b0e2.
+Pack version 2026-10-30-3.
+Pack digest 8af906b1c0d7a277.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -47,7 +47,7 @@ Each step, in a shell and in a chat:
 | See who they are and their games | `start --json` | `list_games`, then `get_game` |
 | Read a game they already have | `inspect <path>` | read the files they attach to the chat |
 | Choose a format | `formats` | `show_formats`, then wait for their pick |
-| See the data | `sources` | `list_datasets` |
+| See the data | `sources`, then `reference list` | `list_datasets` |
 | Start a game | `create` | write the files, then `create_game` with the gamestage.yaml |
 | Play it before it is live | `dev --serve` | `preview_game`, which shows the game playing in a screen in the chat |
 | Put it online | `deploy <game> --dir .` | `deploy_game`, the files as arguments: about 3 MB a call, 20 MB and 300 files in all |
@@ -264,7 +264,7 @@ report a different port's address as the thing to look at, and never write "see
 it here" against a URL you have not just proved answers. An address that returns
 JSON to somebody expecting a game is worse than saying the server did not start.
 
-## Four rules the output cannot teach you
+## Rules the output cannot teach you
 
 **Answers never reach the client.** Not in the HTML, not in a bundle, not in a
 JSON file next to the game. If a player can download it, treat it as public.
@@ -328,6 +328,12 @@ at `2` rather than at "done".
 **Do not weaken a refusal to get past it.** Starter refusing a second live
 game, an invalid manifest, a rejected play: these are the product working. Read
 the reason, which is written to be acted on, and change the cause.
+
+**A dataset key the data does not hold refuses the whole round, and the page
+never computes a score.** Write entry keys from what `gamestage reference
+inspect` or `reference check` printed, never from memory, and check them before
+the round goes to Studio. The page shows the total the Engine returns: adding up
+the values itself would need every value, and every value is the answer.
 
 ## Read these when the task needs them
 

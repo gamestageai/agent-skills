@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-30-1
+version: 2026-10-30-3
 ---
 
 # Gamestage
 
-Pack version 2026-10-30-1.
-Pack digest 9113639bd476b0e2.
+Pack version 2026-10-30-3.
+Pack digest 8af906b1c0d7a277.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -47,7 +47,7 @@ Each step, in a shell and in a chat:
 | See who they are and their games | `start --json` | `list_games`, then `get_game` |
 | Read a game they already have | `inspect <path>` | read the files they attach to the chat |
 | Choose a format | `formats` | `show_formats`, then wait for their pick |
-| See the data | `sources` | `list_datasets` |
+| See the data | `sources`, then `reference list` | `list_datasets` |
 | Start a game | `create` | write the files, then `create_game` with the gamestage.yaml |
 | Play it before it is live | `dev --serve` | `preview_game`, which shows the game playing in a screen in the chat |
 | Put it online | `deploy <game> --dir .` | `deploy_game`, the files as arguments: about 3 MB a call, 20 MB and 300 files in all |
@@ -700,6 +700,24 @@ Recommend in this order, and say why:
 3. **Their own data**, pushed with `gamestage reference push`. Always
    available, and the right answer when they hold the figures already.
 
+**Shape their own data with the CLI, not by hand.** When they have a file, a
+spreadsheet export or an API address, run `gamestage reference inspect <file or
+url>` first. It names the lists inside, the field to use as the key, the one
+holding a name, and the fields holding numbers. Then `gamestage reference build
+<file or url> --key <field> --measure <field> --label <field> --out
+dataset.json`, `gamestage reference check dataset.json <keys>` with the keys
+the round will use, and `gamestage reference push <name> dataset.json`. Write a
+round's entry keys from what `inspect` printed, never from memory of a player's
+name: a key the dataset does not hold refuses the whole round. A key for their
+API goes in `--header`, typed by them in their own terminal, never pasted into a
+chat.
+
+`gamestage reference list` shows what the workspace already holds and which
+games read it, and `reference status <name>` shows one dataset's history.
+`reference download <name>` gives back a file they uploaded. Run `reference
+delete` only when they ask you to remove a named dataset, and let them confirm
+it.
+
 **Say the licence position plainly**, in the words the list uses. A source
 they license is their terms, not ours.
 
@@ -766,25 +784,43 @@ end, and both are a sentence to the developer rather than a stop.
 
 ```
 human   1  install the tool and this pack  npx skills add, or the installer
-human   2  register, if they have not        gamestage login      may come later
-─────────── from here the work is yours ───────────────────────────────
-agent   3  orient                          gamestage start      no account
-agent   4  inspect the prototype           gamestage inspect .  no account
-agent   5  decide what must move           your reasoning       no account
-agent   6  write the round                 edit gamestage.yaml  no account
-agent   7  rewrite the page                edit the html and js no account
-agent   8  run it                          gamestage dev        signed in
-agent   9  prove it                        gamestage verify     signed in
+human   2  register, if they have not      gamestage login                   may come later
+─────────── from here the work is yours ───────────────────────────────────────────
+agent   3  orient                          gamestage start                   no account
+agent   4  inspect the prototype           gamestage inspect .               no account
+agent   5  decide what must move           your reasoning                    no account
+               if the game is scored against numbers a fan must not see:
+agent  5a  see what their data holds       gamestage reference inspect       no account
+agent  5b  build the dataset from it       gamestage reference build         no account
+agent  5c  prove the round's keys exist    gamestage reference check         no account
+human  5d  connect a licensed source       gamestage sources connect         approved account, their key
+agent  5e  upload their own data           gamestage reference push          approved account
+agent   6  write the round                 practice/round.yaml               no account
+agent   7  rewrite the page                edit the html and js              no account
+agent   8  run it                          gamestage dev                     signed in
+agent   9  prove it                        gamestage verify                  signed in
 agent  10  repair on failure               your reasoning
-agent  11  publish                         gamestage deploy     approved account
+agent  11  publish                         gamestage deploy                  approved account
 agent  12  confirm a fan can play          a real browser
 human  13  operate the live game           Monterosa Studio
 ```
 
-**Steps 3 to 7 need no account, so get on with them.** Do not stop partway
-through a migration to ask whether the developer has signed in for these.
+**Steps 3 to 7 need no account, apart from 5d and 5e, so get on with
+them.** Do not stop partway through a migration to ask whether the developer
+has signed in for these.
 Orient, inspect, work out what must move, write the round and rewrite the
 page. That is most of the work and none of it touches our backend.
+
+**Steps 5a to 5e are for a game scored against hidden numbers**: prices,
+career totals, wages, anything the fan picks between without seeing. Most of a
+dataset's work needs no account either. `inspect`, `build` and `check` run on
+this machine, so build the dataset and write the round's entry keys from it
+before anybody is approved. Only 5d and 5e reach our backend: 5d is the
+developer's, because it takes their supplier key, and 5e can wait until step
+11 if the account is not approved yet. When the developer has no data of
+their own, run `gamestage sources` before 5a: "Ask what data the game needs"
+above says which source to offer. `sources` needs an approved account too, so
+before approval say so, and build from their own file in the meantime.
 
 **You already know whether they are registered, so do not ask.** `start`
 reports it, in `account` and `first_reply`, read from this machine's token file
@@ -865,7 +901,7 @@ Four things you must not do, in the order you are most likely to be tempted:
    and which are blocked. "Blocked at step 11, waiting on approval" is a good
    outcome. A green summary over a blocked run is not.
 
-## Four rules the output cannot teach you
+## Rules the output cannot teach you
 
 **Answers never reach the client.** Not in the HTML, not in a bundle, not in a
 JSON file next to the game. If a player can download it, treat it as public.
@@ -929,6 +965,12 @@ at `2` rather than at "done".
 **Do not weaken a refusal to get past it.** Starter refusing a second live
 game, an invalid manifest, a rejected play: these are the product working. Read
 the reason, which is written to be acted on, and change the cause.
+
+**A dataset key the data does not hold refuses the whole round, and the page
+never computes a score.** Write entry keys from what `gamestage reference
+inspect` or `reference check` printed, never from memory, and check them before
+the round goes to Studio. The page shows the total the Engine returns: adding up
+the values itself would need every value, and every value is the answer.
 
 ## Ask where the game runs, and make it load smoothly and fast
 

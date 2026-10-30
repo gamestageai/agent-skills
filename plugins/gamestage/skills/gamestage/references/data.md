@@ -1,6 +1,6 @@
 # Data and sources
 
-Part of the Gamestage skill, pack version 2026-10-30-1. Read it when the person says yes to seeing the data, or the game scores against figures.
+Part of the Gamestage skill, pack version 2026-10-30-3. Read it when the person says yes to seeing the data, or the game scores against figures.
 
 ## Ask what data the game needs, and offer the sources that exist
 
@@ -20,6 +20,24 @@ Recommend in this order, and say why:
    developer signs up themselves; you do not.
 3. **Their own data**, pushed with `gamestage reference push`. Always
    available, and the right answer when they hold the figures already.
+
+**Shape their own data with the CLI, not by hand.** When they have a file, a
+spreadsheet export or an API address, run `gamestage reference inspect <file or
+url>` first. It names the lists inside, the field to use as the key, the one
+holding a name, and the fields holding numbers. Then `gamestage reference build
+<file or url> --key <field> --measure <field> --label <field> --out
+dataset.json`, `gamestage reference check dataset.json <keys>` with the keys
+the round will use, and `gamestage reference push <name> dataset.json`. Write a
+round's entry keys from what `inspect` printed, never from memory of a player's
+name: a key the dataset does not hold refuses the whole round. A key for their
+API goes in `--header`, typed by them in their own terminal, never pasted into a
+chat.
+
+`gamestage reference list` shows what the workspace already holds and which
+games read it, and `reference status <name>` shows one dataset's history.
+`reference download <name>` gives back a file they uploaded. Run `reference
+delete` only when they ask you to remove a named dataset, and let them confirm
+it.
 
 **Say the licence position plainly**, in the words the list uses. A source
 they license is their terms, not ours.
