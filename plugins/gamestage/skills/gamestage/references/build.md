@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-10-29-1. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-10-29-2. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 
@@ -129,8 +129,13 @@ company the player's IP address with no way to ask first, and a German court
 has fined a site for exactly that. Download the `.woff2` files into the game
 (Google Fonts are under the SIL Open Font License, which allows it), write
 `@font-face` rules that point at them, and remove the remote link. A Google
-font is also available ready-made at `https://gamestage.ai/fonts/<family>.css`,
-for example `https://gamestage.ai/fonts/bebas-neue.css`. `verify` fails a page
+font from this list is also available ready-made at
+`https://gamestage.ai/fonts/<family>.css`, for example
+`https://gamestage.ai/fonts/bebas-neue.css`: abril-fatface, anton,
+archivo-black, archivo-narrow, barlow-condensed, bebas-neue, bungee,
+chakra-petch, dm-sans, dm-serif-display, figtree, fraunces, oswald,
+playfair-display, russo-one, space-grotesk, teko and unbounded. Any other
+family answers 404, so download its `.woff2` files into the game. `verify` fails a page
 that loads a font from a third party (`fonts-self-hosted`), and `deploy`
 refuses it.
 
@@ -254,6 +259,11 @@ one, and is refused for the same reason.
   page re-reads it rather than starting the fan again.
 
 ## Wire the producer's settings while you wire the client
+
+**You do not need a copy of the client to deploy.** A page imports
+`./gamestage.js`, and every deploy, by the CLI or `deploy_game`, points that
+import at the hosted Gamestage client pinned for the game. A deployed game's
+own address answers 403 for `gamestage.js`, so do not fetch it from there.
 
 **No copy is ever hard coded, and that includes labels.** This is a hard rule
 and nothing launches without it. Not the round's words, not a button's label,

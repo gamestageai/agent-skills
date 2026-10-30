@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-29-1
+version: 2026-10-29-2
 ---
 
 # Gamestage
 
-Pack version 2026-10-29-1.
-Pack digest 6b9c961d1e70df78.
+Pack version 2026-10-29-2.
+Pack digest 4d0c5c49982d9bd8.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -35,7 +35,9 @@ not edit the creator's source. The judgement and the code changes are yours.
 
 The connector is attached when `list_games` and `show_formats` are among your
 tools. If you have both a shell and the connector, as in Claude Code with the
-plugin, do the work with the CLI and let the connector draw the screens.
+plugin, work with the CLI and let the connector draw the screens; in a cloud
+sandbox whose CLI is not signed in, deploy with `deploy_game`. **Never ask the
+person how the files should reach Gamestage.**
 
 Each step, in a shell and in a chat:
 
@@ -56,19 +58,17 @@ Each step, in a shell and in a chat:
 | Answer a factual question | fetch the hosted doc | `search_documentation`, `read_documentation` |
 
 `verify` has no chat route: `deploy_game` runs the server-side checks only. To
-let them play first, call `preview_game` with the files and the practice round.
-It publishes nothing and you get one sentence back, not the page, so copy nothing
-into an artifact. **Then stop and ask them to play it and say when to ship**, even
-if they asked to "play it, then ship it": deploy that turn only if they said to
-ship without looking. Call it again after each change.
+let them play first, call `preview_game` with the files and practice round; it
+publishes nothing. **Then stop and ask them to play it and say when to ship**,
+unless they said to ship without looking; call it again after each change. **If
+Gamestage cannot preview or deploy it, stop and relay the tool's question; never
+stand in for the Engine** with a mock Player API or a copy in an artifact.
 
-**A game bigger than about 3 MB goes up in parts**, because one call is capped
-at 4.5 MB and base64 adds a third. Send the pictures, sounds, video and fonts
-first with `stage: true`, under 3 MB a part and one part after another, each
-with the `staging` id the last one returned. Then send index.html, the scripts,
-styles, gamestage.yaml and gamestage.settings.json with the last `staging` id
-and no `stage`: that call checks every file and publishes them as one deploy.
-Nothing is live until it does, and a staging id lasts an hour.
+**A game bigger than about 3 MB goes up in parts** (4.5 MB a call). Send
+pictures, sounds, video and fonts first with `stage: true`, under 3 MB a part,
+each with the `staging` id the last returned. Then send the pages, scripts,
+styles, gamestage.yaml and gamestage.settings.json with that id and no `stage`,
+which checks and publishes them as one deploy. A staging id lasts an hour.
 
 An account Monterosa has not approved cannot deploy by either route:
 `deploy_game` refuses it, so tell them they have to apply for access and wait,

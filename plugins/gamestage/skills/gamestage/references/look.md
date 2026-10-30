@@ -1,6 +1,6 @@
 # Look and assets
 
-Part of the Gamestage skill, pack version 2026-10-29-1. Read it before you build or restyle the interface, or draw any asset.
+Part of the Gamestage skill, pack version 2026-10-29-2. Read it before you build or restyle the interface, or draw any asset.
 
 ## Ask how the game should look, when you are building its interface
 
@@ -30,7 +30,15 @@ screens around it can use shadcn/ui. Mixing is fine and is the sound default
 for anything larger than one screen. Gamestage UI is React and installs as
 source into the project, so a plain HTML game that wants it becomes a small
 React app; say so before choosing it for one. The gallery is
-https://ui.gamestage.ai/.
+https://ui.gamestage.ai/. Install components with `npx gamestage-ui add`,
+which reads the registry at
+https://raw.githubusercontent.com/gamestageai/gamestage-ui-registry/main/r/;
+the gallery serves no registry files, so `ui.gamestage.ai/r/...` answers 404.
+
+**Keep the interface library they asked for.** If they asked for Gamestage
+UI and it gets in your way, say what is in the way and ask; never rewrite the
+game in another library and tell them afterwards. A Gamestage UI build is not
+too large to deploy: `deploy_game` takes it in parts.
 
 **A canvas game is two layers, and they want different tools.** Draw the play
 in Phaser, PixiJS or Three.js, and build everything around it (intro, How to
