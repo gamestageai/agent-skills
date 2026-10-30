@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-29-2
+version: 2026-10-30-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-29-2.
-Pack digest 4d0c5c49982d9bd8.
+Pack version 2026-10-30-1.
+Pack digest 9113639bd476b0e2.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -337,7 +337,7 @@ one of these.
 
 | File | Read it | Sections |
 | --- | --- | --- |
-| `references/formats.md` | before you suggest a format, build a new game, or add rounds and reasons to come back | Ask what the game is before you build one; A game may hold more than one round, and a fan can be sent to the next; Design a game fans come back to |
+| `references/formats.md` | before you suggest a format, build a new game, or add rounds and reasons to come back | Ask what the game is before you build one; A game may hold more than one round, and a fan can be sent to the next; Ask how the game runs over time: always on, editions or live; Design a game fans come back to |
 | `references/data.md` | when the person says yes to seeing the data, or the game scores against figures | Ask what data the game needs, and offer the sources that exist |
 | `references/look.md` | before you build or restyle the interface, or draw any asset | Ask how the game should look, when you are building its interface; Make every play feel like something happened; Before you draw an asset, check the third-party registry |
 | `references/build.md` | while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings | Ask where the game runs, and make it load smoothly and fast; Give anonymous players a way back to their progress; Build the loading state and the reconnection handling; Wire the producer's settings while you wire the client |

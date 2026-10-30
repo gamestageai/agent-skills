@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-29-2
+version: 2026-10-30-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-29-2.
-Pack digest 4d0c5c49982d9bd8.
+Pack version 2026-10-30-1.
+Pack digest 9113639bd476b0e2.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1333,6 +1333,21 @@ plays. You do not order the pool yourself.
 `rounds/mine` says which this player has played and which they finished. Most
 games need neither: `rounds/next` is the whole feature for a Play Another
 button.
+
+## Ask how the game runs over time: always on, editions or live
+
+Ask this once the format is chosen, because it decides how many editions a
+producer makes in Studio and which board a fan lands on. Offer three answers:
+
+| Type | What a fan meets |
+| --- | --- |
+| Always on | One game that never goes dark, with one board for its whole life |
+| Edition | A new edition each day, week or fixture; the page plays the current one, with a board per edition |
+| Live | Questions pushed one at a time during a show or a match, each closing after a few seconds |
+
+Not every type works for every format yet. Read the format's section of the
+game formats doc for what works today, and tell the person plainly when the
+type they pick does not: for a quiz today, only Edition works.
 
 ## Design a game fans come back to
 

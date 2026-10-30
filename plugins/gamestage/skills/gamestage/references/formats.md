@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-10-29-2. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-10-30-1. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -157,6 +157,21 @@ plays. You do not order the pool yourself.
 `rounds/mine` says which this player has played and which they finished. Most
 games need neither: `rounds/next` is the whole feature for a Play Another
 button.
+
+## Ask how the game runs over time: always on, editions or live
+
+Ask this once the format is chosen, because it decides how many editions a
+producer makes in Studio and which board a fan lands on. Offer three answers:
+
+| Type | What a fan meets |
+| --- | --- |
+| Always on | One game that never goes dark, with one board for its whole life |
+| Edition | A new edition each day, week or fixture; the page plays the current one, with a board per edition |
+| Live | Questions pushed one at a time during a show or a match, each closing after a few seconds |
+
+Not every type works for every format yet. Read the format's section of the
+game formats doc for what works today, and tell the person plainly when the
+type they pick does not: for a quiz today, only Edition works.
 
 ## Design a game fans come back to
 
