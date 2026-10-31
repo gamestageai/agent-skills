@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-10-30-3. Read it while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-10-31-1. Read it while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 
@@ -257,6 +257,51 @@ one, and is refused for the same reason.
   disconnected deployed game is a fault rather than a mode.
 - **Never lose their progress on a reconnect.** The Engine holds the play; the
   page re-reads it rather than starting the fan again.
+
+## Load the client in a React or Vite app
+
+**Load the client outside the bundle**, so the deploy can point it at the
+hosted client pinned for the game. Bundled, it is a hashed copy of whatever
+version was on the laptop, and the deploy cannot move it.
+
+```
+gamestage client --out public        # public/gamestage.js, copied into dist by the build
+```
+
+```html
+<!-- index.html, in <head>: a plain script, which Vite leaves alone -->
+<script>
+  window.gamestageClient = import(new URL("gamestage.js", document.baseURI).href);
+</script>
+```
+
+```jsx
+// src/useGamestage.js
+import { useEffect, useState } from "react"
+
+let started
+const startOnce = () => (started ??= window.gamestageClient.then((client) => client.start()))
+
+export function useGamestage() {
+  const [state, setState] = useState({ game: null, error: null })
+  useEffect(() => {
+    let live = true
+    startOnce().then(
+      (game) => live && setState({ game, error: null }),
+      (error) => live && setState({ game: null, error }),
+    )
+    return () => { live = false }
+  }, [])
+  return state
+}
+```
+
+Set `base: "./"` in `vite.config.js`, because a deployed game is served under
+`/games/<game id>/`. Never `import ... from "./gamestage.js"` in a bundled
+file, and never name the promise `gamestageReady`, which the client uses. An
+error with `handled: true` means the client is already showing its own screen:
+render nothing of yours for it. The quiz calls and the rest:
+`https://gamestage.ai/docs/migration.md`, "Port a React or Vite app".
 
 ## Wire the producer's settings while you wire the client
 

@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-30-3
+version: 2026-10-31-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-30-3.
-Pack digest 8af906b1c0d7a277.
+Pack version 2026-10-31-1.
+Pack digest d9839981deddd7d0.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -337,6 +337,24 @@ gamestage dev            plays practice/round.yaml through the real Engine
 gamestage verify         proves the Engine decided the outcome, not the page
 gamestage deploy         publishes through Backstage, where one is available
 ```
+
+## Port a game: keep its framework, its look and its files
+
+**A game that already works stays the person's app.** Keep its framework,
+styling library, components and build: a React and Tailwind quiz stays React
+and Tailwind. Delete the answers, call the client from the app's own code, and
+render what the Engine returns. **A starter is a reference, never the page**:
+make one in a scratch folder outside theirs, read it for the calls, and never
+replace their app with it or move their game into a backup folder.
+
+**Before the first edit, say what stays and what changes** as one plan: the
+framework and styling library by name, the files you will edit, and the folder
+you will deploy. **Answers leave the source, not only the page**: a build ships
+whatever `src/` holds. A quiz's questions and answers go into Studio after the
+first deploy, read back with `game.quiz.questions(quizId)` and marked by
+`game.quiz.answer(quizId, picks)`. **An app with a build step deploys its
+build**: `npm run build`, then `verify --dir dist` and `deploy <game> --dir
+dist`. Loading the client in React or Vite: the build reference.
 
 ## Ask what the game is before you build one
 
@@ -1227,6 +1245,51 @@ one, and is refused for the same reason.
   disconnected deployed game is a fault rather than a mode.
 - **Never lose their progress on a reconnect.** The Engine holds the play; the
   page re-reads it rather than starting the fan again.
+
+## Load the client in a React or Vite app
+
+**Load the client outside the bundle**, so the deploy can point it at the
+hosted client pinned for the game. Bundled, it is a hashed copy of whatever
+version was on the laptop, and the deploy cannot move it.
+
+```
+gamestage client --out public        # public/gamestage.js, copied into dist by the build
+```
+
+```html
+<!-- index.html, in <head>: a plain script, which Vite leaves alone -->
+<script>
+  window.gamestageClient = import(new URL("gamestage.js", document.baseURI).href);
+</script>
+```
+
+```jsx
+// src/useGamestage.js
+import { useEffect, useState } from "react"
+
+let started
+const startOnce = () => (started ??= window.gamestageClient.then((client) => client.start()))
+
+export function useGamestage() {
+  const [state, setState] = useState({ game: null, error: null })
+  useEffect(() => {
+    let live = true
+    startOnce().then(
+      (game) => live && setState({ game, error: null }),
+      (error) => live && setState({ game: null, error }),
+    )
+    return () => { live = false }
+  }, [])
+  return state
+}
+```
+
+Set `base: "./"` in `vite.config.js`, because a deployed game is served under
+`/games/<game id>/`. Never `import ... from "./gamestage.js"` in a bundled
+file, and never name the promise `gamestageReady`, which the client uses. An
+error with `handled: true` means the client is already showing its own screen:
+render nothing of yours for it. The quiz calls and the rest:
+`https://gamestage.ai/docs/migration.md`, "Port a React or Vite app".
 
 ## Wire the producer's settings while you wire the client
 

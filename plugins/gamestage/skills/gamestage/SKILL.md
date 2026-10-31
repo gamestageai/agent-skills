@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-30-3
+version: 2026-10-31-1
 ---
 
 # Gamestage
 
-Pack version 2026-10-30-3.
-Pack digest 8af906b1c0d7a277.
+Pack version 2026-10-31-1.
+Pack digest d9839981deddd7d0.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -243,6 +243,24 @@ gamestage verify         proves the Engine decided the outcome, not the page
 gamestage deploy         publishes through Backstage, where one is available
 ```
 
+## Port a game: keep its framework, its look and its files
+
+**A game that already works stays the person's app.** Keep its framework,
+styling library, components and build: a React and Tailwind quiz stays React
+and Tailwind. Delete the answers, call the client from the app's own code, and
+render what the Engine returns. **A starter is a reference, never the page**:
+make one in a scratch folder outside theirs, read it for the calls, and never
+replace their app with it or move their game into a backup folder.
+
+**Before the first edit, say what stays and what changes** as one plan: the
+framework and styling library by name, the files you will edit, and the folder
+you will deploy. **Answers leave the source, not only the page**: a build ships
+whatever `src/` holds. A quiz's questions and answers go into Studio after the
+first deploy, read back with `game.quiz.questions(quizId)` and marked by
+`game.quiz.answer(quizId, picks)`. **An app with a build step deploys its
+build**: `npm run build`, then `verify --dir dist` and `deploy <game> --dir
+dist`. Loading the client in React or Vite: the build reference.
+
 ## Never hand over a URL you have not fetched
 
 **Fetch it, read what came back, and only then put it in front of a person.**
@@ -346,7 +364,7 @@ one of these.
 | `references/formats.md` | before you suggest a format, build a new game, or add rounds and reasons to come back | Ask what the game is before you build one; A game may hold more than one round, and a fan can be sent to the next; Ask how the game runs over time: always on, editions or live; Design a game fans come back to |
 | `references/data.md` | when the person says yes to seeing the data, or the game scores against figures | Ask what data the game needs, and offer the sources that exist |
 | `references/look.md` | before you build or restyle the interface, or draw any asset | Ask how the game should look, when you are building its interface; Make every play feel like something happened; Before you draw an asset, check the third-party registry |
-| `references/build.md` | while you wire the page to Gamestage: loading, reconnection, returning players and the producer's settings | Ask where the game runs, and make it load smoothly and fast; Give anonymous players a way back to their progress; Build the loading state and the reconnection handling; Wire the producer's settings while you wire the client |
+| `references/build.md` | while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings | Ask where the game runs, and make it load smoothly and fast; Give anonymous players a way back to their progress; Build the loading state and the reconnection handling; Load the client in a React or Vite app; Wire the producer's settings while you wire the client |
 | `references/compliance.md` | before the game records anything, before its first deploy, and before you call it finished | Name the four moments worth measuring, and nothing else; Every game asks for consent before it records anything; Offer partner products once, at the first deploy; Offer the accessibility, security, secrets and privacy checks |
 | `references/account.md` | when a command needs an account, refuses, or needs a person to approve something | Where the account sits in the journey; Human handoffs |
 | `references/screens.md` | when the leaderboard or a graphic goes on a screen a crowd can see | Put the leaderboard on a screen a crowd can see; Put a live contest into the game |
