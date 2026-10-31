@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-31-2
+version: 2026-10-31-3
 ---
 
 # Gamestage
 
-Pack version 2026-10-31-2.
-Pack digest 08761cc27a93ab6e.
+Pack version 2026-10-31-3.
+Pack digest 3c25e4ba39f94100.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -732,7 +732,11 @@ chat.
 
 `gamestage reference list` shows what the workspace already holds and which
 games read it, and `reference status <name>` shows one dataset's measures,
-the games that read it and the rounds built from it.
+the games that read it and the rounds built from it. Once the developer has connected a
+source, `reference run <name>` pulls its dataset now and prints the entries,
+measures and first keys that landed, so you can write entry keys from it
+without waiting for the schedule. It never prints a value, and a dataset can
+be pulled this way once every 15 minutes.
 `reference download <name>` gives back a file they uploaded. Run `reference
 delete` only when they ask you to remove a named dataset, and let them confirm
 it.

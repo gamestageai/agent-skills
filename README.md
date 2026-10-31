@@ -97,4 +97,4 @@ Documentation: <https://gamestage.ai/docs>
 
 ---
 
-Pack version 2026-10-31-2.
+Pack version 2026-10-31-3.

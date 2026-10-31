@@ -1,6 +1,6 @@
 # Data and sources
 
-Part of the Gamestage skill, pack version 2026-10-31-2. Read it when the person says yes to seeing the data, or the game scores against figures.
+Part of the Gamestage skill, pack version 2026-10-31-3. Read it when the person says yes to seeing the data, or the game scores against figures.
 
 ## Ask what data the game needs, and offer the sources that exist
 
@@ -35,7 +35,11 @@ chat.
 
 `gamestage reference list` shows what the workspace already holds and which
 games read it, and `reference status <name>` shows one dataset's measures,
-the games that read it and the rounds built from it.
+the games that read it and the rounds built from it. Once the developer has connected a
+source, `reference run <name>` pulls its dataset now and prints the entries,
+measures and first keys that landed, so you can write entry keys from it
+without waiting for the schedule. It never prints a value, and a dataset can
+be pulled this way once every 15 minutes.
 `reference download <name>` gives back a file they uploaded. Run `reference
 delete` only when they ask you to remove a named dataset, and let them confirm
 it.
