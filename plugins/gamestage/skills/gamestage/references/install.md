@@ -1,6 +1,6 @@
 # Installing and staying current
 
-Part of the Gamestage skill, pack version 2026-10-31-3. Read it when the person asks how to install or update Gamestage, or this copy may be stale.
+Part of the Gamestage skill, pack version 2026-10-31-4. Read it when the person asks how to install or update Gamestage, or this copy may be stale.
 
 ## Install this pack
 

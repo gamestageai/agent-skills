@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-31-3
+version: 2026-10-31-4
 ---
 
 # Gamestage
 
-Pack version 2026-10-31-3.
-Pack digest 3c25e4ba39f94100.
+Pack version 2026-10-31-4.
+Pack digest e0c103131b4668ff.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -726,7 +726,8 @@ holding a name, and the fields holding numbers. Then `gamestage reference build
 dataset.json`, `gamestage reference check dataset.json <keys>` with the keys
 the round will use, and `gamestage reference push <name> dataset.json`. Write a
 round's entry keys from what `inspect` printed, never from memory of a player's
-name: a key the dataset does not hold refuses the whole round. A key for their
+name: a key the dataset does not hold is left out of its group, so that player
+is never offered. A key for their
 API goes in `--header`, typed by them in their own terminal, never pasted into a
 chat.
 
@@ -996,10 +997,11 @@ at `2` rather than at "done".
 game, an invalid manifest, a rejected play: these are the product working. Read
 the reason, which is written to be acted on, and change the cause.
 
-**A dataset key the data does not hold refuses the whole round, and the page
-never computes a score.** Write entry keys from what `gamestage reference
-inspect` or `reference check` printed, never from memory, and check them before
-the round goes to Studio. The page shows the total the Engine returns: adding up
+**A dataset key the data does not hold is left out of its group, and the page
+never computes a score.** The player is never offered, and if that leaves a
+group with no real choice the round is refused. Never scored as zero. Write
+entry keys from what `gamestage reference inspect` or `reference check`
+printed, never from memory, and check them before the round goes to Studio. The page shows the total the Engine returns: adding up
 the values itself would need every value, and every value is the answer.
 
 ## Ask where the game runs, and make it load smoothly and fast

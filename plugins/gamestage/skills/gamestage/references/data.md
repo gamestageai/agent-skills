@@ -1,6 +1,6 @@
 # Data and sources
 
-Part of the Gamestage skill, pack version 2026-10-31-3. Read it when the person says yes to seeing the data, or the game scores against figures.
+Part of the Gamestage skill, pack version 2026-10-31-4. Read it when the person says yes to seeing the data, or the game scores against figures.
 
 ## Ask what data the game needs, and offer the sources that exist
 
@@ -29,7 +29,8 @@ holding a name, and the fields holding numbers. Then `gamestage reference build
 dataset.json`, `gamestage reference check dataset.json <keys>` with the keys
 the round will use, and `gamestage reference push <name> dataset.json`. Write a
 round's entry keys from what `inspect` printed, never from memory of a player's
-name: a key the dataset does not hold refuses the whole round. A key for their
+name: a key the dataset does not hold is left out of its group, so that player
+is never offered. A key for their
 API goes in `--header`, typed by them in their own terminal, never pasted into a
 chat.
 
