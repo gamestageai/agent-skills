@@ -1,6 +1,6 @@
 # Data and sources
 
-Part of the Gamestage skill, pack version 2026-10-31-1. Read it when the person says yes to seeing the data, or the game scores against figures.
+Part of the Gamestage skill, pack version 2026-10-31-2. Read it when the person says yes to seeing the data, or the game scores against figures.
 
 ## Ask what data the game needs, and offer the sources that exist
 
@@ -34,7 +34,8 @@ API goes in `--header`, typed by them in their own terminal, never pasted into a
 chat.
 
 `gamestage reference list` shows what the workspace already holds and which
-games read it, and `reference status <name>` shows one dataset's history.
+games read it, and `reference status <name>` shows one dataset's measures,
+the games that read it and the rounds built from it.
 `reference download <name>` gives back a file they uploaded. Run `reference
 delete` only when they ask you to remove a named dataset, and let them confirm
 it.

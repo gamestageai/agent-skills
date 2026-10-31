@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-10-31-1
+version: 2026-10-31-2
 ---
 
 # Gamestage
 
-Pack version 2026-10-31-1.
-Pack digest d9839981deddd7d0.
+Pack version 2026-10-31-2.
+Pack digest 08761cc27a93ab6e.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -731,7 +731,8 @@ API goes in `--header`, typed by them in their own terminal, never pasted into a
 chat.
 
 `gamestage reference list` shows what the workspace already holds and which
-games read it, and `reference status <name>` shows one dataset's history.
+games read it, and `reference status <name>` shows one dataset's measures,
+the games that read it and the rounds built from it.
 `reference download <name>` gives back a file they uploaded. Run `reference
 delete` only when they ask you to remove a named dataset, and let them confirm
 it.
@@ -839,6 +840,13 @@ developer's, because it takes their supplier key, and 5e can wait until step
 their own, run `gamestage sources` before 5a: "Ask what data the game needs"
 above says which source to offer. `sources` needs an approved account too, so
 before approval say so, and build from their own file in the meantime.
+
+**Only push and hunt can use a dataset today.** A push game must name one: its
+values are what a fan's picks add up to. A hunt round uses one when its
+**Answer from data** field names a measure, and the right answer is then worked
+out from the dataset rather than typed. Group and predict cannot read a
+dataset yet, so never build either against one: the round would provision with
+nothing reading the data.
 
 **You already know whether they are registered, so do not ask.** `start`
 reports it, in `account` and `first_reply`, read from this machine's token file

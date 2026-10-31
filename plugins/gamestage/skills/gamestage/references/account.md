@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-10-31-1. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-10-31-2. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 
@@ -50,6 +50,13 @@ developer's, because it takes their supplier key, and 5e can wait until step
 their own, run `gamestage sources` before 5a: "Ask what data the game needs"
 above says which source to offer. `sources` needs an approved account too, so
 before approval say so, and build from their own file in the meantime.
+
+**Only push and hunt can use a dataset today.** A push game must name one: its
+values are what a fan's picks add up to. A hunt round uses one when its
+**Answer from data** field names a measure, and the right answer is then worked
+out from the dataset rather than typed. Group and predict cannot read a
+dataset yet, so never build either against one: the round would provision with
+nothing reading the data.
 
 **You already know whether they are registered, so do not ask.** `start`
 reports it, in `account` and `first_reply`, read from this machine's token file
