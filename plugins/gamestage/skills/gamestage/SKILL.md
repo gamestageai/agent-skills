@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-11-04-2
+version: 2026-11-04-3
 ---
 
 # Gamestage
 
-Pack version 2026-11-04-2.
-Pack digest 4af7973e7328f76f.
+Pack version 2026-11-04-3.
+Pack digest 4fd0320aea1557a2.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -303,8 +303,8 @@ file they play a stand-in round of the game's format. Each names its round in
 one line, "Round: practice/round.yaml (practice only, fans never see it)"
 or "Round: stand-in round". `gamestage round push <game>` copies the practice
 round into Studio, into the game's own round. `gamestage round seed <game>`
-adds rounds from the game's dataset to the current edition, which suits a game
-set to Rotation only: on a one-round-a-day game it breaks the day (GS-1446).
+writes rounds from the game's dataset: one a day on a one-round-a-day game,
+starting with today's if it is empty.
 
 A manifest carrying `backend.round` is refused by every command with "Rounds
 don't go in gamestage.yaml. Put practice rounds in practice/round.yaml, and
