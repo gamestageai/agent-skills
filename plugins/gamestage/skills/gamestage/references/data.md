@@ -1,6 +1,6 @@
 # Data and sources
 
-Part of the Gamestage skill, pack version 2026-11-04-1. Read it when the person says yes to seeing the data, or the game scores against figures.
+Part of the Gamestage skill, pack version 2026-11-04-2. Read it when the person says yes to seeing the data, or the game scores against figures.
 
 ## Ask what data the game needs, and offer the sources that exist
 
@@ -34,11 +34,17 @@ gameweek. Switch the source on instead.
 **Then give the game its dataset, and its rounds.** Put the dataset's name in
 `gamestage.settings.json` as `"reference_url": "fpl-premier-league"`; the next
 deploy writes it into the game's Studio project, which is where a game reads
-its dataset from. Then `gamestage round seed <game> --count 7 --dry-run` drafts
-a week of rounds from that dataset, and the same command without `--dry-run`
-writes them to Studio. A push game with no dataset, or no round, deploys and
-shows fans "Come back tomorrow", so check both before you tell the developer
-it is live.
+its dataset from. Then the rounds. A game that plays one round a day holds one round per edition: "How the
+live round is chosen" is Calendar, the default. `round seed` adds rounds to
+the current edition, which suits only a game set to Rotation; on a calendar
+game the edition then holds two rounds and fans see "Come back tomorrow"
+(GS-1446). So for a calendar game, `gamestage round seed <game> --count 1
+--dry-run` drafts a round and writes nothing, and the developer, or their
+producer, enters its players and its Measure in the round in Studio. For a
+bank of rounds that rotate, set "How the live round is chosen" to Rotation in
+Studio first, then `round seed --count 7` adds them. A push game with no dataset,
+or no round, deploys and shows fans "Come back tomorrow", so check both before
+you tell the developer it is live.
 
 **Shape their own data with the CLI, not by hand.** When they have a file, a
 spreadsheet export or an API address, run `gamestage reference inspect <file or
