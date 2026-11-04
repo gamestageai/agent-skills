@@ -1,6 +1,6 @@
 # Account, sign-in and handoffs
 
-Part of the Gamestage skill, pack version 2026-11-02-1. Read it when a command needs an account, refuses, or needs a person to approve something.
+Part of the Gamestage skill, pack version 2026-11-04-1. Read it when a command needs an account, refuses, or needs a person to approve something.
 
 ## Where the account sits in the journey
 
@@ -19,11 +19,13 @@ agent   3  orient                          gamestage start                   no 
 agent   4  inspect the prototype           gamestage inspect .               no account
 agent   5  decide what must move           your reasoning                    no account
                if the game is scored against numbers a fan must not see:
-agent  5a  see what their data holds       gamestage reference inspect       no account
-agent  5b  build the dataset from it       gamestage reference build         no account
-agent  5c  prove the round's keys exist    gamestage reference check         no account
-human  5d  connect a licensed source       gamestage sources connect         approved account, their key
+agent  5a  switch on FPL or ESPN           gamestage sources connect fpl     approved account
+               or, for their own file:
+agent  5b  see what their data holds       gamestage reference inspect       no account
+agent  5c  build the dataset from it       gamestage reference build         no account
+agent  5d  prove the round's keys exist    gamestage reference check         no account
 agent  5e  upload their own data           gamestage reference push          approved account
+human  5f  connect a source with their key gamestage sources connect         approved account, their key
 agent   6  write the round                 practice/round.yaml               no account
 agent   7  rewrite the page                edit the html and js              no account
 agent   8  run it                          gamestage dev                     signed in
@@ -34,22 +36,23 @@ agent  12  confirm a fan can play          a real browser
 human  13  operate the live game           Monterosa Studio
 ```
 
-**Steps 3 to 7 need no account, apart from 5d and 5e, so get on with
+**Steps 3 to 7 need no account, apart from 5a, 5e and 5f, so get on with
 them.** Do not stop partway through a migration to ask whether the developer
 has signed in for these.
 Orient, inspect, work out what must move, write the round and rewrite the
 page. That is most of the work and none of it touches our backend.
 
-**Steps 5a to 5e are for a game scored against hidden numbers**: prices,
-career totals, wages, anything the fan picks between without seeing. Most of a
-dataset's work needs no account either. `inspect`, `build` and `check` run on
-this machine, so build the dataset and write the round's entry keys from it
-before anybody is approved. Only 5d and 5e reach our backend: 5d is the
-developer's, because it takes their supplier key, and 5e can wait until step
-11 if the account is not approved yet. When the developer has no data of
-their own, run `gamestage sources` before 5a: "Ask what data the game needs"
-above says which source to offer. `sources` needs an approved account too, so
-before approval say so, and build from their own file in the meantime.
+**Steps 5a to 5f are for a game scored against hidden numbers**: prices,
+career totals, wages, anything the fan picks between without seeing. When the
+game is about Premier League players or ESPN's leagues, 5a is the whole of it:
+switch the source on and skip 5b to 5e. Building your own copy of FPL or ESPN
+is the wrong route, because it never refreshes. For their own file, `inspect`,
+`build` and `check` run on this machine, so build the dataset and write the
+round's entry keys from it before anybody is approved, and 5e can wait until
+step 11. 5f is the developer's, because it takes their supplier key. When the
+developer has no data of their own, run `gamestage sources` first: "Ask what
+data the game needs" above says which source to offer. `sources` needs an
+approved account too, so before approval say so.
 
 **Only push and hunt can use a dataset today.** A push game must name one: its
 values are what a fan's picks add up to. A hunt round uses one when its

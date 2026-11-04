@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-11-02-1
+version: 2026-11-04-1
 ---
 
 # Gamestage
 
-Pack version 2026-11-02-1.
-Pack digest aa7ec15613f12f7b.
+Pack version 2026-11-04-1.
+Pack digest 155ad3d361bf90ae.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -713,11 +713,30 @@ Recommend in this order, and say why:
 
 1. **A source that is already connected.** Its data is in the workspace now, so
    the game can use it today. Name the dataset it printed.
-2. **A source they could connect.** Say what it covers, what is free
-   and what costs money, and give the sign-up link it printed. The
+2. **A source you switch on for them: Fantasy Premier League or ESPN.** Free,
+   no key, and we fetch it twice a day, so the numbers stay current through the
+   season. `gamestage sources connect fpl` switches FPL on and prints the
+   dataset's name, `fpl-premier-league`; `gamestage sources connect espn
+   --league nba` does the same for ESPN. The first fetch lands within the hour.
+3. **A source they could connect with their own key.** Say what it covers, what
+   is free and what costs money, and give the sign-up link it printed. The
    developer signs up themselves; you do not.
-3. **Their own data**, pushed with `gamestage reference push`. Always
+4. **Their own data**, pushed with `gamestage reference push`. Always
    available, and the right answer when they hold the figures already.
+
+**Never build your own copy of a source we fetch.** A dataset made with
+`reference build` from the FPL or ESPN address and pushed by hand is one copy
+that never refreshes: an FPL game built that way is wrong after the next
+gameweek. Switch the source on instead.
+
+**Then give the game its dataset, and its rounds.** Put the dataset's name in
+`gamestage.settings.json` as `"reference_url": "fpl-premier-league"`; the next
+deploy writes it into the game's Studio project, which is where a game reads
+its dataset from. Then `gamestage round seed <game> --count 7 --dry-run` drafts
+a week of rounds from that dataset, and the same command without `--dry-run`
+writes them to Studio. A push game with no dataset, or no round, deploys and
+shows fans "Come back tomorrow", so check both before you tell the developer
+it is live.
 
 **Shape their own data with the CLI, not by hand.** When they have a file, a
 spreadsheet export or an API address, run `gamestage reference inspect <file or
@@ -815,11 +834,13 @@ agent   3  orient                          gamestage start                   no 
 agent   4  inspect the prototype           gamestage inspect .               no account
 agent   5  decide what must move           your reasoning                    no account
                if the game is scored against numbers a fan must not see:
-agent  5a  see what their data holds       gamestage reference inspect       no account
-agent  5b  build the dataset from it       gamestage reference build         no account
-agent  5c  prove the round's keys exist    gamestage reference check         no account
-human  5d  connect a licensed source       gamestage sources connect         approved account, their key
+agent  5a  switch on FPL or ESPN           gamestage sources connect fpl     approved account
+               or, for their own file:
+agent  5b  see what their data holds       gamestage reference inspect       no account
+agent  5c  build the dataset from it       gamestage reference build         no account
+agent  5d  prove the round's keys exist    gamestage reference check         no account
 agent  5e  upload their own data           gamestage reference push          approved account
+human  5f  connect a source with their key gamestage sources connect         approved account, their key
 agent   6  write the round                 practice/round.yaml               no account
 agent   7  rewrite the page                edit the html and js              no account
 agent   8  run it                          gamestage dev                     signed in
@@ -830,22 +851,23 @@ agent  12  confirm a fan can play          a real browser
 human  13  operate the live game           Monterosa Studio
 ```
 
-**Steps 3 to 7 need no account, apart from 5d and 5e, so get on with
+**Steps 3 to 7 need no account, apart from 5a, 5e and 5f, so get on with
 them.** Do not stop partway through a migration to ask whether the developer
 has signed in for these.
 Orient, inspect, work out what must move, write the round and rewrite the
 page. That is most of the work and none of it touches our backend.
 
-**Steps 5a to 5e are for a game scored against hidden numbers**: prices,
-career totals, wages, anything the fan picks between without seeing. Most of a
-dataset's work needs no account either. `inspect`, `build` and `check` run on
-this machine, so build the dataset and write the round's entry keys from it
-before anybody is approved. Only 5d and 5e reach our backend: 5d is the
-developer's, because it takes their supplier key, and 5e can wait until step
-11 if the account is not approved yet. When the developer has no data of
-their own, run `gamestage sources` before 5a: "Ask what data the game needs"
-above says which source to offer. `sources` needs an approved account too, so
-before approval say so, and build from their own file in the meantime.
+**Steps 5a to 5f are for a game scored against hidden numbers**: prices,
+career totals, wages, anything the fan picks between without seeing. When the
+game is about Premier League players or ESPN's leagues, 5a is the whole of it:
+switch the source on and skip 5b to 5e. Building your own copy of FPL or ESPN
+is the wrong route, because it never refreshes. For their own file, `inspect`,
+`build` and `check` run on this machine, so build the dataset and write the
+round's entry keys from it before anybody is approved, and 5e can wait until
+step 11. 5f is the developer's, because it takes their supplier key. When the
+developer has no data of their own, run `gamestage sources` first: "Ask what
+data the game needs" above says which source to offer. `sources` needs an
+approved account too, so before approval say so.
 
 **Only push and hunt can use a dataset today.** A push game must name one: its
 values are what a fan's picks add up to. A hunt round uses one when its
@@ -952,7 +974,9 @@ Engine or edit the manifest to get past it. With no practice
 file they play a stand-in round of the game's format. Each names its round in
 one line, "Round: practice/round.yaml (practice only, fans never see it)"
 or "Round: stand-in round". `gamestage round push <game>` copies the practice
-round into Studio; it is the only route from this machine into Studio.
+round into Studio. `gamestage round seed <game> --count 7` drafts rounds from
+the game's dataset and writes them to Studio, which is the route for a push
+game on FPL or ESPN.
 
 A manifest carrying `backend.round` is refused by every command with "Rounds
 don't go in gamestage.yaml. Put practice rounds in practice/round.yaml, and

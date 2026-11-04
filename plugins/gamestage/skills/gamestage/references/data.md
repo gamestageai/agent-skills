@@ -1,6 +1,6 @@
 # Data and sources
 
-Part of the Gamestage skill, pack version 2026-11-02-1. Read it when the person says yes to seeing the data, or the game scores against figures.
+Part of the Gamestage skill, pack version 2026-11-04-1. Read it when the person says yes to seeing the data, or the game scores against figures.
 
 ## Ask what data the game needs, and offer the sources that exist
 
@@ -15,11 +15,30 @@ Recommend in this order, and say why:
 
 1. **A source that is already connected.** Its data is in the workspace now, so
    the game can use it today. Name the dataset it printed.
-2. **A source they could connect.** Say what it covers, what is free
-   and what costs money, and give the sign-up link it printed. The
+2. **A source you switch on for them: Fantasy Premier League or ESPN.** Free,
+   no key, and we fetch it twice a day, so the numbers stay current through the
+   season. `gamestage sources connect fpl` switches FPL on and prints the
+   dataset's name, `fpl-premier-league`; `gamestage sources connect espn
+   --league nba` does the same for ESPN. The first fetch lands within the hour.
+3. **A source they could connect with their own key.** Say what it covers, what
+   is free and what costs money, and give the sign-up link it printed. The
    developer signs up themselves; you do not.
-3. **Their own data**, pushed with `gamestage reference push`. Always
+4. **Their own data**, pushed with `gamestage reference push`. Always
    available, and the right answer when they hold the figures already.
+
+**Never build your own copy of a source we fetch.** A dataset made with
+`reference build` from the FPL or ESPN address and pushed by hand is one copy
+that never refreshes: an FPL game built that way is wrong after the next
+gameweek. Switch the source on instead.
+
+**Then give the game its dataset, and its rounds.** Put the dataset's name in
+`gamestage.settings.json` as `"reference_url": "fpl-premier-league"`; the next
+deploy writes it into the game's Studio project, which is where a game reads
+its dataset from. Then `gamestage round seed <game> --count 7 --dry-run` drafts
+a week of rounds from that dataset, and the same command without `--dry-run`
+writes them to Studio. A push game with no dataset, or no round, deploys and
+shows fans "Come back tomorrow", so check both before you tell the developer
+it is live.
 
 **Shape their own data with the CLI, not by hand.** When they have a file, a
 spreadsheet export or an API address, run `gamestage reference inspect <file or
