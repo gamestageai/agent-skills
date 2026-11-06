@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-11-06-3. Read it while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-11-06-5. Read it while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 
@@ -17,6 +17,12 @@ choices:
 | Inside their own native app, in a web view | `app-webview` | a `screen` game that fills the phone |
 
 Then pass it: `gamestage create --name "…" --format hunt --host app-webview`.
+
+**`gamestage deploy` minifies the game's own scripts, styles and pages** and
+removes their comments on the way up, names unchanged, so write readable,
+commented source and never minify it by hand. `--no-minify` publishes the files
+as written, for debugging a deployed game. `deploy_game` publishes them as
+written for now.
 Add `--layout` only if they want other than the default.
 
 **Recommend full screen, and say why in plain words:** players come back to a
@@ -118,7 +124,8 @@ down to the letters a logo uses, so it paints with the first frame. If your
 page draws its own logo, make it one of these, never text in a font fetched
 from another origin:
 
-- an inline SVG, when the artwork is fixed;
+- an inline SVG, when the artwork is fixed. For an animated title, the
+  plugin's `logo-animate` skill makes one with its font built in;
 - text in a font served from the game's own files, subset to the logo's
   characters and preloaded with `<link rel="preload" as="font" crossorigin>`;
 - text that shows a close system font after 800ms at most.
@@ -373,7 +380,9 @@ Studio is the only home of a game's words and colours:
 A copy in the page is a second home that drifts: a producer edits a word in
 Studio and a fan still reads the old one first. `gamestage verify` fails a page
 that keeps one (`settings-seeded`), and `gamestage deploy` refuses it before
-uploading, naming each setting and the file it is in. A colour counts only as a
+uploading, naming each setting and the file it is in. Both read the source as written, so
+**never split a string to get past the check**: the fix is to read the word from
+Studio. A colour counts only as a
 literal fallback on the setting's own variable, as in
 `var(--gs-highlightMainColour, #fff)`; a variable behind it, as in
 `var(--gs-highlightMainColour, var(--gamestage-primary))`, is fine. Until 2026-09-27 a copy was

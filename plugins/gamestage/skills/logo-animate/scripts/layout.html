@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<!-- Lays out one wordmark from a settings object, measured from the real font.
+     make-logo.mjs opens this page in a headless browser, calls window.layout(settings), then takes the SVG.
+     Every part carries a class naming its role (frame, tab, word, badge, bite) so the animation can find it. -->
+<style>
+  html, body { margin: 0; background: transparent; }
+  svg { display: block; }
+</style>
+</head>
+<body>
+<svg id="mark" xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"></svg>
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (name, attrs = {}, parent) => {
+    const n = document.createElementNS(NS, name);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+
+  // Cap height as a share of font size, measured from the loaded font rather than assumed.
+  const capRatio = (family, weight) => {
+    const c = document.createElement('canvas').getContext('2d');
+    c.font = `${weight} 1000px "${family}"`;
+    return c.measureText('H').actualBoundingBoxAscent / 1000;
+  };
+
+  // A basketball: white face, dark seams. Returned as a group centred on (cx, cy).
+  const ball = (parent, cx, cy, r, s) => {
+    const g = el('g', { class: 'badge' }, parent);
+    el('circle', { cx, cy, r, fill: s.colour }, g);
+    const seams = el('g', { fill: 'none', stroke: s.badgeInk, 'stroke-linecap': 'round', 'stroke-width': r * 0.12 }, g);
+    el('path', { d: `M${cx - r} ${cy}h${2 * r}M${cx} ${cy - r}v${2 * r}` }, seams);
+    el('path', { d: `M${cx - r * 0.66} ${cy - r * 0.75}c${r * 0.5} ${r * 0.45} ${r * 0.5} ${r * 1.05} 0 ${r * 1.5}` }, seams);
+    el('path', { d: `M${cx + r * 0.66} ${cy - r * 0.75}c${-r * 0.5} ${r * 0.45} ${-r * 0.5} ${r * 1.05} 0 ${r * 1.5}` }, seams);
+    return g;
+  };
+
+  // A crescent moon: a full circle with a second circle masked out of it. The masked circle is the "bite",
+  // which the animation slides across so the moon waxes into a crescent.
+  const moon = (svg, defs, cx, cy, r, s, id) => {
+    const mask = el('mask', { id: `${id}-bite`, maskUnits: 'userSpaceOnUse', x: -5000, y: -5000, width: 10000, height: 10000 }, defs);
+    el('rect', { x: -5000, y: -5000, width: 10000, height: 10000, fill: '#fff' }, mask);
+    el('circle', { class: 'bite', cx: cx + r * 0.5, cy: cy - r * 0.38, r: r * 0.5, fill: '#000' }, mask);
+    return el('circle', { class: 'badge moon', cx, cy, r, fill: s.colour, mask: `url(#${id}-bite)` }, svg);
+  };
+
+  window.layout = (s) => {
+    const svg = document.getElementById('mark');
+    svg.innerHTML = '';
+    const id = s.name;
+    const defs = el('defs', {}, svg);
+    const fs = s.size, cap = capRatio(s.fontFamily, s.fontWeight) * fs, base = 400, mid = 600;
+    const text = (str, attrs) => {
+      const t = el('text', { 'font-family': s.fontFamily, 'font-weight': s.fontWeight, fill: s.colour, ...attrs }, svg);
+      t.textContent = str;
+      return t;
+    };
+    const frameGroup = s.frame ? el('g', { fill: 'none', stroke: s.colour, 'stroke-width': fs * 0.046 }, svg) : null;
+
+    // The main line. "*" in the line marks where a round letter is replaced by the badge.
+    let left, right;
+    const [before, after] = s.line.includes('*') ? s.line.split('*') : [s.line, null];
+    if (after !== null && s.badge !== 'none') {
+      const t1 = text(before, { class: 'word', 'font-size': fs, y: base });
+      const t2 = text(after, { class: 'word', 'font-size': fs, y: base });
+      const gap = 0.035 * fs, d = cap * 1.04;       // round letters overshoot a little, as in type
+      const w1 = t1.getComputedTextLength(), w2 = t2.getComputedTextLength();
+      const total = w1 + gap + d + gap + w2;
+      left = mid - total / 2; right = left + total;
+      t1.setAttribute('x', left);
+      t2.setAttribute('x', left + w1 + gap + d + gap);
+      const cx = left + w1 + gap + d / 2, cy = base - cap / 2, r = d / 2;
+      if (s.badge === 'moon') moon(svg, defs, cx, cy, r, s, id); else ball(svg, cx, cy, r, s);
+    } else {
+      const t = text(s.line.replace('*', 'O'), { class: 'word', 'font-size': fs, y: base });
+      const w = t.getComputedTextLength();
+      left = mid - w / 2; right = left + w;
+      t.setAttribute('x', left);
+      // Badge as the dot of a closing question mark: hide the font's dot and put the badge there.
+      if (s.badge !== 'none' && s.line.endsWith('?')) {
+        const n = s.line.length - 1;
+        const q = t.getExtentOfChar(n);
+        const mask = el('mask', { id: `${id}-nodot`, maskUnits: 'userSpaceOnUse', x: -5000, y: -5000, width: 10000, height: 10000 }, defs);
+        el('rect', { x: -5000, y: -5000, width: 10000, height: 10000, fill: '#fff' }, mask);
+        el('rect', { x: q.x - 10, y: base - cap * 0.2, width: q.width + 20, height: fs, fill: '#000' }, mask);
+        t.setAttribute('mask', `url(#${id}-nodot)`);
+        const r = cap * 0.15, cx = q.x + q.width * 0.47, cy = base - r;
+        if (s.badge === 'moon') moon(svg, defs, cx, cy, r, s, id); else ball(svg, cx, cy, r, s);
+      }
+    }
+
+    // Frame with even padding around the main line.
+    const padX = 0.27 * fs, padTop = 0.31 * fs, padBottom = 0.23 * fs;
+    // Without a frame there is nothing to pad, so the mark hugs the letters.
+    let top = s.frame ? base - cap - padTop : base - cap - 0.12 * fs;
+    let bottom = s.frame ? base + padBottom : base;
+    let fx = s.frame ? left - padX : left, fw = s.frame ? right - left + padX * 2 : right - left;
+    if (frameGroup) el('rect', { class: 'frame', x: fx, y: top, width: fw, height: bottom - top, pathLength: 1 }, frameGroup);
+
+    // Tab across the top edge, read first. Without a frame it sits above the line.
+    let markTop = top;
+    if (s.tab) {
+      const ts = s.tabSize, tcap = capRatio(s.fontFamily, s.fontWeight) * ts, th = ts * 1.12;
+      const tabY = s.frame ? top - th / 2 : top - th;
+      const tt = text(s.tab, { 'font-size': ts, 'letter-spacing': s.tabSpacing, 'text-anchor': 'middle' });
+      const tw = tt.getComputedTextLength() + ts * 0.66;
+      const tab = el('rect', { class: 'tab', x: mid - tw / 2, y: tabY, width: tw, height: th, fill: s.colour });
+      svg.insertBefore(tab, tt);
+      tt.setAttribute('class', 'tab');
+      tt.setAttribute('fill', s.tabInk);
+      tt.setAttribute('x', mid + s.tabSpacing / 2);   // letter-spacing adds space after the last letter too
+      tt.setAttribute('y', tabY + th / 2 + tcap / 2);
+      markTop = tabY;
+      fx = Math.min(fx, mid - tw / 2); fw = Math.max(fw, tw);
+    }
+
+    // Crop to the mark with an even margin.
+    const m = 16 + (s.frame ? fs * 0.023 : 0);
+    const vx = fx - m, vy = markTop - m, vw = fw + m * 2, vh = bottom - markTop + m * 2;
+    svg.setAttribute('viewBox', `${vx} ${vy} ${vw} ${vh}`);
+    svg.setAttribute('width', vw); svg.setAttribute('height', vh);
+    return { width: vw, height: vh };
+  };
+</script>
+</body>
+</html>
