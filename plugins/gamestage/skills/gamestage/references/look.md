@@ -1,6 +1,6 @@
 # Look and assets
 
-Part of the Gamestage skill, pack version 2026-11-04-3. Read it before you build or restyle the interface, or draw any asset.
+Part of the Gamestage skill, pack version 2026-11-06. Read it before you build or restyle the interface, or draw any asset.
 
 ## Ask how the game should look, when you are building its interface
 
@@ -39,6 +39,13 @@ the gallery serves no registry files, so `ui.gamestage.ai/r/...` answers 404.
 UI and it gets in your way, say what is in the way and ask; never rewrite the
 game in another library and tell them afterwards. A Gamestage UI build is not
 too large to deploy: `deploy_game` takes it in parts.
+
+**In a chat, build the board in plain HTML.** The code sandbox in a chat
+blocks the network, so `npm install` and `npx gamestage-ui` cannot run and
+there is no build step. Write the game as plain HTML, CSS and JavaScript, and
+tell the person once that Gamestage UI needs a shell, such as Claude Code or
+Codex, if they want it later. If they asked for Gamestage UI by name, say this
+before writing anything and ask how they want to go on.
 
 **A canvas game is two layers, and they want different tools.** Draw the play
 in Phaser, PixiJS or Three.js, and build everything around it (intro, How to
@@ -115,6 +122,23 @@ not as polish at the end: a flat game reads as a cheap one.
 down on pointerdown and show the pick as chosen at once, then wait for the
 Engine. Never hold the press until the network answers: the fan reads a late
 response as a missed tap and taps again.
+
+**A double tap must never play twice.** Disable the control from the first
+tap until the Engine answers. `game.play` gives every play an idempotency key
+and returns it as `idempotency_key`, on the result and on a thrown error alike.
+To retry a play whose answer never arrived, call `game.play` again with
+`idempotencyKey` set to that key: the Engine answers from its receipt with
+`outcome: "duplicate"` rather than taking it twice. A retry without the key is
+a second play.
+
+**Let a tap cut an animation short.** A celebration or a transition must never
+lock the screen until it ends: a tap during it finishes or skips it and does
+what the fan asked. Build motion from CSS transitions or the Web Animations
+API, which can be reversed mid-way, and never put a play behind a fixed
+`setTimeout`.
+
+**The hit area is bigger than the icon.** A 20px icon sits in a 44px target,
+with padding rather than a larger drawing, and two targets never touch.
 
 **Give a settled outcome its own moment, in one place.** With Gamestage UI
 that is `feedback`, which you install with `npx gamestage-ui add feedback`:

@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-11-04-3
+version: 2026-11-06
 ---
 
 # Gamestage
 
-Pack version 2026-11-04-3.
-Pack digest 4fd0320aea1557a2.
+Pack version 2026-11-06.
+Pack digest f8855ddb7b5ab779.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -56,6 +56,7 @@ Each step, in a shell and in a chat:
 | Get the files back | they are on disk | `download_game` |
 | Find out what failed | `logs <game>` | `get_game_logs` |
 | See how fans played and who is winning | `results <game>`, `leaderboard <game>` | not in chat yet: ask them to run it in a terminal |
+| Reveal a prediction's answer ("reveal", "the result is in", "full time", "Arsenal won") | `round reveal <game>` lists the questions, then `round reveal <game> --question <id> --option <n>`; confirm the option with them first, because fans are scored on it | not in chat yet: ask them to run it, or to use Results in Stage or Reveal Answer in Studio |
 | Answer a factual question | fetch the hosted doc | `search_documentation`, `read_documentation` |
 
 `verify` has no chat route: `deploy_game` runs the server-side checks only. To
@@ -519,6 +520,13 @@ UI and it gets in your way, say what is in the way and ask; never rewrite the
 game in another library and tell them afterwards. A Gamestage UI build is not
 too large to deploy: `deploy_game` takes it in parts.
 
+**In a chat, build the board in plain HTML.** The code sandbox in a chat
+blocks the network, so `npm install` and `npx gamestage-ui` cannot run and
+there is no build step. Write the game as plain HTML, CSS and JavaScript, and
+tell the person once that Gamestage UI needs a shell, such as Claude Code or
+Codex, if they want it later. If they asked for Gamestage UI by name, say this
+before writing anything and ask how they want to go on.
+
 **A canvas game is two layers, and they want different tools.** Draw the play
 in Phaser, PixiJS or Three.js, and build everything around it (intro, How to
 play, the score, the result, the leaderboard) in Gamestage UI or HTML, over or
@@ -594,6 +602,23 @@ not as polish at the end: a flat game reads as a cheap one.
 down on pointerdown and show the pick as chosen at once, then wait for the
 Engine. Never hold the press until the network answers: the fan reads a late
 response as a missed tap and taps again.
+
+**A double tap must never play twice.** Disable the control from the first
+tap until the Engine answers. `game.play` gives every play an idempotency key
+and returns it as `idempotency_key`, on the result and on a thrown error alike.
+To retry a play whose answer never arrived, call `game.play` again with
+`idempotencyKey` set to that key: the Engine answers from its receipt with
+`outcome: "duplicate"` rather than taking it twice. A retry without the key is
+a second play.
+
+**Let a tap cut an animation short.** A celebration or a transition must never
+lock the screen until it ends: a tap during it finishes or skips it and does
+what the fan asked. Build motion from CSS transitions or the Web Animations
+API, which can be reversed mid-way, and never put a play behind a fixed
+`setTimeout`.
+
+**The hit area is bigger than the icon.** A 20px icon sits in a 44px target,
+with padding rather than a larger drawing, and two targets never touch.
 
 **Give a settled outcome its own moment, in one place.** With Gamestage UI
 that is `feedback`, which you install with `npx gamestage-ui add feedback`:
@@ -1102,6 +1127,20 @@ the match as a thin strip with unreadable text and no hint to turn the phone.
 3. **Say when it is playable.** When the round is drawn or has failed, call
    `window.gamestageReady()` (scaffolds define it), or
    `performance.mark("gamestage:playable")` if your page does not have it.
+4. **Keep clear of the notch and the home bar.** Add `viewport-fit=cover` to
+   the viewport meta and pad the edges with `env(safe-area-inset-top)` and its
+   right, bottom and left siblings. A landscape game on an iPhone otherwise
+   puts its score under the camera and its buttons under the home bar.
+5. **Reserve the space for anything that arrives late.** A player photo or
+   badge gets a fixed `width`, `height` or `aspect-ratio` and a background in
+   the game's colour while it loads, so nothing on screen jumps when it lands.
+   A list that loads after the round, such as the leaderboard, shows grey
+   placeholder rows the shape of the real ones, not a spinner. Once a list has
+   loaded, show it while it refreshes rather than blanking it.
+6. **Back closes what is open before it leaves the game.** On Android, and in
+   most apps' web views, the back button leaves the page. When a sheet or
+   dialog opens, push a history entry, and on `popstate` close it, so back
+   takes the fan out of How to play rather than out of the game.
 
 **Every scaffold from `create` opens on an intro screen**: a full-screen
 gradient, the game's name in its own font, a progress bar, then a Play button.
@@ -1148,7 +1187,11 @@ figures for numbers, plus the game's own logo face, and two weights, 400 and
 `var(--gs-type-scale-step1)` to `var(--gs-type-scale-step5)` rather than a
 number, and never a size under 14px. 14 is for labels and chrome; anything a
 fan reads as a sentence, a name or a button is 17 or more. Headings are
-sentence case ("Pick your name"), not capitals. A game that grew a size for
+sentence case ("Pick your name"), not capitals, and set `text-wrap: balance`
+so no heading ends on one word; body text takes `text-wrap: pretty`. A field
+for a code a fan receives by text message is `inputmode="numeric"` with
+`autocomplete="one-time-code"`, so the phone offers the code above the
+keyboard. A game that grew a size for
 each screen ends up with sixteen of them and reads as three different games.
 
 **Serve every font from the game's own files, never from Google Fonts or a
@@ -1494,6 +1537,17 @@ producer makes in Studio and which board a fan lands on. Offer three answers:
 Not every type works for every format yet. Read the format's section of the
 game formats doc for what works today, and tell the person plainly when the
 type they pick does not: for a quiz today, only Edition works.
+
+**Reveal a prediction's answer from the terminal.** On a predict game,
+"reveal", "the result is in", "settle it", "full time" or "Arsenal won" all
+mean: run `gamestage round reveal <game>` to list the questions and their
+options, confirm the right option with the person, then run
+`gamestage round reveal <game> --question <id> --option <n>`. It reveals one
+question per run; fans' result for the round waits until every question has
+an answer. Running it again with another option corrects the answer: fans are
+re-scored and anyone signed up for results gets a correction email, so it
+suits a test loop. After deploying a predict game, end with one line: "When the
+match is over, ask me to reveal the answer."
 
 ## Design a game fans come back to
 

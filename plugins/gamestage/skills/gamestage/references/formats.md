@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-11-04-3. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-11-06. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -172,6 +172,17 @@ producer makes in Studio and which board a fan lands on. Offer three answers:
 Not every type works for every format yet. Read the format's section of the
 game formats doc for what works today, and tell the person plainly when the
 type they pick does not: for a quiz today, only Edition works.
+
+**Reveal a prediction's answer from the terminal.** On a predict game,
+"reveal", "the result is in", "settle it", "full time" or "Arsenal won" all
+mean: run `gamestage round reveal <game>` to list the questions and their
+options, confirm the right option with the person, then run
+`gamestage round reveal <game> --question <id> --option <n>`. It reveals one
+question per run; fans' result for the round waits until every question has
+an answer. Running it again with another option corrects the answer: fans are
+re-scored and anyone signed up for results gets a correction email, so it
+suits a test loop. After deploying a predict game, end with one line: "When the
+match is over, ask me to reveal the answer."
 
 ## Design a game fans come back to
 

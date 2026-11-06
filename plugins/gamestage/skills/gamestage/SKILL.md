@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-11-04-3
+version: 2026-11-06
 ---
 
 # Gamestage
 
-Pack version 2026-11-04-3.
-Pack digest 4fd0320aea1557a2.
+Pack version 2026-11-06.
+Pack digest f8855ddb7b5ab779.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -56,6 +56,7 @@ Each step, in a shell and in a chat:
 | Get the files back | they are on disk | `download_game` |
 | Find out what failed | `logs <game>` | `get_game_logs` |
 | See how fans played and who is winning | `results <game>`, `leaderboard <game>` | not in chat yet: ask them to run it in a terminal |
+| Reveal a prediction's answer ("reveal", "the result is in", "full time", "Arsenal won") | `round reveal <game>` lists the questions, then `round reveal <game> --question <id> --option <n>`; confirm the option with them first, because fans are scored on it | not in chat yet: ask them to run it, or to use Results in Stage or Reveal Answer in Studio |
 | Answer a factual question | fetch the hosted doc | `search_documentation`, `read_documentation` |
 
 `verify` has no chat route: `deploy_game` runs the server-side checks only. To

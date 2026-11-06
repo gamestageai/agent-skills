@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-11-04-3. Read it while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-11-06. Read it while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 
@@ -73,6 +73,20 @@ the match as a thin strip with unreadable text and no hint to turn the phone.
 3. **Say when it is playable.** When the round is drawn or has failed, call
    `window.gamestageReady()` (scaffolds define it), or
    `performance.mark("gamestage:playable")` if your page does not have it.
+4. **Keep clear of the notch and the home bar.** Add `viewport-fit=cover` to
+   the viewport meta and pad the edges with `env(safe-area-inset-top)` and its
+   right, bottom and left siblings. A landscape game on an iPhone otherwise
+   puts its score under the camera and its buttons under the home bar.
+5. **Reserve the space for anything that arrives late.** A player photo or
+   badge gets a fixed `width`, `height` or `aspect-ratio` and a background in
+   the game's colour while it loads, so nothing on screen jumps when it lands.
+   A list that loads after the round, such as the leaderboard, shows grey
+   placeholder rows the shape of the real ones, not a spinner. Once a list has
+   loaded, show it while it refreshes rather than blanking it.
+6. **Back closes what is open before it leaves the game.** On Android, and in
+   most apps' web views, the back button leaves the page. When a sheet or
+   dialog opens, push a history entry, and on `popstate` close it, so back
+   takes the fan out of How to play rather than out of the game.
 
 **Every scaffold from `create` opens on an intro screen**: a full-screen
 gradient, the game's name in its own font, a progress bar, then a Play button.
@@ -119,7 +133,11 @@ figures for numbers, plus the game's own logo face, and two weights, 400 and
 `var(--gs-type-scale-step1)` to `var(--gs-type-scale-step5)` rather than a
 number, and never a size under 14px. 14 is for labels and chrome; anything a
 fan reads as a sentence, a name or a button is 17 or more. Headings are
-sentence case ("Pick your name"), not capitals. A game that grew a size for
+sentence case ("Pick your name"), not capitals, and set `text-wrap: balance`
+so no heading ends on one word; body text takes `text-wrap: pretty`. A field
+for a code a fan receives by text message is `inputmode="numeric"` with
+`autocomplete="one-time-code"`, so the phone offers the code above the
+keyboard. A game that grew a size for
 each screen ends up with sixteen of them and reads as three different games.
 
 **Serve every font from the game's own files, never from Google Fonts or a
