@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-11-06. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-11-06-2. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -183,6 +183,16 @@ an answer. Running it again with another option corrects the answer: fans are
 re-scored and anyone signed up for results gets a correction email, so it
 suits a test loop. After deploying a predict game, end with one line: "When the
 match is over, ask me to reveal the answer."
+
+**Reveal automatically from a real match, for development only.** When they
+want answers revealed by themselves after the match, run `gamestage fixtures`
+to see which sports and leagues can be revealed and say which are not, then
+`gamestage fixtures --league <sport/league> --date <day> --team <name>` for the
+match id, and `gamestage round auto-reveal <game> --fixture <id>`. It sets the
+match and each question's rule; tell them any question it left and why. **Say
+this to them every time, before setting it up: "Automatic reveals use ESPN's
+public data. They are not suitable for production and are for development
+only."** For a real game, they reveal by hand or a producer uses Studio.
 
 ## Design a game fans come back to
 

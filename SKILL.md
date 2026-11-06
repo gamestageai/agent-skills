@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-11-06
+version: 2026-11-06-2
 ---
 
 # Gamestage
 
-Pack version 2026-11-06.
-Pack digest f8855ddb7b5ab779.
+Pack version 2026-11-06-2.
+Pack digest c2e862966d38d4ce.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1548,6 +1548,16 @@ an answer. Running it again with another option corrects the answer: fans are
 re-scored and anyone signed up for results gets a correction email, so it
 suits a test loop. After deploying a predict game, end with one line: "When the
 match is over, ask me to reveal the answer."
+
+**Reveal automatically from a real match, for development only.** When they
+want answers revealed by themselves after the match, run `gamestage fixtures`
+to see which sports and leagues can be revealed and say which are not, then
+`gamestage fixtures --league <sport/league> --date <day> --team <name>` for the
+match id, and `gamestage round auto-reveal <game> --fixture <id>`. It sets the
+match and each question's rule; tell them any question it left and why. **Say
+this to them every time, before setting it up: "Automatic reveals use ESPN's
+public data. They are not suitable for production and are for development
+only."** For a real game, they reveal by hand or a producer uses Studio.
 
 ## Design a game fans come back to
 
