@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-11-06-2
+version: 2026-11-06-3
 ---
 
 # Gamestage
 
-Pack version 2026-11-06-2.
-Pack digest c2e862966d38d4ce.
+Pack version 2026-11-06-3.
+Pack digest 3818a7d21ae79690.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1558,6 +1558,21 @@ match and each question's rule; tell them any question it left and why. **Say
 this to them every time, before setting it up: "Automatic reveals use ESPN's
 public data. They are not suitable for production and are for development
 only."** For a real game, they reveal by hand or a producer uses Studio.
+
+Tell them what to expect, so a short wait does not read as broken:
+
+- **The answer appears about one to two minutes after ESPN marks the match
+  finished.** We read a live match once a minute and wait for a second reading
+  that agrees. ESPN's own delay after the whistle comes on top and varies.
+- **Football is settled on the 90 minutes**, so extra time and penalties do
+  not change the answer. Other sports count overtime, and ESPN's winner
+  settles a tie.
+- **A postponed, cancelled or abandoned match voids the question**, and fans'
+  picks are returned.
+- **To reveal sooner, or to correct it**, use `gamestage round reveal`. An
+  answer set by hand is kept: the automatic reveal does not overwrite it.
+- **"ESPN has not been checked yet"** means our servers have not finished
+  their first check of ESPN's leagues. Wait, then try again within the hour.
 
 ## Design a game fans come back to
 

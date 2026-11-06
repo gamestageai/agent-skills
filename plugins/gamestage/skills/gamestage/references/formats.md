@@ -1,6 +1,6 @@
 # Choosing and designing the game
 
-Part of the Gamestage skill, pack version 2026-11-06-2. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
+Part of the Gamestage skill, pack version 2026-11-06-3. Read it before you suggest a format, build a new game, or add rounds and reasons to come back.
 
 ## Ask what the game is before you build one
 
@@ -193,6 +193,21 @@ match and each question's rule; tell them any question it left and why. **Say
 this to them every time, before setting it up: "Automatic reveals use ESPN's
 public data. They are not suitable for production and are for development
 only."** For a real game, they reveal by hand or a producer uses Studio.
+
+Tell them what to expect, so a short wait does not read as broken:
+
+- **The answer appears about one to two minutes after ESPN marks the match
+  finished.** We read a live match once a minute and wait for a second reading
+  that agrees. ESPN's own delay after the whistle comes on top and varies.
+- **Football is settled on the 90 minutes**, so extra time and penalties do
+  not change the answer. Other sports count overtime, and ESPN's winner
+  settles a tie.
+- **A postponed, cancelled or abandoned match voids the question**, and fans'
+  picks are returned.
+- **To reveal sooner, or to correct it**, use `gamestage round reveal`. An
+  answer set by hand is kept: the automatic reveal does not overwrite it.
+- **"ESPN has not been checked yet"** means our servers have not finished
+  their first check of ESPN's leagues. Wait, then try again within the hour.
 
 ## Design a game fans come back to
 
