@@ -1,13 +1,13 @@
 ---
 name: gamestage
 description: "Take a browser game to production with Gamestage, which moves answers, scoring and settlement behind a server the player cannot edit. Use when someone wants to port or build a browser game with Gamestage, when a gamestage.yaml is present, or when Gamestage is mentioned."
-version: 2026-11-06-5
+version: 2026-11-07-1
 ---
 
 # Gamestage
 
-Pack version 2026-11-06-5.
-Pack digest fde4e55d09d64b8d.
+Pack version 2026-11-07-1.
+Pack digest 1b7eeb2d8bb5d42f.
 
 Gamestage takes a game that works in a browser and moves its answers, scoring,
 locks and settlement behind an Engine the fan cannot edit. The creator keeps the
@@ -1178,8 +1178,9 @@ down to the letters a logo uses, so it paints with the first frame. If your
 page draws its own logo, make it one of these, never text in a font fetched
 from another origin:
 
-- an inline SVG, when the artwork is fixed. For an animated title, the
-  plugin's `logo-animate` skill makes one with its font built in;
+- an inline SVG, when the artwork is fixed. To animate the game's own
+  logo, or make a loader or busy indicator from it, use the plugin's
+  `logo-animate` skill: it keeps the logo as it is and builds the font in;
 - text in a font served from the game's own files, subset to the logo's
   characters and preloaded with `<link rel="preload" as="font" crossorigin>`;
 - text that shows a close system font after 800ms at most.

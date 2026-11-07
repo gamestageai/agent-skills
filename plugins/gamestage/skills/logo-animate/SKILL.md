@@ -1,126 +1,206 @@
 ---
 name: logo-animate
-version: 1.0.0
 description: >
-  Make an animated wordmark (title logo) for a game, quiz or feature: a framed, condensed
-  title with a tab across the top and an optional badge (basketball, moon) standing in for a
-  letter, which draws itself in once over about 1.6 seconds. Outputs one self-contained
-  animated SVG with the font built in, a transparent PNG and a preview page. Use when someone
-  asks for an "animated logo", "intro logo", "title animation", "splash logo", "wordmark" or
-  "game logo" for a Gamestage game.
+  Animate a logo, mark or icon so it plays in once on load, loops as a loader, or moves while an
+  app is busy (a web component you switch on and off). Keeps the brand's own shapes, colours,
+  letters and font: traces a PNG into SVG when there is no vector file, and finds the font of its
+  words. Makes a new title logo only when there is no mark to start from. Use when someone asks to
+  "animate this logo", "make a loader from our icon", "an intro animation", "a splash logo", "an
+  animated mark", "a busy indicator with our mascot", or "a logo for my game", including
+  for a Gamestage game.
 ---
 
-# Animated wordmark
+# Animate a logo
 
-Makes a title logo for a game: a white frame, a short tab across
-the top that is read first ("DID YOU"), the main words in condensed capitals ("KNOW?"), and a
-badge that replaces a round letter or the dot of a question mark. It animates once when the page
-opens, then stays still.
+Takes someone's logo and makes it move, without changing how it looks. You get standalone files
+that work anywhere: an SVG that plays once, an SVG that loops, a web component that moves while the
+app is busy, and a still.
 
 ```
- ┌──────[ DID YOU ]──────┐     tab: drops in from above
- │                       │     frame: draws itself around the edge
- │     K N (ball) W ?    │     badge: spins in from small
- │                       │     words: rise into place
- └───────────────────────┘
+ their logo ─► SVG? ─yes─────────────────┐
+                │no                       ▼
+                └─► trace the PNG ─► tag each part with a role ─► animate.mjs ─► once / loop / busy / still
+                    (trace-check,         (pop, slide, grow,
+                     font-match)           draw, rise, blink...)
+
+ no logo at all ─► design one for them, or use the court wordmark recipe (make-logo.mjs)
 ```
 
 ## Quickstart
 
-Write a settings file, then run the script. Paths are relative to this skill's folder.
-
-```json
-{ "name": "did-you-know", "tab": "DID YOU", "line": "KN*W?", "badge": "ball" }
-```
+Tag the parts of an SVG with the role each one plays, then run the script. Paths are relative to
+this skill's folder.
 
 ```bash
-node scripts/make-logo.mjs did-you-know.json --out ./out
+node scripts/animate.mjs examples/monogram/quizbox.svg --out ./out --modes all --tag quiz-box --label Quizbox
+open out/quizbox-preview.html
 ```
 
-That writes `out/did-you-know.svg`, `out/did-you-know.png` and `out/did-you-know-preview.html`.
-Ready-made settings for three styles are in `examples/`: a moon in place of a letter (`quiz-tonight`), a ball in place of a letter (`who-scored`) and a ball as the dot of a question mark (`name-that-player`).
+That writes `quizbox.svg` (plays once), `quizbox-loop.svg` (loops), `quizbox.js` (the `<quiz-box>`
+component), `quizbox-still.svg` and a preview page showing each on light and dark.
 
-It needs Node and Playwright with Chromium. If the script says Playwright is missing, run
+It needs Node and Playwright with Chromium. If a script says Playwright is missing, run
 `npm install -g playwright && npx playwright install chromium`.
 
-## Make a logo
+## Animate someone's logo
 
-1. **Get the words.** Ask for the title if it isn't given, and decide which part goes on the tab.
-   The tab is the short lead-in read first ("TRIVIA", "DID YOU", "WHO IS"). The line is the big
-   word. Keep the line to one word, two at most. Long lines make a wide, thin logo that is small
-   on a phone.
-2. **Pick the badge.** Put `*` in the line where a round letter should become the badge
-   (`T*NIGHT`, `KN*W?`). With no `*` and a line ending in `?`, the badge replaces the question
-   mark's dot (`THIS?`). Use `"badge": "none"` for plain letters. The badge should mean
-   something for the subject: a basketball for a basketball game, a moon for "tonight".
-3. **Write the settings file** in the project that will use the logo, not in this skill.
-4. **Run the script** and open the PNG. Check it the way a designer would: does the tab read
-   first, is the padding even, is the badge the same visual size as the letters, is anything
-   cramped or clipped? Then open the preview page and press Replay to watch the animation.
-5. **Adjust and rerun.** `size` and `tabSize` change the balance between line and tab, and
-   `tabSpacing` opens up the tab's letters.
-6. **Put it in the game.** See the next section.
+1. **Get the real files.** Ask for the logo as SVG first. If there is only a PNG, ask for the
+   largest one, and ask whether the brand has a named font and colours. Their logo is the spec:
+   keep its shapes, colours, case, spacing and any ™ or ® exactly. Never restyle it into a house look.
+2. **Trace it if there is no SVG.** See [Trace a PNG](#trace-a-png). Stop at 95% overlap or better.
+3. **Split it into parts.** Each part that should move on its own needs to be its own element:
+   the head, each ear, the tail, each eye, the words. Group parts that move together.
+4. **Tag each part with a role.** Read [`reference/motion.md`](reference/motion.md) and pick the
+   role that fits what the part is. Set `data-step` so parts arrive in the order people read them.
+   Put `data-loop` roles on the parts that move while looping or busy, and `data-spin=""` on the
+   outermost group if it should turn now and then.
+5. **Run the script** with the modes they need: `once` for an intro or splash, `loop` for a loader,
+   `component` for a busy indicator, `all` for every one.
+6. **Check it the way a designer would.** Open the preview. Take screenshots part way through and at
+   the end, on light and dark, at phone width. Does the finished frame match the original logo
+   exactly? Does anything arrive in an odd order, overlap, or pivot from the wrong point? Is the
+   loop calm? Fix the tags and rerun.
+7. **Hand it over** with a short README listing each file, what it does and the line of HTML to use
+   it. Say which parts you measured rather than were given, such as a font you matched or colours
+   you read off pixels.
+
+## Trace a PNG
+
+1. **Draw in the image's pixel coordinates.** Use `viewBox="0 0 <width> <height>"` of the PNG, so the
+   tracing lies exactly over it. Crop the viewBox once the tracing is right.
+2. **Draw simple shapes.** Most marks are rounded rectangles, circles, ellipses and a few paths.
+   Measure where each edge is from the image, then write the shapes.
+3. **Score it and adjust.**
+   ```bash
+   node scripts/trace-check.mjs logo.png tracing.svg --diff diff.png
+   ```
+   Red in the diff is in the image only (draw more there), blue is in the tracing only (draw less).
+   When the shapes are described by a few numbers, it is quicker to write a small script that nudges
+   each number and keeps any change that raises the overlap.
+4. **Words: find the font.** Measure the box the words fill, from the top of the capitals to the baseline.
+   ```bash
+   node scripts/font-match.mjs logo.png --text "Quizbox" --box 450,157,681,164 --save fit.json
+   ```
+   Near 90% with letters fitted is very likely the font. Around 70% is a lookalike: use it for now,
+   say so, and ask for the real font. Write the words as one `<text>` per letter at the fitted
+   positions so the spacing matches.
+5. **Build the font in.** Download only the letters you need from Google Fonts (the command
+   `font-match` prints), then pass it: `--font letters.woff2 --font-weight 450`. A logo with words and
+   no font inside it shows in a different font on every device.
+6. **Colours.** Read them off the image's pixels, and say they are measured. Gradients are usually
+   top to bottom or corner to corner: sample the ends and the middle.
 
 ## Put it in a Gamestage game
 
-Gamestage's intro screen draws the game's name as text from the Brand settings in Studio. This
-logo is for a game that draws its own title, on its start screen or its result screen.
+A game's logo goes in Studio, under Brand > Logo. The page reads it as `presentation.logoUrl` and
+shows it as an image at the top of the game, and Live Graphics puts it in the corner of each graphic.
 
-1. Copy the SVG into the game's own files, beside `index.html`. Never load it from another site.
-2. Show it as an image: `<img src="who-scored.svg" alt="Who scored?" width="560" height="193">`.
-   Give it a width and height from the script's output so the page doesn't jump when it loads.
-   It replays every time the image loads, so show it once, not on every screen.
-3. Keep the text name in Studio's `logo_text` the same words, so the intro screen and the logo
-   agree.
-4. Run `gamestage verify`. The SVG is about 23 KB with a 16 KB font inside, well within the font
-   budget, and the logo paints with the first frame because nothing is fetched.
+1. **Upload the plays-once SVG to Brand > Logo.** An animated SVG plays inside an image, so it
+   arrives once when the page opens. Upload the still instead if the logo appears on every screen,
+   or the arrival will replay each time.
+2. **Or put it in the game's own files**, if the page draws its own title: copy the SVG beside
+   `index.html` and show it with `<img src="quizbox.svg" alt="Quizbox" width="240" height="240">`.
+   Never load it from another site. Give it a width and height so the page doesn't jump.
+3. **Use the busy component while the game waits**, such as for a round to open or a result to
+   settle: copy `<name>.js` into the game's files and switch `busy` on and off.
+4. **Keep Studio's `logo_text` the same words**, so the intro screen and the logo agree.
+5. **Run `gamestage verify`.** Nothing is fetched, so the logo paints with the first frame.
 
-Use the PNG where an SVG can't go, such as a social card, a slide or an email.
+## Roles
 
-## Settings
+Put these attributes on SVG elements. In SVG every attribute needs a value: write `data-spin=""`,
+not `data-spin`.
 
-| Field | Type | Required | Default | What it does |
-|---|---|---|---|---|
-| `name` | string | yes | | File name for the outputs. Lower case and hyphens. |
-| `line` | string | yes | | The main words. `*` marks where the badge replaces a round letter. |
-| `tab` | string | no | none | Short lead-in on a tab across the top edge. Leave out for no tab. |
-| `badge` | `ball`, `moon`, `none` | no | `ball` | What stands in for the letter or the question mark's dot. |
-| `frame` | boolean | no | `true` | Draw the outline frame. Without it the tab sits above the line. |
-| `colour` | colour | no | `#ffffff` | Frame, letters, tab and badge. |
-| `tabInk` | colour | no | `#0b0b10` | Letters on the tab. Use the background colour of the page. |
-| `badgeInk` | colour | no | `#0b0b10` | Seams on the ball. |
-| `background` | colour | no | `#0b0b10` | Background of the preview page only. The logo itself is transparent. |
-| `font` | path | no | Roboto Condensed ExtraBold | A `.woff2` file, relative to the settings file. |
-| `fontWeight` | number | no | `800` | Weight of that font. |
-| `size` | number | no | `240` | Size of the line. The frame and badge scale with it. |
-| `tabSize` | number | no | `84` | Size of the tab's letters. |
-| `tabSpacing` | number | no | `12` | Space between the tab's letters. |
+| Attribute | Values | What it does |
+|---|---|---|
+| `data-enter` | `pop` `fade` `rise` `drop` `slide` `grow` `draw` `open` `spin-in` `letters` | How the part arrives in the once version |
+| `data-step` | 0, 1, 2... | Arrival order; the same number arrives together. Default: document order |
+| `data-from` | `left` `right` `top` `bottom` | Which side a `slide` comes from. Default `left` |
+| `data-origin` | `x y` in the SVG's units, or `center`, `left bottom`... | The pivot for `pop`, `grow`, `wiggle`, `sway` and the spin. Default: the part's centre |
+| `data-blink` | `""` | On an `open` part: one blink after everything has arrived |
+| `data-loop` | `bob` `look` `blink` `wiggle` `pulse` `sway` | What the part does in the loop and busy versions |
+| `data-reverse` | `""` | Runs the loop half a beat later, so the second of a pair alternates |
+| `data-spin` | `""` | The group that turns a full circle every few seconds (loop and busy) |
 
-For a light page, swap the colours: `"colour": "#0b0b10", "tabInk": "#ffffff", "badgeInk": "#ffffff"`.
+What each role looks like, and which to choose, is in [`reference/motion.md`](reference/motion.md).
+
+## Options
+
+| Option | Default | What it does |
+|---|---|---|
+| `--out <folder>` | next to the SVG | Where the files go |
+| `--name <name>` | the SVG's file name | File names, lower case with hyphens |
+| `--modes` | `once` | `once`, `loop`, `component`, or `all`, comma separated |
+| `--style` | `calm` | `calm` eases without overshoot; `playful` overshoots, for characters and games |
+| `--tag <name>` | `<name>-mark` | The component's element name. Needs a hyphen: `quiz-box` |
+| `--label <words>` | from the name | What screen readers hear. While busy: "<label> is working" |
+| `--spin <seconds>` | `4` | Seconds between turns in the loop and busy versions. `0` never turns |
+| `--font <file>` | none | A `.woff2` or `.ttf` to build in, for marks with words |
+| `--font-family`, `--font-weight` | from the SVG's text | Name and weight of that font |
+
+## Use the busy component
+
+```html
+<script src="quizbox.js"></script>
+<quiz-box style="width:48px"></quiz-box>
+<script>
+  const bot = document.querySelector('quiz-box');
+  bot.busy = true;               // moves until you stop it
+  bot.busy = false;              // settles with one blink
+  bot.blink();                   // one blink, as an acknowledgement
+  await bot.track(fetch(url));   // busy until the request finishes
+</script>
+```
+
+In React 18, custom elements don't take `className`, so size it with an inline `style`.
+
+## When there is no logo
+
+Ask what the thing is called, who it is for and what it should feel like, then design a mark for it
+and tag it as above. The court wordmark is one ready-made recipe: a frame, a tab and condensed
+capitals with a badge for one letter. Use it only when that look fits.
+
+```bash
+node scripts/make-logo.mjs examples/court-wordmark/who-scored.json --out ./out
+```
+
+Its settings are in [`reference/court-wordmark.md`](reference/court-wordmark.md).
 
 ## When it fails
 
 | Message | Cause and next step |
 |---|---|
 | `Playwright not found` | Install it: `npm install -g playwright && npx playwright install chromium`. |
-| `Settings need a "name"` | Add a `name` in lower case with hyphens. |
-| `Settings need a "line"` | Add the main words as `line`. |
-| `ENOENT ... .woff2` | The `font` path is wrong. It is read relative to the settings file. |
-| Badge missing | The line has no `*` and doesn't end in `?`, so there's nowhere to put it. |
+| `The file is not valid SVG` | Usually an attribute with no value. Write `data-spin=""`, not `data-spin`. |
+| `The SVG needs a viewBox` | Add `viewBox="0 0 <width> <height>"` to the `<svg>`. |
+| `data-enter="..." is not a role` | Use one of the roles in the table above. |
+| `The SVG has text but no font built in` | Pass `--font`, or turn the text into paths. |
+| A part pivots from the wrong place | Set `data-origin="x y"` in the SVG's own units. |
+| A gradient moves with the part | Expected with `gradientUnits="userSpaceOnUse"` on a moving part; put the gradient on the group that stays still. |
+| `font-match` loads no fonts | It needs the network to reach fonts.googleapis.com. |
+| The overlap stays under 85% | The tracing is not in the image's pixel coordinates, or a shape is missing. Open the diff. |
 
 ## Rules
 
-- **Only original titles.** Don't recreate another company's logo or a broadcaster's or league's
-  mark, even renamed. The style here is free to reuse; their logos are not.
-- **Use fonts we're allowed to embed.** The SVG carries the font inside it. Roboto Condensed is
-  under the SIL Open Font License (`fonts/OFL.txt`), which allows this. Check a customer's brand
-  font licence before embedding it.
-- **Keep the reduced-motion fallback.** Fans whose phones are set to reduce motion see the
-  finished logo straight away. Don't remove that rule from the stylesheet.
+- **Their logo is the spec.** Keep the brand's shapes, colours, case, spacing, font and marks such as
+  ™ exactly. Animate it; don't redesign it, and don't put it in the court wordmark frame.
+- **Only original or permitted marks.** Animate a logo for the people who own it. Don't recreate
+  another company's or a league's mark for anyone else.
+- **Say what you measured.** A matched font or colours read off pixels are guesses until the brand
+  confirms them. Write that in the README.
+- **Fonts we may embed.** Google Fonts are under the SIL Open Font License, which allows building them
+  in. Check a brand font's licence before embedding it.
+- **Keep the reduced-motion rules.** Every output has them. Don't remove them.
 
-## Change the style
+## What's here
 
-The layout is in `scripts/layout.html`. Every part is measured from the loaded font and carries a
-class naming its role (`frame`, `tab`, `word`, `badge`, `bite`). The animation is the stylesheet
-in `scripts/make-logo.mjs` and works by those roles, so a new badge only needs a drawing function
-in `layout.html` that returns an element with the `badge` class.
+| Path | What it is |
+|---|---|
+| `scripts/animate.mjs` | Animates a role-tagged SVG: once, loop, busy component, still, preview |
+| `scripts/trace-check.mjs` | Scores a tracing against its PNG and draws the differences |
+| `scripts/font-match.mjs` | Finds the Google Font a logo's words use, and fits each letter |
+| `scripts/make-logo.mjs`, `scripts/layout.html` | The court wordmark recipe |
+| `reference/motion.md` | Which role fits which part, calm or playful, timing |
+| `reference/court-wordmark.md` | The court wordmark recipe's settings |
+| `examples/monogram/` | A stroke monogram: draw, grow, pop; sway and pulse |
+| `examples/court-wordmark/` | Settings for Quiz Tonight, Who Scored? and Name That Player? |

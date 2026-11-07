@@ -7,11 +7,10 @@
 //   <name>.svg           animated, plays once, font built in, still for fans who prefer reduced motion
 //   <name>.png           the finished logo as a transparent still image
 //   <name>-preview.html  both on a dark background, with a Replay button
-import { createRequire } from 'node:module';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { execFileSync } from 'node:child_process';
+import { loadPlaywright } from './lib/playwright.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -19,23 +18,6 @@ const opt = (flag, fallback) => { const i = args.indexOf(flag); return i >= 0 ? 
 const settingsPath = args.find((a, i) => !a.startsWith('--') && !['--out', '--scale'].includes(args[i - 1]));
 if (!settingsPath) {
   console.error('Usage: node make-logo.mjs <settings.json> [--out <folder>] [--scale 2]');
-  process.exit(1);
-}
-
-// Playwright from the project, then from the global tree of the Node running this script
-// (which is where `npm install -g` puts it, under nvm, Volta, Homebrew or Windows alike).
-// On Windows npm is a .cmd file, which Node runs only through a shell.
-function loadPlaywright() {
-  const req = createRequire(import.meta.url);
-  const tries = [
-    () => req('playwright'),
-    () => createRequire(pathToFileURL(join(process.cwd(), 'x')).href)('playwright'),
-    () => req(join(dirname(process.execPath), '..', 'lib', 'node_modules', 'playwright')),
-    () => req(join(dirname(process.execPath), 'node_modules', 'playwright')),
-    () => req(join(execFileSync(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['root', '-g'], { encoding: 'utf8', shell: process.platform === 'win32' }).trim(), 'playwright')),
-  ];
-  for (const t of tries) { try { return t(); } catch {} }
-  console.error('Playwright not found. Install it with: npm install -g playwright && npx playwright install chromium');
   process.exit(1);
 }
 
@@ -56,7 +38,7 @@ const settingsFile = resolve(settingsPath);
 const raw = JSON.parse(readFileSync(settingsFile, 'utf8'));
 const s = { ...DEFAULTS, ...raw };
 if (raw.font) s.font = resolve(dirname(settingsFile), raw.font);
-if (!s.name || !/^[a-z0-9-]+$/.test(s.name)) { console.error('Settings need a "name" in lower case with hyphens, such as "did-you-know".'); process.exit(1); }
+if (!s.name || !/^[a-z0-9-]+$/.test(s.name)) { console.error('Settings need a "name" in lower case with hyphens, such as "who-scored".'); process.exit(1); }
 if (!s.line) { console.error('Settings need a "line": the main words, with * where the badge replaces a round letter, such as "KN*W?".'); process.exit(1); }
 const out = resolve(opt('--out', dirname(settingsFile)));
 const scale = Number(opt('--scale', 2));

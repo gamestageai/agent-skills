@@ -1,6 +1,6 @@
 # Building the page
 
-Part of the Gamestage skill, pack version 2026-11-06-5. Read it while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings.
+Part of the Gamestage skill, pack version 2026-11-07-1. Read it while you wire the page to Gamestage: a React or Vite app, loading, reconnection, returning players and the producer's settings.
 
 ## Ask where the game runs, and make it load smoothly and fast
 
@@ -124,8 +124,9 @@ down to the letters a logo uses, so it paints with the first frame. If your
 page draws its own logo, make it one of these, never text in a font fetched
 from another origin:
 
-- an inline SVG, when the artwork is fixed. For an animated title, the
-  plugin's `logo-animate` skill makes one with its font built in;
+- an inline SVG, when the artwork is fixed. To animate the game's own
+  logo, or make a loader or busy indicator from it, use the plugin's
+  `logo-animate` skill: it keeps the logo as it is and builds the font in;
 - text in a font served from the game's own files, subset to the logo's
   characters and preloaded with `<link rel="preload" as="font" crossorigin>`;
 - text that shows a close system font after 800ms at most.

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <!-- Quizbox: an original monogram for the examples, a Q drawn as one stroke with a spark.
+       Calm style: the ring draws itself, the tail grows, the spark pops. Loop: the spark pulses, the Q sways. -->
+  <g data-spin="" data-origin="120 120">
+    <g data-loop="sway" data-origin="120 120" fill="none" stroke="#ff5a36" stroke-width="22" stroke-linecap="round">
+      <circle data-enter="draw" data-step="0" cx="112" cy="112" r="72"/>
+      <path data-enter="grow" data-step="2" data-origin="150 150" d="M150 150L196 196"/>
+    </g>
+    <g data-enter="pop" data-step="3" data-loop="pulse" fill="#1c1c22">
+      <path d="M112 84l7 21 21 7-21 7-7 21-7-21-21-7 21-7z"/>
+    </g>
+  </g>
+</svg>
